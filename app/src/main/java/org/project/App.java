@@ -16,7 +16,7 @@ import java.io.IOException;
 
 public class App {
     public static void main(String[] args) throws IOException {
-        String filePath=OsData.getUserDataPath("users.json");
+        String filePath=OsData.getUserDataPath ("users.json");
         File file=new File(filePath);
         if(!file.exists()){
             file.createNewFile();
@@ -50,6 +50,13 @@ public class App {
             productFile.createNewFile();
         }
         ProductService productService=new ProductService(new JsonRepository<>(filePath, Product[].class));
+//----------------------------------------------------------------------------------------------------
+        String cargoFilePath=OsData.getUserDataPath("cargos.json");
+        File cargoFile=new File(cargoFilePath);
+        if(!cargoFile.exists()){
+            cargoFile.createNewFile();
+        }
+        CargoService cargoService=new CargoService(new JsonRepository<>(cargoFilePath, Cargo[].class));
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override

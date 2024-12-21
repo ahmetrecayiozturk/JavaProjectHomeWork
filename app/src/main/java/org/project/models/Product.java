@@ -2,6 +2,8 @@ package org.project.models;
 
 import org.project.data.Identifiable;
 
+import java.util.UUID;
+
 public class Product implements Identifiable {
     public Integer id;
     public String name;
@@ -11,7 +13,7 @@ public class Product implements Identifiable {
     public Double price;
 
     public Product(Integer id, String name, String description, String sellerId, String imageUrl, Double price) {
-        this.id = id;
+        this.id = Math.abs(UUID.randomUUID().hashCode());
         this.name = name;
         this.description = description;
         this.sellerId = sellerId;
