@@ -8,26 +8,26 @@ import java.util.List;
 
 public class OrderService {
     private JsonRepository<Order> orderRepository;
+
     public OrderService(JsonRepository<Order> orderRepository) {
         this.orderRepository = orderRepository;
     }
+
     //emir eklenmesi
-    public boolean addOrder(Order order){
-        Order existingorder = getOrderById(order.getId());
-        if(existingorder != null) {
-            return false;
-        }
+    public void addOrder(Order order){
         orderRepository.save(order);
-        return true;
     }
+
     //emir update edilmesi
     public void updateOrder(Order order){
         orderRepository.update(order);
     }
+
     //emir silinmesi
     public void deleteOrder(Integer orderId){
         orderRepository.delete(orderId);
     }
+
     //id'ye göre emir getirme
     public Order getOrderById(Integer id) {
         //tüm emirler önce bulunur ve sonra da id'si eşlenen emir döndürülür
@@ -43,10 +43,12 @@ public class OrderService {
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
+
     //getter-setter mantıkları
     public JsonRepository<Order> getOrderRepository() {
         return orderRepository;
     }
+
     //getter-setter mantıkları
     public void setOrderRepository(JsonRepository<Order> orderRepository) {
         this.orderRepository = orderRepository;

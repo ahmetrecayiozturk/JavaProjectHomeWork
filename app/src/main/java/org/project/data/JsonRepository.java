@@ -77,6 +77,7 @@ public class JsonRepository<T extends Identifiable> {
 
     public static void initializeJsonFile(String filePath) {
         File file = new File(filePath);
+        //eğer mecvut dosya yok ise boş bir dosya oluşturulur
         if (!file.exists()) {
             try {
                 file.createNewFile();

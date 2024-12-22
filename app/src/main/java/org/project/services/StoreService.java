@@ -6,14 +6,17 @@ import org.project.models.Store;
 import java.util.List;
 
 public class StoreService {
+
     private static JsonRepository<Store> storeRepo;
+
     public StoreService(JsonRepository<Store> storeRepo) {
         this.storeRepo = storeRepo;
     }
+
     //mağaza eklenmesi
     public boolean addStore(Store store) {
         //mağaza id'si ile önceden bir kayıt yapılmış mı kontrol edilmesi
-        Store existingStore = getStoreById(store.getId());
+        Store existingStore = getStoreByName(store.getName());
         if(existingStore != null){
             return false;
         }
@@ -22,32 +25,33 @@ public class StoreService {
             return true;
         }
     }
-    //store eklenmesi
-    public void add(Store store) {
-        storeRepo.save(store);
-    }
+
     //store update edilmesi
     public void update(Store store) {
         storeRepo.update(store);
     }
+
     //store delete edilmesi
     public void delete(Integer storeId){
         storeRepo.delete(storeId);
     }
+
     //id'ye göre mağazanın getirilmesi
-    public Store getStoreById(Integer id) {
+    public Store getStoreByName(String name) {
         List<Store> stores = storeRepo.findAll();
         for (Store store : stores) {
-            if (store.getId().equals(id)) {
+            if (store.getName().equals(name)) {
                 return store;
             }
         }
         return null;
     }
+
     //getter-setter mantığı
     public JsonRepository<Store> getStoreRepo() {
         return storeRepo;
     }
+
     //getter-setter mantığı
     public void setStoreRepo(JsonRepository<Store> storeRepo) {
         this.storeRepo = storeRepo;

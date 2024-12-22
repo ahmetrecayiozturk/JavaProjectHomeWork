@@ -9,20 +9,16 @@ public class ProductService {
     private JsonRepository<Product> productRepo;
     //product servisi constructoru
     public ProductService(JsonRepository<Product> productRepo) {this.productRepo = productRepo;}
+
     //product eklenmesi
-    public void add(Product product) {productRepo.save(product);}
-    public boolean addProduct(Product product) {
-        Product existingproduct = getProductById(product.getId());
-        if (existingproduct != null) {
-            return false;
-        }
-        productRepo.save(product);
-        return true;
-    }
+    public void addProduct(Product product) {productRepo.save(product);}
+
     //product silinmesi
     public void delete(Integer productId) {productRepo.delete(productId);}
+
     //product update edilmesi
     public void update(Product product) {productRepo.update(product);}
+
     //productların idye göre getirilmesi
     public Product getProductById(int id) {
         //önce tüm productları döndürürüz, sonra da id'si eşleneni döndürürüz
@@ -34,14 +30,17 @@ public class ProductService {
         }
         return null;
     }
+
     //tüm productların döndürülmesi
     public List<Product> getAllProducts() {
         return productRepo.findAll();
     }
+
     //getter-setter mantığı
     public JsonRepository<Product> getProductRepo() {
         return productRepo;
     }
+
     //getter-setter mantığı
     public void setProductRepo(JsonRepository<Product> productRepo) {
         this.productRepo = productRepo;

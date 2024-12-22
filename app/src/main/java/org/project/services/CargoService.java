@@ -13,22 +13,20 @@ public class CargoService {
     }
 
     //kargonun eklenmesi
-    public boolean addCargo(Cargo cargo){
-        Cargo existimgcargo = getCargoById(cargo.getId());
-        if(existimgcargo != null){
-            return false;
-        }
+    public void addCargo(Cargo cargo){
         cargoRepo.save(cargo);
-        return true;
     }
+
     //kargonun update edilmesi
     public void updateCargo(Cargo cargo){
         cargoRepo.update(cargo);
     }
+
     //kargonun silinmesi
     public void deleteCargo(Integer cargoId){
         cargoRepo.delete(cargoId);
     }
+
     //id ye göre kargoların getirilmesi
     public Cargo getCargoById(Integer id) {
         List<Cargo> cargos = cargoRepo.findAll();
@@ -39,6 +37,7 @@ public class CargoService {
         }
         return null;
     }
+
     //tüm kargoların getirilmesi
     public List<Cargo> getAllCargos() {
         return cargoRepo.findAll();
@@ -52,6 +51,7 @@ public class CargoService {
             }
         });
     }
+
     //tüm kargoların yanlış gönderilmesi durumunda hepsini not delivered etme
     public void isNotDelivered(){
         this.getAllCargos().forEach(order -> {
@@ -60,6 +60,7 @@ public class CargoService {
             }
         });
     }
+
     //kargoyu null checkten sonta eğer delivered edilmemişse delivered etme
     public void markAsDeliveredById(Integer id) {
         //id ye göre kargonun bulunması
@@ -70,6 +71,7 @@ public class CargoService {
             updateCargo(cargo);
         }
     }
+
     //kargoyu null checkten sonta eğer delivered edilmişse notdelivered etme, aksaklık olursa ya da kargonun
     //yanlış teslimi olaylarında kullanılır
     public void markAsNotDeliveredById(Integer id) {
@@ -81,10 +83,12 @@ public class CargoService {
             updateCargo(cargo);
         }
     }
+
     //getter-setter mantıkları
     public JsonRepository<Cargo> getCargoRepo() {
         return cargoRepo;
     }
+
     //getter-setter mantıkları
     public void setCargoRepo(JsonRepository<Cargo> cargoRepo) {
         this.cargoRepo = cargoRepo;

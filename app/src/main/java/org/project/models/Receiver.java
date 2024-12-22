@@ -10,6 +10,7 @@ import java.util.UUID;
 public class Receiver implements Identifiable {
     private Integer id;
     private String name,surname,address,email,password;
+
     public Receiver(String email, String password, String name, String surname, String address) {
         this.id = Math.abs(UUID.randomUUID().hashCode());
         this.name = name;
@@ -35,6 +36,12 @@ public class Receiver implements Identifiable {
     public String getAddress() {return address;}
 
     public void setAddress(String address) {this.address = address;}
+
+
+    public String getEmail() {return email;}
+
+    public void setEmail(String email) {this.email = email;}
+
     /*
         @Override
     public String toString() {

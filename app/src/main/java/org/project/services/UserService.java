@@ -14,6 +14,7 @@ public class UserService {
     public UserService(JsonRepository<User> userRepository) {
         this.userRepository = userRepository;
     }
+
     //user eklenmesi
     public static boolean addUser(User user) {
         //emaile göre user getirilmesi, eğer yok ise eklenmesi
@@ -24,18 +25,22 @@ public class UserService {
         userRepository.save(user);
         return true;
     }
+
     //user güncellenmesi
     public static void updateUser(User user) {
         userRepository.update(user);
     }
+
     //user silinmesi
     public static void deleteUser(Integer userId) {
         userRepository.delete(userId);
     }
+
     //userların getirilmesi
     public static List<User> getAllUsers() {
         return userRepository.findAll();
     }
+
     //auth işlemleri
     public static User authenticate(String email, String password) {
         List<User> users = userRepository.findAll();
@@ -46,6 +51,7 @@ public class UserService {
         }
         return null;
     }
+
     //emaile göre user getirilemsi, id'ye göre yapılabilir?
     public static User getUserByEmail(String email) {
         List<User> users = userRepository.findAll();
@@ -56,6 +62,7 @@ public class UserService {
         }
         return null;
     }
+    //
     public static void createUserFile(){
         //User Servis
         initializeJsonFile(OsData.getUserDataPath("users.json"));
