@@ -10,12 +10,13 @@ import java.util.UUID;
 public class Store implements Identifiable {
     private Integer id;
     private String name,address,phone;
-    public Store(int id, String name, String address, String phone) {
+    public Store(String name, String address, String phone) {
         this.id = Math.abs(UUID.randomUUID().hashCode());
         this.name = name;
         this.address = address;
         this.phone = phone;
     }
+
 
     @Override
     public Integer getId() {
@@ -49,4 +50,5 @@ public class Store implements Identifiable {
     public void setPhone(String phone) {
         this.phone = phone;
     }
+
 }

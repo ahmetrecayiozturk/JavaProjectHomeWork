@@ -15,7 +15,7 @@ public class ReceiverService {
     }
 
     //receiver eklenmesi
-    public boolean addReceiver(Receiver receiver) {
+    public boolean add(Receiver receiver) {
         Receiver existingReceiver = getReceiverByEmail(receiver.getEmail());
         if(existingReceiver != null){
             return false;
@@ -27,12 +27,12 @@ public class ReceiverService {
     }
 
     //receiver güncellenmesi
-    public void updateReceiver(Receiver receiver) {
+    public void update(Receiver receiver) {
         receiverRepo.update(receiver);
     }
 
     //receiver silinmesi
-    public void deleteReceiver(Integer receiverId) {
+    public void delete(Integer receiverId) {
         receiverRepo.delete(receiverId);
     }
 

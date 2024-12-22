@@ -11,7 +11,7 @@ public class ProductService {
     public ProductService(JsonRepository<Product> productRepo) {this.productRepo = productRepo;}
 
     //product eklenmesi
-    public void addProduct(Product product) {productRepo.save(product);}
+    public void add(Product product) {productRepo.save(product);}
 
     //product silinmesi
     public void delete(Integer productId) {productRepo.delete(productId);}

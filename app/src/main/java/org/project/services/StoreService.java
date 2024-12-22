@@ -14,7 +14,7 @@ public class StoreService {
     }
 
     //mağaza eklenmesi
-    public boolean addStore(Store store) {
+    public boolean add(Store store) {
         //mağaza id'si ile önceden bir kayıt yapılmış mı kontrol edilmesi
         Store existingStore = getStoreByName(store.getName());
         if(existingStore != null){
@@ -37,6 +37,17 @@ public class StoreService {
     }
 
     //id'ye göre mağazanın getirilmesi
+    public Store getStoreById(int id) {
+        List<Store> stores = storeRepo.findAll();
+        for (Store store : stores) {
+            if (store.getId().equals(id)) {
+                return store;
+            }
+        }
+        return null;
+    }
+
+    //id'ye göre mağazanın getirilmesi
     public Store getStoreByName(String name) {
         List<Store> stores = storeRepo.findAll();
         for (Store store : stores) {
@@ -45,6 +56,9 @@ public class StoreService {
             }
         }
         return null;
+    }
+    public List<Store> getAllStores(){
+        return storeRepo.findAll();
     }
 
     //getter-setter mantığı

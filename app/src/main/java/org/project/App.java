@@ -40,16 +40,19 @@ public class App {
         initializeJsonFile(OsData.getUserDataPath("cargos.json"));
         CargoService cargoService= new CargoService(new JsonRepository<>(OsData.getUserDataPath("cargos.json"), Cargo[].class));
 
-
+/*
         // Create Sample Data
         User user = new User("email","pass");
         userService.addUser(user);
         Receiver receiver = new Receiver("email","password","name","surname","address");
+        receiverService.add(receiver);
         Product  product = new Product("name","descp","id","url",12.1);
+        productService.add(product);
         Order<Receiver, Product> order = new Order<>(receiver, product);
+        orderService.add(order);
         Cargo<Order> cargo = new Cargo<>(false,order);
-        cargoService.addCargo(cargo);
-
+        cargoService.add(cargo);
+*/
 
         // Launch UI
         SwingUtilities.invokeLater(new Runnable() {
@@ -57,6 +60,7 @@ public class App {
             public void run() {
                 new Entry();
             }
+
         });
     }
 }

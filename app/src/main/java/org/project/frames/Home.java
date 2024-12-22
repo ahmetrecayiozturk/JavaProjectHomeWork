@@ -1,5 +1,69 @@
 package org.project.frames;
 
+import org.project.pages.home.HomePage;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+
+public class Home extends JFrame {
+    private CardLayout cardLayout;
+    private JPanel contentPanel;
+
+    public Home() {
+        setSize(1000, 800);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setMinimumSize(new Dimension(500, 400));
+        addComponentListener(
+                new ComponentAdapter() {
+                    @Override
+                    public void componentResized(ComponentEvent e) {
+                        int w = getWidth();
+                        int h = getHeight();
+                        setTitle(w + "x" + h);
+                        revalidate();
+                        repaint();
+                    }
+                }
+        );
+        cardLayout = new CardLayout();
+
+        contentPanel = new JPanel(cardLayout);
+
+        JPanel mainPanel = new JPanel(new BorderLayout());
+
+        JPanel menuPanel = createMenuPanel();
+        menuPanel.setBackground(Color.BLUE);
+
+        HomePage homePage = new HomePage(this, cardLayout, contentPanel);
+
+        contentPanel.add(homePage, "HomePage");
+
+        mainPanel.add(menuPanel, BorderLayout.WEST);
+        mainPanel.add(contentPanel, BorderLayout.CENTER);
+
+        add(mainPanel);
+        setVisible(true);
+    }
+
+    private JPanel createMenuPanel() {
+        JPanel menuPanel = new JPanel();
+        menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
+
+        JButton menuItem1 = new JButton("Home Page");
+
+        menuItem1.addActionListener(e -> cardLayout.show(contentPanel, "HomePage"));
+
+        menuPanel.add(menuItem1);
+
+        return menuPanel;
+    }
+}
+/*
+package org.project.frames;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
@@ -96,7 +160,7 @@ public class Home extends JFrame {
 
 
 }
-
+*/
 
 
 

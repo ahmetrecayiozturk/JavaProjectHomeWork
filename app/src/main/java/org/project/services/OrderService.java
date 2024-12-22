@@ -14,17 +14,17 @@ public class OrderService {
     }
 
     //emir eklenmesi
-    public void addOrder(Order order){
+    public void add(Order order){
         orderRepository.save(order);
     }
 
     //emir update edilmesi
-    public void updateOrder(Order order){
+    public void update(Order order){
         orderRepository.update(order);
     }
 
     //emir silinmesi
-    public void deleteOrder(Integer orderId){
+    public void delete(Integer orderId){
         orderRepository.delete(orderId);
     }
 

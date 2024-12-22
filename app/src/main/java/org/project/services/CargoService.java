@@ -13,17 +13,17 @@ public class CargoService {
     }
 
     //kargonun eklenmesi
-    public void addCargo(Cargo cargo){
+    public void add(Cargo cargo){
         cargoRepo.save(cargo);
     }
 
     //kargonun update edilmesi
-    public void updateCargo(Cargo cargo){
+    public void update(Cargo cargo){
         cargoRepo.update(cargo);
     }
 
     //kargonun silinmesi
-    public void deleteCargo(Integer cargoId){
+    public void delete(Integer cargoId){
         cargoRepo.delete(cargoId);
     }
 
@@ -68,7 +68,7 @@ public class CargoService {
         //kargoyu null checkten sonta eğer delivered edilmemişse delivered etme
         if (cargo != null && !cargo.isDelivered()) {
             cargo.setDelivered(true);
-            updateCargo(cargo);
+            update(cargo);
         }
     }
 
@@ -80,7 +80,7 @@ public class CargoService {
         //kargoyu null checkten sonta eğer delivered edilmişse notdelivered etme
         if (cargo != null && cargo.isDelivered()) {
             cargo.setDelivered(false);
-            updateCargo(cargo);
+            update(cargo);
         }
     }
 
