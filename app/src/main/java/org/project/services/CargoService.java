@@ -11,9 +11,15 @@ public class CargoService {
     public CargoService(JsonRepository<Cargo> cargoRepo) {
         this.cargoRepo = cargoRepo;
     }
+
     //kargonun eklenmesi
-    public void addCargo(Cargo cargo){
+    public boolean addCargo(Cargo cargo){
+        Cargo existimgcargo = getCargoById(cargo.getId());
+        if(existimgcargo != null){
+            return false;
+        }
         cargoRepo.save(cargo);
+        return true;
     }
     //kargonun update edilmesi
     public void updateCargo(Cargo cargo){

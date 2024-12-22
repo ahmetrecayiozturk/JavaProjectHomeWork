@@ -12,8 +12,13 @@ public class OrderService {
         this.orderRepository = orderRepository;
     }
     //emir eklenmesi
-    public void addOrder(Order order){
+    public boolean addOrder(Order order){
+        Order existingorder = getOrderById(order.getId());
+        if(existingorder != null) {
+            return false;
+        }
         orderRepository.save(order);
+        return true;
     }
     //emir update edilmesi
     public void updateOrder(Order order){

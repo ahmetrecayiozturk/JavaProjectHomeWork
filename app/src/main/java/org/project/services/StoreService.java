@@ -11,7 +11,7 @@ public class StoreService {
         this.storeRepo = storeRepo;
     }
     //mağaza eklenmesi
-    public boolean add(Store store) {
+    public boolean addStore(Store store) {
         //mağaza id'si ile önceden bir kayıt yapılmış mı kontrol edilmesi
         Store existingStore = getStoreById(store.getId());
         if(existingStore != null){
@@ -21,6 +21,10 @@ public class StoreService {
             storeRepo.save(store);
             return true;
         }
+    }
+    //store eklenmesi
+    public void add(Store store) {
+        storeRepo.save(store);
     }
     //store update edilmesi
     public void update(Store store) {
@@ -49,54 +53,3 @@ public class StoreService {
         this.storeRepo = storeRepo;
     }
 }
-/*
-package org.project.services;
-
-import org.project.data.Identifiable;
-import org.project.data.JsonRepository;
-import org.project.models.Store;
-import org.project.models.User;
-public class StoreService {
-    private static JsonRepository<Store> storeRepo;
-
-    public <T extends Identifiable> StoreService(JsonRepository<T> tJsonRepository) {
-        this.storeRepo = storeRepo;
-    }
-
-    public static void setStoreRepo(JsonRepository<Store> storeRepo) {
-        StoreService.storeRepo = storeRepo;
-    }
-
-    public static void add(Store store) {
-        storeRepo.save(store);
-    }
-
-    public static JsonRepository<Store> getStoreRepo() {
-        return storeRepo;
-    }
-}
-*/
-/*
-package org.project.services;
-
-import org.project.data.JsonRepository;
-import org.project.models.Store;
-import org.project.models.User;
-
-public class StoreService {
-    private static JsonRepository<Store> storeRepo;
-    public StoreService(JsonRepository<Store> storeRepo) {
-        this.storeRepo = storeRepo;
-    }
-
-    public void add(Store store) {
-        storeRepo.save(store);
-    }
-    public JsonRepository<Store> getStoreRepo() {
-        return storeRepo;
-    }
-    public void setStoreRepo(JsonRepository<Store> storeRepo) {
-        this.storeRepo = storeRepo;
-    }
-}
-*/

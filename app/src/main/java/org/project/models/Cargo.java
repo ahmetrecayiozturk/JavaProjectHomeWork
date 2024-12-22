@@ -6,31 +6,22 @@ import java.util.UUID;
 
 //bu cargonun entitysi order olacaktır
 public class Cargo<T> implements Identifiable {
-    private int id;
-    private String cargocompanyname;
+    private Integer id;
     private boolean isdelivered;
     private T entity;
 
-    public Cargo(int id, String cargocompanyname, boolean isdelivered, T entity) {
+    public Cargo(boolean isdelivered, T entity) {
         this.id = Math.abs(UUID.randomUUID().hashCode());
-        this.cargocompanyname = cargocompanyname;
         this.isdelivered = isdelivered;
         this.entity = entity;
     }
-    public int getid() {
+    @Override
+    public Integer getId() {
         return id;
     }
 
-    public void setid(int id) {
+    public void setid(Integer id) {
         this.id = id;
-    }
-
-    public String getCargocompanyname() {
-        return cargocompanyname;
-    }
-
-    public void setCargocompanyname(String cargocompanyname) {
-        this.cargocompanyname = cargocompanyname;
     }
 
     public boolean isDelivered() {
@@ -48,9 +39,5 @@ public class Cargo<T> implements Identifiable {
     public void setEntity(T entity) {
         this.entity = entity;
     }
-    @Override
-    public Integer getId() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getId'");
-    }
+
 }

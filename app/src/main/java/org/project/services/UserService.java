@@ -1,9 +1,12 @@
 package org.project.services;
 
 import org.project.data.JsonRepository;
+import org.project.data.OsData;
 import org.project.models.User;
 
 import java.util.List;
+
+import static org.project.data.JsonRepository.initializeJsonFile;
 
 public class UserService {
     private static JsonRepository<User> userRepository;
@@ -52,5 +55,11 @@ public class UserService {
             }
         }
         return null;
+    }
+    public static void createUserFile(){
+        //User Servis
+        initializeJsonFile(OsData.getUserDataPath("users.json"));
+        UserService userService = new UserService(new JsonRepository<>(OsData.getUserDataPath("users.json"), User[].class));
+
     }
 }

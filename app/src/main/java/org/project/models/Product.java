@@ -12,7 +12,7 @@ public class Product implements Identifiable {
     public String imageUrl;
     public Double price;
 
-    public Product(Integer id, String name, String description, String sellerId, String imageUrl, Double price) {
+    public Product(String name, String description, String sellerId, String imageUrl, Double price) {
         this.id = Math.abs(UUID.randomUUID().hashCode());
         this.name = name;
         this.description = description;
@@ -20,7 +20,7 @@ public class Product implements Identifiable {
         this.imageUrl = imageUrl;
         this.price = price;
     }
-
+    @Override
     public Integer getId() {
         return id;
     }

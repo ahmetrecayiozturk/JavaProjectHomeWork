@@ -60,17 +60,33 @@ public class JsonRepository<T extends Identifiable> {
         throw new IllegalArgumentException("Item not found: " + id);
 
     }
-
     public List<T> findAll() {
         try (FileReader reader = new FileReader(filePath)) {
             T[] array = new Gson().fromJson(reader, type);
             if (array != null) {
                 return new ArrayList<>(Arrays.asList(array));
             }
+        } catch (EOFException e) {
+            // Eğer dosya tamamen boşsa, boş bir liste döndür
+            return new ArrayList<>();
         } catch (IOException e) {
             e.printStackTrace();
         }
         return new ArrayList<>();
+    }
+
+    public static void initializeJsonFile(String filePath) {
+        File file = new File(filePath);
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+                try (FileWriter writer = new FileWriter(file)) {
+                    writer.write("[]"); // Boş bir JSON dizisi
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void writeToFile(List<T> items) {
@@ -80,4 +96,5 @@ public class JsonRepository<T extends Identifiable> {
             e.printStackTrace();
         }
     }
+
 }
