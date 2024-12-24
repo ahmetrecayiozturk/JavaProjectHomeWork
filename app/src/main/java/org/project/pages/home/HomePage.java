@@ -1,6 +1,6 @@
 package org.project.pages.home;
 
-import org.project.components.*;
+import org.project.panels.*;
 import org.project.data.JsonRepository;
 import org.project.models.*;
 import org.project.services.*;
@@ -178,7 +178,7 @@ public class HomePage extends JPanel {
                 });
                 dialog.add(addReceiverButton, BorderLayout.SOUTH);
                 break;
-
+/*
             case "Cargos":
                 JTextField orderIdField = new JTextField();
                 JCheckBox isDeliveredCheckBox = new JCheckBox();
@@ -198,6 +198,30 @@ public class HomePage extends JPanel {
                         dialog.dispose();
                     } else {
                         JOptionPane.showMessageDialog(dialog, "Invalid Order ID", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+                dialog.add(addCargoButton, BorderLayout.SOUTH);
+                break;
+*/
+
+            case "Cargos":
+                JComboBox<Order<Receiver, Product>> orderComboBox = new JComboBox<>(orderService.getAllOrders().toArray(new Order[0]));
+                JCheckBox isDeliveredCheckBox = new JCheckBox();
+                formPanel.add(new JLabel("Order:"));
+                formPanel.add(orderComboBox);
+                formPanel.add(new JLabel("Is Delivered:"));
+                formPanel.add(isDeliveredCheckBox);
+
+                JButton addCargoButton = new JButton("Add");
+                addCargoButton.addActionListener(e -> {
+                    Order<Receiver, Product> order = (Order<Receiver, Product>) orderComboBox.getSelectedItem();
+                    boolean isDelivered = isDeliveredCheckBox.isSelected();
+                    if (order != null) {
+                        Cargo<Order<Receiver, Product>> cargo = new Cargo<>(isDelivered, order);
+                        cargoService.add(cargo);
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Invalid Order", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 });
                 dialog.add(addCargoButton, BorderLayout.SOUTH);

@@ -1,4 +1,4 @@
-package org.project.components;
+package org.project.panels;
 
 import org.project.models.Product;
 import org.project.services.ProductService;

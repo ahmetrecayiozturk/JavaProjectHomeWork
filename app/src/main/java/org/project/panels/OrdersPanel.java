@@ -1,4 +1,4 @@
-package org.project.components;
+package org.project.panels;
 
 import org.project.models.Order;
 import org.project.services.OrderService;

@@ -1,6 +1,5 @@
-package org.project.components;
+package org.project.panels;
 
-import org.project.models.Cargo;
 import org.project.models.Order;
 import org.project.models.Product;
 import org.project.models.Receiver;
