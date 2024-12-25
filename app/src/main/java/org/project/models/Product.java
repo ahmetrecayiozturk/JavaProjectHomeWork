@@ -8,10 +8,10 @@ public class Product implements Identifiable {
     public Integer id;
     public String name;
     public String description;
-    public String sellerId;
-    public String imageUrl;
+    public String sellerId;//gerek yok
+    public String imageUrl;//path olmalı
     public Double price;
-
+    //constructor
     public Product(String name, String description, String sellerId, String imageUrl, Double price) {
         this.id = Math.abs(UUID.randomUUID().hashCode());
         this.name = name;
@@ -20,7 +20,7 @@ public class Product implements Identifiable {
         this.imageUrl = imageUrl;
         this.price = price;
     }
-
+    //implementten geldiği için override edildi
     @Override
     public Integer getId() {
         return id;

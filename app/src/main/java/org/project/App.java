@@ -11,6 +11,7 @@ import javax.swing.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import static org.project.data.JsonRepository.initializeJsonFile;
 
@@ -19,7 +20,7 @@ public class App {
         //User Servis
         initializeJsonFile(OsData.getUserDataPath("users.json"));
         UserService userService = new UserService(new JsonRepository<>(OsData.getUserDataPath("users.json"), User[].class));
-
+        //UserService.createUserFile();
         //Order Service
         initializeJsonFile(OsData.getUserDataPath("orders.json"));
         OrderService orderService = new OrderService(new JsonRepository<>(OsData.getUserDataPath("orders.json"), Order[].class));
@@ -32,9 +33,14 @@ public class App {
         initializeJsonFile(OsData.getUserDataPath("stores.json"));
         StoreService storeService = new StoreService(new JsonRepository<>(OsData.getUserDataPath("stores.json"), Store[].class));
 
+        // Image Service
+        String appDataPath = System.getenv("APPDATA");
+        String appStorageDirectory = Paths.get(appDataPath, ".myapp").toString();
+        ImageService imageService = new ImageService(appStorageDirectory);
+
         // ProductService
         initializeJsonFile(OsData.getUserDataPath("products.json"));
-        ProductService productService= new ProductService(new JsonRepository<>(OsData.getUserDataPath("products.json"), Product[].class));
+        ProductService productService= new ProductService(new JsonRepository<>(OsData.getUserDataPath("products.json"), Product[].class),imageService);
 
         // CargoService
         initializeJsonFile(OsData.getUserDataPath("cargos.json"));

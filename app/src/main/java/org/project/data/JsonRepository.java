@@ -10,12 +10,12 @@ import java.util.List;
 public class JsonRepository<T extends Identifiable> {
     private String filePath;
     private Class<T[]> type;
-
+    //constructor
     public JsonRepository(String filePath, Class<T[]> type) {
         this.filePath = filePath;
         this.type = type;
     }
-
+    //ekleme
     public void save(T item) {
         List<T> items = findAll();
         if (items == null) {
@@ -29,7 +29,7 @@ public class JsonRepository<T extends Identifiable> {
         items.add(item);
         writeToFile(items);
     }
-
+    //update etme
     public void update(T item) {
         List<T> items = findAll();
         if (items == null) {
@@ -44,7 +44,7 @@ public class JsonRepository<T extends Identifiable> {
         }
         writeToFile(items);
     }
-
+    //silme
     public void delete(Integer id) {
         List<T> items = findAll();
         if (items == null) {
@@ -60,6 +60,7 @@ public class JsonRepository<T extends Identifiable> {
         throw new IllegalArgumentException("Item not found: " + id);
 
     }
+    //hepsini getirme, iterasyon için
     public List<T> findAll() {
         try (FileReader reader = new FileReader(filePath)) {
             T[] array = new Gson().fromJson(reader, type);
@@ -74,7 +75,7 @@ public class JsonRepository<T extends Identifiable> {
         }
         return new ArrayList<>();
     }
-
+    //dosya yolu oluşturmak için
     public static void initializeJsonFile(String filePath) {
         File file = new File(filePath);
         //eğer mecvut dosya yok ise boş bir dosya oluşturulur
@@ -89,7 +90,7 @@ public class JsonRepository<T extends Identifiable> {
             }
         }
     }
-
+    //dosya yazmak için
     private void writeToFile(List<T> items) {
         try (FileWriter writer = new FileWriter(filePath)) {
             new Gson().toJson(items.toArray(), writer);

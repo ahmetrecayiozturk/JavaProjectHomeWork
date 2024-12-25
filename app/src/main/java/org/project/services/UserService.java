@@ -62,11 +62,10 @@ public class UserService {
         }
         return null;
     }
-    //
+    //user dosyası oluşturma
     public static void createUserFile(){
         //User Servis
         initializeJsonFile(OsData.getUserDataPath("users.json"));
         UserService userService = new UserService(new JsonRepository<>(OsData.getUserDataPath("users.json"), User[].class));
-
     }
 }

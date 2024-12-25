@@ -7,6 +7,7 @@ import org.project.services.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.nio.file.Paths;
 
 public class HomePage extends JPanel {
     private OrderService orderService;
@@ -19,10 +20,20 @@ public class HomePage extends JPanel {
     private CardLayout cardLayout;
     private String currentPanel;
 
+    private OrdersPanel ordersPanel;
+    private CargosPanel cargosPanel;
+    private ProductsPanel productsPanel;
+    private ReceiversPanel receiversPanel;
+    private StoresPanel storesPanel;
+    // Image Service
+    String appDataPath = System.getenv("APPDATA");
+    String appStorageDirectory = Paths.get(appDataPath, ".myapp").toString();
+    ImageService imageService = new ImageService(appStorageDirectory);
+
     public HomePage(Frame frame, CardLayout cardLayout, JPanel contentPanel) {
         orderService = new OrderService(new JsonRepository<>("C:/Users/ahmet/AppData/Roaming/.myapp/orders.json", Order[].class));
         cargoService = new CargoService(new JsonRepository<>("C:/Users/ahmet/AppData/Roaming/.myapp/cargos.json", Cargo[].class));
-        productService = new ProductService(new JsonRepository<>("C:/Users/ahmet/AppData/Roaming/.myapp/products.json", Product[].class));
+        productService = new ProductService(new JsonRepository<>("C:/Users/ahmet/AppData/Roaming/.myapp/products.json", Product[].class),imageService);
         receiverService = new ReceiverService(new JsonRepository<>("C:/Users/ahmet/AppData/Roaming/.myapp/receivers.json", Receiver[].class));
         storeService = new StoreService(new JsonRepository<>("C:/Users/ahmet/AppData/Roaming/.myapp/stores.json", Store[].class));
 
@@ -43,19 +54,19 @@ public class HomePage extends JPanel {
         buttonPanel.add(storesButton);
 
         cardsPanel = new JPanel(new CardLayout());
-        add(cardsPanel, BorderLayout.CENTER);
+        add(new JScrollPane(cardsPanel), BorderLayout.CENTER);
 
-        OrdersPanel ordersPanel = new OrdersPanel(orderService, receiverService,    productService);
-        CargosPanel cargosPanel = new CargosPanel(cargoService);
-        ProductsPanel productsPanel = new ProductsPanel(productService);
-        ReceiversPanel receiversPanel = new ReceiversPanel(receiverService, orderService, cargoService);
-        StoresPanel storesPanel = new StoresPanel(storeService);
+        ordersPanel = new OrdersPanel(orderService, receiverService, productService);
+        cargosPanel = new CargosPanel(cargoService, orderService);
+        productsPanel = new ProductsPanel(productService,imageService);
+        receiversPanel = new ReceiversPanel(receiverService, orderService, cargoService);
+        storesPanel = new StoresPanel(storeService);
 
-        cardsPanel.add(ordersPanel, "Orders");
-        cardsPanel.add(cargosPanel, "Cargos");
-        cardsPanel.add(productsPanel, "Products");
-        cardsPanel.add(receiversPanel, "Receivers");
-        cardsPanel.add(storesPanel, "Stores");
+        cardsPanel.add(new JScrollPane(ordersPanel), "Orders");
+        cardsPanel.add(new JScrollPane(cargosPanel), "Cargos");
+        cardsPanel.add(new JScrollPane(productsPanel), "Products");
+        cardsPanel.add(new JScrollPane(receiversPanel), "Receivers");
+        cardsPanel.add(new JScrollPane(storesPanel), "Stores");
 
         this.cardLayout = (CardLayout) cardsPanel.getLayout();
 
@@ -107,8 +118,9 @@ public class HomePage extends JPanel {
                     Receiver receiver = (Receiver) receiverComboBox.getSelectedItem();
                     Product product = (Product) productComboBox.getSelectedItem();
                     if (receiver != null && product != null) {
-                        Order<Receiver, Product> order = new Order<>(receiver, product);
+                        Order order = new Order(receiver, product);
                         orderService.add(order);
+                        ordersPanel.refresh();
                         dialog.dispose();
                     } else {
                         JOptionPane.showMessageDialog(dialog, "Invalid Receiver or Product", "Error", JOptionPane.ERROR_MESSAGE);
@@ -143,6 +155,7 @@ public class HomePage extends JPanel {
                     double price = Double.parseDouble(priceField.getText());
                     Product product = new Product(name, description, sellerId, imageUrl, price);
                     productService.add(product);
+                    productsPanel.refresh();
                     dialog.dispose();
                 });
                 dialog.add(addProductButton, BorderLayout.SOUTH);
@@ -174,38 +187,14 @@ public class HomePage extends JPanel {
                     String address = addressField.getText();
                     Receiver receiver = new Receiver(email, password, name, surname, address);
                     receiverService.add(receiver);
+                    receiversPanel.refresh();
                     dialog.dispose();
                 });
                 dialog.add(addReceiverButton, BorderLayout.SOUTH);
                 break;
-/*
-            case "Cargos":
-                JTextField orderIdField = new JTextField();
-                JCheckBox isDeliveredCheckBox = new JCheckBox();
-                formPanel.add(new JLabel("Order ID:"));
-                formPanel.add(orderIdField);
-                formPanel.add(new JLabel("Is Delivered:"));
-                formPanel.add(isDeliveredCheckBox);
-
-                JButton addCargoButton = new JButton("Add");
-                addCargoButton.addActionListener(e -> {
-                    int orderId = Integer.parseInt(orderIdField.getText());
-                    boolean isDelivered = isDeliveredCheckBox.isSelected();
-                    Order<Receiver, Product> order = orderService.getOrderById(orderId);
-                    if (order != null) {
-                        Cargo<Order<Receiver, Product>> cargo = new Cargo<>(isDelivered, order);
-                        cargoService.add(cargo);
-                        dialog.dispose();
-                    } else {
-                        JOptionPane.showMessageDialog(dialog, "Invalid Order ID", "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                });
-                dialog.add(addCargoButton, BorderLayout.SOUTH);
-                break;
-*/
 
             case "Cargos":
-                JComboBox<Order<Receiver, Product>> orderComboBox = new JComboBox<>(orderService.getAllOrders().toArray(new Order[0]));
+                JComboBox<Order> orderComboBox = new JComboBox<>(orderService.getAllOrders().toArray(new Order[0]));
                 JCheckBox isDeliveredCheckBox = new JCheckBox();
                 formPanel.add(new JLabel("Order:"));
                 formPanel.add(orderComboBox);
@@ -214,11 +203,12 @@ public class HomePage extends JPanel {
 
                 JButton addCargoButton = new JButton("Add");
                 addCargoButton.addActionListener(e -> {
-                    Order<Receiver, Product> order = (Order<Receiver, Product>) orderComboBox.getSelectedItem();
+                    Order order = (Order) orderComboBox.getSelectedItem();
                     boolean isDelivered = isDeliveredCheckBox.isSelected();
                     if (order != null) {
-                        Cargo<Order<Receiver, Product>> cargo = new Cargo<>(isDelivered, order);
+                        Cargo cargo = new Cargo(isDelivered, order);
                         cargoService.add(cargo);
+                        cargosPanel.refresh();
                         dialog.dispose();
                     } else {
                         JOptionPane.showMessageDialog(dialog, "Invalid Order", "Error", JOptionPane.ERROR_MESSAGE);
@@ -245,6 +235,7 @@ public class HomePage extends JPanel {
                     String phone = storePhoneField.getText();
                     Store store = new Store(name, address, phone);
                     storeService.add(store);
+                    storesPanel.refresh();
                     dialog.dispose();
                 });
                 dialog.add(addStoreButton, BorderLayout.SOUTH);
@@ -279,11 +270,12 @@ public class HomePage extends JPanel {
                     int id = Integer.parseInt(idField.getText());
                     Receiver receiver = (Receiver) receiverComboBox.getSelectedItem();
                     Product product = (Product) productComboBox.getSelectedItem();
-                    Order<Receiver, Product> order = orderService.getOrderById(id);
+                    Order order = orderService.getOrderById(id);
                     if (order != null && receiver != null && product != null) {
                         order.setEntity1(receiver);
                         order.setEntity2(product);
                         orderService.update(order);
+                        ordersPanel.refresh();
                         dialog.dispose();
                     } else {
                         JOptionPane.showMessageDialog(dialog, "Invalid ID, Receiver or Product", "Error", JOptionPane.ERROR_MESSAGE);
@@ -325,6 +317,7 @@ public class HomePage extends JPanel {
                         product.setImageUrl(imageUrl);
                         product.setPrice(price);
                         productService.update(product);
+                        productsPanel.refresh();
                         dialog.dispose();
                     } else {
                         JOptionPane.showMessageDialog(dialog, "Product not found", "Error", JOptionPane.ERROR_MESSAGE);
@@ -366,6 +359,967 @@ public class HomePage extends JPanel {
                         receiver.setSurname(surname);
                         receiver.setAddress(address);
                         receiverService.update(receiver);
+                        receiversPanel.refresh();
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Receiver not found", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+                dialog.add(updateReceiverButton, BorderLayout.SOUTH);
+                break;
+
+            case "Cargos":
+                JComboBox<Order> orderComboBox = new JComboBox<>(orderService.getAllOrders().toArray(new Order[0]));
+                orderComboBox.setSelectedItem(null);
+                JCheckBox isDeliveredCheckBox = new JCheckBox();
+                formPanel.add(new JLabel("Order:"));
+                formPanel.add(orderComboBox);
+                formPanel.add(new JLabel("Is Delivered:"));
+                formPanel.add(isDeliveredCheckBox);
+
+                JButton updateCargoButton = new JButton("Update");
+                updateCargoButton.addActionListener(e -> {
+                    int id = Integer.parseInt(idField.getText());
+                    Order order = (Order) orderComboBox.getSelectedItem();
+                    boolean isDelivered = isDeliveredCheckBox.isSelected();
+                    Cargo cargo = cargoService.getCargoById(id);
+                    if (cargo != null && order != null) {
+                        cargo.setEntity(order);
+                        cargo.setDelivered(isDelivered);
+                        cargoService.update(cargo);
+                        cargosPanel.refresh();
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Invalid ID or Order", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+                dialog.add(updateCargoButton, BorderLayout.SOUTH);
+                break;
+
+            case "Stores":
+                JTextField storeNameField = new JTextField();
+                JTextField storeAddressField = new JTextField();
+                JTextField storePhoneField = new JTextField();
+                formPanel.add(new JLabel("Name:"));
+                formPanel.add(storeNameField);
+                formPanel.add(new JLabel("Address:"));
+                formPanel.add(storeAddressField);
+                formPanel.add(new JLabel("Phone:"));
+                formPanel.add(storePhoneField);
+
+                JButton updateStoreButton = new JButton("Update");
+                updateStoreButton.addActionListener(e -> {
+                    int id = Integer.parseInt(idField.getText());
+                    String name = storeNameField.getText();
+                    String address = storeAddressField.getText();
+                    String phone = storePhoneField.getText();
+                    Store store = storeService.getStoreById(id);
+                    if (store != null) {
+                        store.setName(name);
+                        store.setAddress(address);
+                        store.setPhone(phone);
+                        storeService.update(store);
+                        storesPanel.refresh();
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Store not found", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+                dialog.add(updateStoreButton, BorderLayout.SOUTH);
+                break;
+        }
+
+        dialog.add(formPanel, BorderLayout.CENTER);
+        dialog.setVisible(true);
+    }
+
+    private void showDeleteDialog() {
+        JDialog dialog = new JDialog((Frame) null, "Delete", true);
+        dialog.setSize(400, 300);
+        dialog.setLocationRelativeTo(null);
+
+        JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
+        JTextField idField = new JTextField();
+        formPanel.add(new JLabel("ID:"));
+        formPanel.add(idField);
+
+        JButton deleteButton = new JButton("Delete");
+        deleteButton.addActionListener(e -> {
+            int id = Integer.parseInt(idField.getText());
+            switch (currentPanel) {
+                case "Orders":
+                    orderService.delete(id);
+                    ordersPanel.refresh();
+                    break;
+                case "Products":
+                    productService.delete(id);
+                    productsPanel.refresh();
+                    break;
+                case "Receivers":
+                    receiverService.delete(id);
+                    receiversPanel.refresh();
+                    break;
+                case "Cargos":
+                    cargoService.delete(id);
+                    cargosPanel.refresh();
+                    break;
+                case "Stores":
+                    storeService.delete(id);
+                    storesPanel.refresh();
+                    break;
+            }
+            dialog.dispose();
+        });
+
+        dialog.add(formPanel, BorderLayout.CENTER);
+        dialog.add(deleteButton, BorderLayout.SOUTH);
+        dialog.setVisible(true);
+    }
+
+    private void showDetailsDialog(Object entity) {
+        JDialog dialog = new JDialog((Frame) null, "Details", true);
+        dialog.setSize(400, 300);
+        dialog.setLocationRelativeTo(null);
+        JTextArea contentArea = new JTextArea(entity.toString());
+        contentArea.setEditable(false);
+        dialog.add(new JScrollPane(contentArea), BorderLayout.CENTER);
+        dialog.setVisible(true);
+    }
+}
+/*
+package org.project.pages.home;
+
+import org.project.panels.*;
+import org.project.data.JsonRepository;
+import org.project.models.*;
+import org.project.services.*;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class HomePage extends JPanel {
+    private OrderService orderService;
+    private CargoService cargoService;
+    private ProductService productService;
+    private ReceiverService receiverService;
+    private StoreService storeService;
+
+    private JPanel cardsPanel;
+    private CardLayout cardLayout;
+    private String currentPanel;
+
+    private OrdersPanel ordersPanel;
+    private CargosPanel cargosPanel;
+    private ProductsPanel productsPanel;
+    private ReceiversPanel receiversPanel;
+    private StoresPanel storesPanel;
+
+    public HomePage(Frame frame, CardLayout cardLayout, JPanel contentPanel) {
+        orderService = new OrderService(new JsonRepository<>("C:/Users/ahmet/AppData/Roaming/.myapp/orders.json", Order[].class));
+        cargoService = new CargoService(new JsonRepository<>("C:/Users/ahmet/AppData/Roaming/.myapp/cargos.json", Cargo[].class));
+        productService = new ProductService(new JsonRepository<>("C:/Users/ahmet/AppData/Roaming/.myapp/products.json", Product[].class));
+        receiverService = new ReceiverService(new JsonRepository<>("C:/Users/ahmet/AppData/Roaming/.myapp/receivers.json", Receiver[].class));
+        storeService = new StoreService(new JsonRepository<>("C:/Users/ahmet/AppData/Roaming/.myapp/stores.json", Store[].class));
+
+        setLayout(new BorderLayout());
+        JPanel buttonPanel = new JPanel(new GridLayout(5, 1, 10, 10));
+        add(buttonPanel, BorderLayout.WEST);
+
+        JButton ordersButton = new JButton("Orders");
+        JButton cargosButton = new JButton("Cargos");
+        JButton productsButton = new JButton("Products");
+        JButton receiversButton = new JButton("Receivers");
+        JButton storesButton = new JButton("Stores");
+
+        buttonPanel.add(ordersButton);
+        buttonPanel.add(cargosButton);
+        buttonPanel.add(productsButton);
+        buttonPanel.add(receiversButton);
+        buttonPanel.add(storesButton);
+
+        cardsPanel = new JPanel(new CardLayout());
+        add(new JScrollPane(cardsPanel), BorderLayout.CENTER);
+
+        ordersPanel = new OrdersPanel(orderService, receiverService, productService);
+        cargosPanel = new CargosPanel(cargoService, orderService);
+        productsPanel = new ProductsPanel(productService);
+        receiversPanel = new ReceiversPanel(receiverService, orderService, cargoService);
+        storesPanel = new StoresPanel(storeService);
+
+        cardsPanel.add(new JScrollPane(ordersPanel), "Orders");
+        cardsPanel.add(new JScrollPane(cargosPanel), "Cargos");
+        cardsPanel.add(new JScrollPane(productsPanel), "Products");
+        cardsPanel.add(new JScrollPane(receiversPanel), "Receivers");
+        cardsPanel.add(new JScrollPane(storesPanel), "Stores");
+
+        this.cardLayout = (CardLayout) cardsPanel.getLayout();
+
+        ordersButton.addActionListener(e -> showPanel("Orders"));
+        cargosButton.addActionListener(e -> showPanel("Cargos"));
+        productsButton.addActionListener(e -> showPanel("Products"));
+        receiversButton.addActionListener(e -> showPanel("Receivers"));
+        storesButton.addActionListener(e -> showPanel("Stores"));
+
+        JPanel actionPanel = new JPanel(new GridLayout(1, 3, 10, 10));
+        add(actionPanel, BorderLayout.SOUTH);
+
+        JButton addButton = new JButton("Add");
+        JButton updateButton = new JButton("Update");
+        JButton deleteButton = new JButton("Delete");
+
+        actionPanel.add(addButton);
+        actionPanel.add(updateButton);
+        actionPanel.add(deleteButton);
+
+        addButton.addActionListener(e -> showAddDialog());
+        updateButton.addActionListener(e -> showUpdateDialog());
+        deleteButton.addActionListener(e -> showDeleteDialog());
+    }
+
+    private void showPanel(String panelName) {
+        currentPanel = panelName;
+        cardLayout.show(cardsPanel, panelName);
+    }
+
+    private void showAddDialog() {
+        JDialog dialog = new JDialog((Frame) null, "Add", true);
+        dialog.setSize(400, 300);
+        dialog.setLocationRelativeTo(null);
+
+        JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
+
+        switch (currentPanel) {
+            case "Orders":
+                JComboBox<Receiver> receiverComboBox = new JComboBox<>(receiverService.getAllReceivers().toArray(new Receiver[0]));
+                JComboBox<Product> productComboBox = new JComboBox<>(productService.getAllProducts().toArray(new Product[0]));
+                formPanel.add(new JLabel("Receiver:"));
+                formPanel.add(receiverComboBox);
+                formPanel.add(new JLabel("Product:"));
+                formPanel.add(productComboBox);
+
+                JButton addOrderButton = new JButton("Add");
+                addOrderButton.addActionListener(e -> {
+                    Receiver receiver = (Receiver) receiverComboBox.getSelectedItem();
+                    Product product = (Product) productComboBox.getSelectedItem();
+                    if (receiver != null && product != null) {
+                        Order order = new Order(receiver, product);
+                        orderService.add(order);
+                        ordersPanel.refresh();
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Invalid Receiver or Product", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+                dialog.add(addOrderButton, BorderLayout.SOUTH);
+                break;
+
+            case "Products":
+                JTextField nameField = new JTextField();
+                JTextField descriptionField = new JTextField();
+                JTextField sellerIdField = new JTextField();
+                JTextField imageUrlField = new JTextField();
+                JTextField priceField = new JTextField();
+                formPanel.add(new JLabel("Name:"));
+                formPanel.add(nameField);
+                formPanel.add(new JLabel("Description:"));
+                formPanel.add(descriptionField);
+                formPanel.add(new JLabel("Seller ID:"));
+                formPanel.add(sellerIdField);
+                formPanel.add(new JLabel("Image URL:"));
+                formPanel.add(imageUrlField);
+                formPanel.add(new JLabel("Price:"));
+                formPanel.add(priceField);
+
+                JButton addProductButton = new JButton("Add");
+                addProductButton.addActionListener(e -> {
+                    String name = nameField.getText();
+                    String description = descriptionField.getText();
+                    String sellerId = sellerIdField.getText();
+                    String imageUrl = imageUrlField.getText();
+                    double price = Double.parseDouble(priceField.getText());
+                    Product product = new Product(name, description, sellerId, imageUrl, price);
+                    productService.add(product);
+                    productsPanel.refresh();
+                    dialog.dispose();
+                });
+                dialog.add(addProductButton, BorderLayout.SOUTH);
+                break;
+
+            case "Receivers":
+                JTextField emailField = new JTextField();
+                JTextField passwordField = new JTextField();
+                JTextField receiverNameField = new JTextField();
+                JTextField surnameField = new JTextField();
+                JTextField addressField = new JTextField();
+                formPanel.add(new JLabel("Email:"));
+                formPanel.add(emailField);
+                formPanel.add(new JLabel("Password:"));
+                formPanel.add(passwordField);
+                formPanel.add(new JLabel("Name:"));
+                formPanel.add(receiverNameField);
+                formPanel.add(new JLabel("Surname:"));
+                formPanel.add(surnameField);
+                formPanel.add(new JLabel("Address:"));
+                formPanel.add(addressField);
+
+                JButton addReceiverButton = new JButton("Add");
+                addReceiverButton.addActionListener(e -> {
+                    String email = emailField.getText();
+                    String password = passwordField.getText();
+                    String name = receiverNameField.getText();
+                    String surname = surnameField.getText();
+                    String address = addressField.getText();
+                    Receiver receiver = new Receiver(email, password, name, surname, address);
+                    receiverService.add(receiver);
+                    receiversPanel.refresh();
+                    dialog.dispose();
+                });
+                dialog.add(addReceiverButton, BorderLayout.SOUTH);
+                break;
+
+            case "Cargos":
+                JComboBox<Order> orderComboBox = new JComboBox<>(orderService.getAllOrders().toArray(new Order[0]));
+                JCheckBox isDeliveredCheckBox = new JCheckBox();
+                formPanel.add(new JLabel("Order:"));
+                formPanel.add(orderComboBox);
+                formPanel.add(new JLabel("Is Delivered:"));
+                formPanel.add(isDeliveredCheckBox);
+
+                JButton addCargoButton = new JButton("Add");
+                addCargoButton.addActionListener(e -> {
+                    Order order = (Order) orderComboBox.getSelectedItem();
+                    boolean isDelivered = isDeliveredCheckBox.isSelected();
+                    if (order != null) {
+                        Cargo cargo = new Cargo(isDelivered, order);
+                        cargoService.add(cargo);
+                        cargosPanel.refresh();
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Invalid Order", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+                dialog.add(addCargoButton, BorderLayout.SOUTH);
+                break;
+
+            case "Stores":
+                JTextField storeNameField = new JTextField();
+                JTextField storeAddressField = new JTextField();
+                JTextField storePhoneField = new JTextField();
+                formPanel.add(new JLabel("Name:"));
+                formPanel.add(storeNameField);
+                formPanel.add(new JLabel("Address:"));
+                formPanel.add(storeAddressField);
+                formPanel.add(new JLabel("Phone:"));
+                formPanel.add(storePhoneField);
+
+                JButton addStoreButton = new JButton("Add");
+                addStoreButton.addActionListener(e -> {
+                    String name = storeNameField.getText();
+                    String address = storeAddressField.getText();
+                    String phone = storePhoneField.getText();
+                    Store store = new Store(name, address, phone);
+                    storeService.add(store);
+                    storesPanel.refresh();
+                    dialog.dispose();
+                });
+                dialog.add(addStoreButton, BorderLayout.SOUTH);
+                break;
+        }
+
+        dialog.add(formPanel, BorderLayout.CENTER);
+        dialog.setVisible(true);
+    }
+
+    private void showUpdateDialog() {
+        JDialog dialog = new JDialog((Frame) null, "Update", true);
+        dialog.setSize(400, 300);
+        dialog.setLocationRelativeTo(null);
+
+        JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
+        JTextField idField = new JTextField();
+        formPanel.add(new JLabel("ID:"));
+        formPanel.add(idField);
+
+        switch (currentPanel) {
+            case "Orders":
+                JComboBox<Receiver> receiverComboBox = new JComboBox<>(receiverService.getAllReceivers().toArray(new Receiver[0]));
+                JComboBox<Product> productComboBox = new JComboBox<>(productService.getAllProducts().toArray(new Product[0]));
+                formPanel.add(new JLabel("Receiver:"));
+                formPanel.add(receiverComboBox);
+                formPanel.add(new JLabel("Product:"));
+                formPanel.add(productComboBox);
+
+                JButton updateOrderButton = new JButton("Update");
+                updateOrderButton.addActionListener(e -> {
+                    int id = Integer.parseInt(idField.getText());
+                    Receiver receiver = (Receiver) receiverComboBox.getSelectedItem();
+                    Product product = (Product) productComboBox.getSelectedItem();
+                    Order order = orderService.getOrderById(id);
+                    if (order != null && receiver != null && product != null) {
+                        order.setEntity1(receiver);
+                        order.setEntity2(product);
+                        orderService.update(order);
+                        ordersPanel.refresh();
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Invalid ID, Receiver or Product", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+                dialog.add(updateOrderButton, BorderLayout.SOUTH);
+                break;
+
+            case "Products":
+                JTextField nameField = new JTextField();
+                JTextField descriptionField = new JTextField();
+                JTextField sellerIdField = new JTextField();
+                JTextField imageUrlField = new JTextField();
+                JTextField priceField = new JTextField();
+                formPanel.add(new JLabel("Name:"));
+                formPanel.add(nameField);
+                formPanel.add(new JLabel("Description:"));
+                formPanel.add(descriptionField);
+                formPanel.add(new JLabel("Seller ID:"));
+                formPanel.add(sellerIdField);
+                formPanel.add(new JLabel("Image URL:"));
+                formPanel.add(imageUrlField);
+                formPanel.add(new JLabel("Price:"));
+                formPanel.add(priceField);
+
+                JButton updateProductButton = new JButton("Update");
+                updateProductButton.addActionListener(e -> {
+                    int id = Integer.parseInt(idField.getText());
+                    String name = nameField.getText();
+                    String description = descriptionField.getText();
+                    String sellerId = sellerIdField.getText();
+                    String imageUrl = imageUrlField.getText();
+                    double price = Double.parseDouble(priceField.getText());
+                    Product product = productService.getProductById(id);
+                    if (product != null) {
+                        product.setName(name);
+                        product.setDescription(description);
+                        product.setSellerId(sellerId);
+                        product.setImageUrl(imageUrl);
+                        product.setPrice(price);
+                        productService.update(product);
+                        productsPanel.refresh();
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Product not found", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+                dialog.add(updateProductButton, BorderLayout.SOUTH);
+                break;
+
+            case "Receivers":
+                JTextField emailField = new JTextField();
+                JTextField passwordField = new JTextField();
+                JTextField receiverNameField = new JTextField();
+                JTextField surnameField = new JTextField();
+                JTextField addressField = new JTextField();
+                formPanel.add(new JLabel("Email:"));
+                formPanel.add(emailField);
+                formPanel.add(new JLabel("Password:"));
+                formPanel.add(passwordField);
+                formPanel.add(new JLabel("Name:"));
+                formPanel.add(receiverNameField);
+                formPanel.add(new JLabel("Surname:"));
+                formPanel.add(surnameField);
+                formPanel.add(new JLabel("Address:"));
+                formPanel.add(addressField);
+
+                JButton updateReceiverButton = new JButton("Update");
+                updateReceiverButton.addActionListener(e -> {
+                    int id = Integer.parseInt(idField.getText());
+                    String email = emailField.getText();
+                    String password = passwordField.getText();
+                    String name = receiverNameField.getText();
+                    String surname = surnameField.getText();
+                    String address = addressField.getText();
+                    Receiver receiver = receiverService.getReceiverById(id);
+                    if (receiver != null) {
+                        receiver.setEmail(email);
+                        receiver.setPassword(password);
+                        receiver.setName(name);
+                        receiver.setSurname(surname);
+                        receiver.setAddress(address);
+                        receiverService.update(receiver);
+                        receiversPanel.refresh();
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Receiver not found", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+                dialog.add(updateReceiverButton, BorderLayout.SOUTH);
+                break;
+
+            case "Cargos":
+                JComboBox<Order> orderComboBox = new JComboBox<>(orderService.getAllOrders().toArray(new Order[0]));
+                orderComboBox.setSelectedItem(null);
+                JCheckBox isDeliveredCheckBox = new JCheckBox();
+                formPanel.add(new JLabel("Order:"));
+                formPanel.add(orderComboBox);
+                formPanel.add(new JLabel("Is Delivered:"));
+                formPanel.add(isDeliveredCheckBox);
+
+                JButton updateCargoButton = new JButton("Update");
+                updateCargoButton.addActionListener(e -> {
+                    int id = Integer.parseInt(idField.getText());
+                    Order order = (Order) orderComboBox.getSelectedItem();
+                    boolean isDelivered = isDeliveredCheckBox.isSelected();
+                    Cargo cargo = cargoService.getCargoById(id);
+                    if (cargo != null && order != null) {
+                        cargo.setEntity(order);
+                        cargo.setDelivered(isDelivered);
+                        cargoService.update(cargo);
+                        cargosPanel.refresh();
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Invalid ID or Order", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+                dialog.add(updateCargoButton, BorderLayout.SOUTH);
+                break;
+
+            case "Stores":
+                JTextField storeNameField = new JTextField();
+                JTextField storeAddressField = new JTextField();
+                JTextField storePhoneField = new JTextField();
+                formPanel.add(new JLabel("Name:"));
+                formPanel.add(storeNameField);
+                formPanel.add(new JLabel("Address:"));
+                formPanel.add(storeAddressField);
+                formPanel.add(new JLabel("Phone:"));
+                formPanel.add(storePhoneField);
+
+                JButton updateStoreButton = new JButton("Update");
+                updateStoreButton.addActionListener(e -> {
+                    int id = Integer.parseInt(idField.getText());
+                    String name = storeNameField.getText();
+                    String address = storeAddressField.getText();
+                    String phone = storePhoneField.getText();
+                    Store store = storeService.getStoreById(id);
+                    if (store != null) {
+                        store.setName(name);
+                        store.setAddress(address);
+                        store.setPhone(phone);
+                        storeService.update(store);
+                        storesPanel.refresh();
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Store not found", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+                dialog.add(updateStoreButton, BorderLayout.SOUTH);
+                break;
+        }
+
+        dialog.add(formPanel, BorderLayout.CENTER);
+        dialog.setVisible(true);
+    }
+
+    private void showDeleteDialog() {
+        JDialog dialog = new JDialog((Frame) null, "Delete", true);
+        dialog.setSize(400, 300);
+        dialog.setLocationRelativeTo(null);
+
+        JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
+        JTextField idField = new JTextField();
+        formPanel.add(new JLabel("ID:"));
+        formPanel.add(idField);
+
+        JButton deleteButton = new JButton("Delete");
+        deleteButton.addActionListener(e -> {
+            int id = Integer.parseInt(idField.getText());
+            switch (currentPanel) {
+                case "Orders":
+                    orderService.delete(id);
+                    ordersPanel.refresh();
+                    break;
+                case "Products":
+                    productService.delete(id);
+                    productsPanel.refresh();
+                    break;
+                case "Receivers":
+                    receiverService.delete(id);
+                    receiversPanel.refresh();
+                    break;
+                case "Cargos":
+                    cargoService.delete(id);
+                    cargosPanel.refresh();
+                    break;
+                case "Stores":
+                    storeService.delete(id);
+                    storesPanel.refresh();
+                    break;
+            }
+            dialog.dispose();
+        });
+
+        dialog.add(formPanel, BorderLayout.CENTER);
+        dialog.add(deleteButton, BorderLayout.SOUTH);
+        dialog.setVisible(true);
+    }
+
+}
+*/
+/*
+package org.project.pages.home;
+
+import org.project.panels.*;
+import org.project.data.JsonRepository;
+import org.project.models.*;
+import org.project.services.*;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class HomePage extends JPanel {
+    private OrderService orderService;
+    private CargoService cargoService;
+    private ProductService productService;
+    private ReceiverService receiverService;
+    private StoreService storeService;
+
+    private JPanel cardsPanel;
+    private CardLayout cardLayout;
+    private String currentPanel;
+
+    private OrdersPanel ordersPanel;
+    private CargosPanel cargosPanel;
+    private ProductsPanel productsPanel;
+    private ReceiversPanel receiversPanel;
+    private StoresPanel storesPanel;
+
+    public HomePage(Frame frame, CardLayout cardLayout, JPanel contentPanel) {
+        orderService = new OrderService(new JsonRepository<>("C:/Users/ahmet/AppData/Roaming/.myapp/orders.json", Order[].class));
+        cargoService = new CargoService(new JsonRepository<>("C:/Users/ahmet/AppData/Roaming/.myapp/cargos.json", Cargo[].class));
+        productService = new ProductService(new JsonRepository<>("C:/Users/ahmet/AppData/Roaming/.myapp/products.json", Product[].class));
+        receiverService = new ReceiverService(new JsonRepository<>("C:/Users/ahmet/AppData/Roaming/.myapp/receivers.json", Receiver[].class));
+        storeService = new StoreService(new JsonRepository<>("C:/Users/ahmet/AppData/Roaming/.myapp/stores.json", Store[].class));
+
+        setLayout(new BorderLayout());
+        JPanel buttonPanel = new JPanel(new GridLayout(5, 1, 10, 10));
+        add(buttonPanel, BorderLayout.WEST);
+
+        JButton ordersButton = new JButton("Orders");
+        JButton cargosButton = new JButton("Cargos");
+        JButton productsButton = new JButton("Products");
+        JButton receiversButton = new JButton("Receivers");
+        JButton storesButton = new JButton("Stores");
+
+        buttonPanel.add(ordersButton);
+        buttonPanel.add(cargosButton);
+        buttonPanel.add(productsButton);
+        buttonPanel.add(receiversButton);
+        buttonPanel.add(storesButton);
+
+        cardsPanel = new JPanel(new CardLayout());
+        add(new JScrollPane(cardsPanel), BorderLayout.CENTER);
+
+        ordersPanel = new OrdersPanel(orderService, receiverService, productService);
+        cargosPanel = new CargosPanel(cargoService);
+        productsPanel = new ProductsPanel(productService);
+        receiversPanel = new ReceiversPanel(receiverService, orderService, cargoService);
+        storesPanel = new StoresPanel(storeService);
+
+        cardsPanel.add(new JScrollPane(ordersPanel), "Orders");
+        cardsPanel.add(new JScrollPane(cargosPanel), "Cargos");
+        cardsPanel.add(new JScrollPane(productsPanel), "Products");
+        cardsPanel.add(new JScrollPane(receiversPanel), "Receivers");
+        cardsPanel.add(new JScrollPane(storesPanel), "Stores");
+
+        this.cardLayout = (CardLayout) cardsPanel.getLayout();
+
+        ordersButton.addActionListener(e -> showPanel("Orders"));
+        cargosButton.addActionListener(e -> showPanel("Cargos"));
+        productsButton.addActionListener(e -> showPanel("Products"));
+        receiversButton.addActionListener(e -> showPanel("Receivers"));
+        storesButton.addActionListener(e -> showPanel("Stores"));
+
+        JPanel actionPanel = new JPanel(new GridLayout(1, 3, 10, 10));
+        add(actionPanel, BorderLayout.SOUTH);
+
+        JButton addButton = new JButton("Add");
+        JButton updateButton = new JButton("Update");
+        JButton deleteButton = new JButton("Delete");
+
+        actionPanel.add(addButton);
+        actionPanel.add(updateButton);
+        actionPanel.add(deleteButton);
+
+        addButton.addActionListener(e -> showAddDialog());
+        updateButton.addActionListener(e -> showUpdateDialog());
+        deleteButton.addActionListener(e -> showDeleteDialog());
+    }
+
+    private void showPanel(String panelName) {
+        currentPanel = panelName;
+        cardLayout.show(cardsPanel, panelName);
+    }
+
+    private void showAddDialog() {
+        JDialog dialog = new JDialog((Frame) null, "Add", true);
+        dialog.setSize(400, 300);
+        dialog.setLocationRelativeTo(null);
+
+        JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
+
+        switch (currentPanel) {
+            case "Orders":
+                JComboBox<Receiver> receiverComboBox = new JComboBox<>(receiverService.getAllReceivers().toArray(new Receiver[0]));
+                JComboBox<Product> productComboBox = new JComboBox<>(productService.getAllProducts().toArray(new Product[0]));
+                formPanel.add(new JLabel("Receiver:"));
+                formPanel.add(receiverComboBox);
+                formPanel.add(new JLabel("Product:"));
+                formPanel.add(productComboBox);
+
+                JButton addOrderButton = new JButton("Add");
+                addOrderButton.addActionListener(e -> {
+                    Receiver receiver = (Receiver) receiverComboBox.getSelectedItem();
+                    Product product = (Product) productComboBox.getSelectedItem();
+                    if (receiver != null && product != null) {
+                        Order order = new Order(receiver, product);
+                        orderService.add(order);
+                        ordersPanel.refresh();
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Invalid Receiver or Product", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+                dialog.add(addOrderButton, BorderLayout.SOUTH);
+                break;
+
+            case "Products":
+                JTextField nameField = new JTextField();
+                JTextField descriptionField = new JTextField();
+                JTextField sellerIdField = new JTextField();
+                JTextField imageUrlField = new JTextField();
+                JTextField priceField = new JTextField();
+                formPanel.add(new JLabel("Name:"));
+                formPanel.add(nameField);
+                formPanel.add(new JLabel("Description:"));
+                formPanel.add(descriptionField);
+                formPanel.add(new JLabel("Seller ID:"));
+                formPanel.add(sellerIdField);
+                formPanel.add(new JLabel("Image URL:"));
+                formPanel.add(imageUrlField);
+                formPanel.add(new JLabel("Price:"));
+                formPanel.add(priceField);
+
+                JButton addProductButton = new JButton("Add");
+                addProductButton.addActionListener(e -> {
+                    String name = nameField.getText();
+                    String description = descriptionField.getText();
+                    String sellerId = sellerIdField.getText();
+                    String imageUrl = imageUrlField.getText();
+                    double price = Double.parseDouble(priceField.getText());
+                    Product product = new Product(name, description, sellerId, imageUrl, price);
+                    productService.add(product);
+                    productsPanel.refresh();
+                    dialog.dispose();
+                });
+                dialog.add(addProductButton, BorderLayout.SOUTH);
+                break;
+
+            case "Receivers":
+                JTextField emailField = new JTextField();
+                JTextField passwordField = new JTextField();
+                JTextField receiverNameField = new JTextField();
+                JTextField surnameField = new JTextField();
+                JTextField addressField = new JTextField();
+                formPanel.add(new JLabel("Email:"));
+                formPanel.add(emailField);
+                formPanel.add(new JLabel("Password:"));
+                formPanel.add(passwordField);
+                formPanel.add(new JLabel("Name:"));
+                formPanel.add(receiverNameField);
+                formPanel.add(new JLabel("Surname:"));
+                formPanel.add(surnameField);
+                formPanel.add(new JLabel("Address:"));
+                formPanel.add(addressField);
+
+                JButton addReceiverButton = new JButton("Add");
+                addReceiverButton.addActionListener(e -> {
+                    String email = emailField.getText();
+                    String password = passwordField.getText();
+                    String name = receiverNameField.getText();
+                    String surname = surnameField.getText();
+                    String address = addressField.getText();
+                    Receiver receiver = new Receiver(email, password, name, surname, address);
+                    receiverService.add(receiver);
+                    receiversPanel.refresh();
+                    dialog.dispose();
+                });
+                dialog.add(addReceiverButton, BorderLayout.SOUTH);
+                break;
+
+            case "Cargos":
+                JComboBox<Order> orderComboBox = new JComboBox<>(orderService.getAllOrders().toArray(new Order[0]));
+                JCheckBox isDeliveredCheckBox = new JCheckBox();
+                formPanel.add(new JLabel("Order:"));
+                formPanel.add(orderComboBox);
+                formPanel.add(new JLabel("Is Delivered:"));
+                formPanel.add(isDeliveredCheckBox);
+
+                JButton addCargoButton = new JButton("Add");
+                addCargoButton.addActionListener(e -> {
+                    Order order = (Order) orderComboBox.getSelectedItem();
+                    boolean isDelivered = isDeliveredCheckBox.isSelected();
+                    if (order != null) {
+                        Cargo cargo = new Cargo(isDelivered, order);
+                        cargoService.add(cargo);
+                        cargosPanel.refresh();
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Invalid Order", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+                dialog.add(addCargoButton, BorderLayout.SOUTH);
+                break;
+
+            case "Stores":
+                JTextField storeNameField = new JTextField();
+                JTextField storeAddressField = new JTextField();
+                JTextField storePhoneField = new JTextField();
+                formPanel.add(new JLabel("Name:"));
+                formPanel.add(storeNameField);
+                formPanel.add(new JLabel("Address:"));
+                formPanel.add(storeAddressField);
+                formPanel.add(new JLabel("Phone:"));
+                formPanel.add(storePhoneField);
+
+                JButton addStoreButton = new JButton("Add");
+                addStoreButton.addActionListener(e -> {
+                    String name = storeNameField.getText();
+                    String address = storeAddressField.getText();
+                    String phone = storePhoneField.getText();
+                    Store store = new Store(name, address, phone);
+                    storeService.add(store);
+                    storesPanel.refresh();
+                    dialog.dispose();
+                });
+                dialog.add(addStoreButton, BorderLayout.SOUTH);
+                break;
+        }
+
+        dialog.add(formPanel, BorderLayout.CENTER);
+        dialog.setVisible(true);
+    }
+
+    private void showUpdateDialog() {
+        JDialog dialog = new JDialog((Frame) null, "Update", true);
+        dialog.setSize(400, 300);
+        dialog.setLocationRelativeTo(null);
+
+        JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
+        JTextField idField = new JTextField();
+        formPanel.add(new JLabel("ID:"));
+        formPanel.add(idField);
+
+        switch (currentPanel) {
+            case "Orders":
+                JComboBox<Receiver> receiverComboBox = new JComboBox<>(receiverService.getAllReceivers().toArray(new Receiver[0]));
+                JComboBox<Product> productComboBox = new JComboBox<>(productService.getAllProducts().toArray(new Product[0]));
+                formPanel.add(new JLabel("Receiver:"));
+                formPanel.add(receiverComboBox);
+                formPanel.add(new JLabel("Product:"));
+                formPanel.add(productComboBox);
+
+                JButton updateOrderButton = new JButton("Update");
+                updateOrderButton.addActionListener(e -> {
+                    int id = Integer.parseInt(idField.getText());
+                    Receiver receiver = (Receiver) receiverComboBox.getSelectedItem();
+                    Product product = (Product) productComboBox.getSelectedItem();
+                    Order order = orderService.getOrderById(id);
+                    if (order != null && receiver != null && product != null) {
+                        order.setEntity1(receiver);
+                        order.setEntity2(product);
+                        orderService.update(order);
+                        ordersPanel.refresh();
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Invalid ID, Receiver or Product", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+                dialog.add(updateOrderButton, BorderLayout.SOUTH);
+                break;
+
+            case "Products":
+                JTextField nameField = new JTextField();
+                JTextField descriptionField = new JTextField();
+                JTextField sellerIdField = new JTextField();
+                JTextField imageUrlField = new JTextField();
+                JTextField priceField = new JTextField();
+                formPanel.add(new JLabel("Name:"));
+                formPanel.add(nameField);
+                formPanel.add(new JLabel("Description:"));
+                formPanel.add(descriptionField);
+                formPanel.add(new JLabel("Seller ID:"));
+                formPanel.add(sellerIdField);
+                formPanel.add(new JLabel("Image URL:"));
+                formPanel.add(imageUrlField);
+                formPanel.add(new JLabel("Price:"));
+                formPanel.add(priceField);
+
+                JButton updateProductButton = new JButton("Update");
+                updateProductButton.addActionListener(e -> {
+                    int id = Integer.parseInt(idField.getText());
+                    String name = nameField.getText();
+                    String description = descriptionField.getText();
+                    String sellerId = sellerIdField.getText();
+                    String imageUrl = imageUrlField.getText();
+                    double price = Double.parseDouble(priceField.getText());
+                    Product product = productService.getProductById(id);
+                    if (product != null) {
+                        product.setName(name);
+                        product.setDescription(description);
+                        product.setSellerId(sellerId);
+                        product.setImageUrl(imageUrl);
+                        product.setPrice(price);
+                        productService.update(product);
+                        productsPanel.refresh();
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Product not found", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+                dialog.add(updateProductButton, BorderLayout.SOUTH);
+                break;
+
+            case "Receivers":
+                JTextField emailField = new JTextField();
+                JTextField passwordField = new JTextField();
+                JTextField receiverNameField = new JTextField();
+                JTextField surnameField = new JTextField();
+                JTextField addressField = new JTextField();
+                formPanel.add(new JLabel("Email:"));
+                formPanel.add(emailField);
+                formPanel.add(new JLabel("Password:"));
+                formPanel.add(passwordField);
+                formPanel.add(new JLabel("Name:"));
+                formPanel.add(receiverNameField);
+                formPanel.add(new JLabel("Surname:"));
+                formPanel.add(surnameField);
+                formPanel.add(new JLabel("Address:"));
+                formPanel.add(addressField);
+
+                JButton updateReceiverButton = new JButton("Update");
+                updateReceiverButton.addActionListener(e -> {
+                    int id = Integer.parseInt(idField.getText());
+                    String email = emailField.getText();
+                    String password = passwordField.getText();
+                    String name = receiverNameField.getText();
+                    String surname = surnameField.getText();
+                    String address = addressField.getText();
+                    Receiver receiver = receiverService.getReceiverById(id);
+                    if (receiver != null) {
+                        receiver.setEmail(email);
+                        receiver.setPassword(password);
+                        receiver.setName(name);
+                        receiver.setSurname(surname);
+                        receiver.setAddress(address);
+                        receiverService.update(receiver);
+                        receiversPanel.refresh();
                         dialog.dispose();
                     } else {
                         JOptionPane.showMessageDialog(dialog, "Receiver not found", "Error", JOptionPane.ERROR_MESSAGE);
@@ -387,12 +1341,13 @@ public class HomePage extends JPanel {
                     int id = Integer.parseInt(idField.getText());
                     int orderId = Integer.parseInt(orderIdField.getText());
                     boolean isDelivered = isDeliveredCheckBox.isSelected();
-                    Cargo<Order<Receiver, Product>> cargo = cargoService.getCargoById(id);
-                    Order<Receiver, Product> order = orderService.getOrderById(orderId);
+                    Cargo cargo = cargoService.getCargoById(id);
+                    Order order = orderService.getOrderById(orderId);
                     if (cargo != null && order != null) {
                         cargo.setEntity(order);
                         cargo.setDelivered(isDelivered);
                         cargoService.update(cargo);
+                        cargosPanel.refresh();
                         dialog.dispose();
                     } else {
                         JOptionPane.showMessageDialog(dialog, "Invalid ID or Order ID", "Error", JOptionPane.ERROR_MESSAGE);
@@ -424,6 +1379,7 @@ public class HomePage extends JPanel {
                         store.setAddress(address);
                         store.setPhone(phone);
                         storeService.update(store);
+                        storesPanel.refresh();
                         dialog.dispose();
                     } else {
                         JOptionPane.showMessageDialog(dialog, "Store not found", "Error", JOptionPane.ERROR_MESSAGE);
@@ -453,18 +1409,23 @@ public class HomePage extends JPanel {
             switch (currentPanel) {
                 case "Orders":
                     orderService.delete(id);
+                    ordersPanel.refresh();
                     break;
                 case "Products":
                     productService.delete(id);
+                    productsPanel.refresh();
                     break;
                 case "Receivers":
                     receiverService.delete(id);
+                    receiversPanel.refresh();
                     break;
                 case "Cargos":
                     cargoService.delete(id);
+                    cargosPanel.refresh();
                     break;
                 case "Stores":
                     storeService.delete(id);
+                    storesPanel.refresh();
                     break;
             }
             dialog.dispose();
@@ -475,6 +1436,9 @@ public class HomePage extends JPanel {
         dialog.setVisible(true);
     }
 }
+*/
+/*---------düzeltmeden önce
+*/
 /*-----------sekizinci hali-----------------
 package org.project.pages.home;
 

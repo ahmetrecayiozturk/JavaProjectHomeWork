@@ -7,9 +7,9 @@ import java.util.UUID;
 public class Cargo<T> implements Identifiable {
     private Integer id;
     private boolean isdelivered;
-    private T entity;
+    private Order entity;
 
-    public Cargo(boolean isdelivered, T entity) {
+    public Cargo(boolean isdelivered, Order entity) {
         this.id = Math.abs(UUID.randomUUID().hashCode());
         this.isdelivered = isdelivered;
         this.entity = entity;
@@ -32,11 +32,11 @@ public class Cargo<T> implements Identifiable {
         isdelivered = delivered;
     }
 
-    public T getEntity() {
+    public Order getEntity() {
         return entity;
     }
 
-    public void setEntity(T entity) {
+    public void setEntity(Order entity) {
         this.entity = entity;
     }
 
