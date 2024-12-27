@@ -29,22 +29,20 @@ public class ImageService {
         }
     }
 
-    public Path saveImage(Product product, File imageFile) throws IOException {
+    public static Path saveImage(File imageFile) throws IOException {
         String extension = getFileExtension(imageFile);
         String imageFileName = Math.abs(UUID.randomUUID().hashCode()) + extension;
         File targetFile = new File(imageStorageDirectory.toString(), imageFileName);
         Path imageFilePath = imageStorageDirectory.resolve(imageFileName);
         try {
             Files.copy(imageFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            product.setImageUrl(imageFilePath.toString());
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
         return imageFilePath;
     }
-
-    private String getFileExtension(File file) {
+    public static String getFileExtension(File file) {
         String fileName = file.getName();
         int dotIndex = fileName.lastIndexOf(".");
         if (dotIndex > 0) {
@@ -65,7 +63,7 @@ public class ImageService {
 
     public String updateImage(Product product, File image) throws IOException {
         if (deleteImage(product)) {
-            saveImage(product, image);
+            saveImage(image);
         }
         return product.getImageUrl();
     }
@@ -75,7 +73,7 @@ public class ImageService {
         return Files.exists(imagePath);
     }
 
-    public File chooseImage() throws IOException {
+    public static File chooseImage() throws IOException {
         JFileChooser fileChooser = new JFileChooser();
         int returnValue = fileChooser.showOpenDialog(null);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
@@ -85,3 +83,7 @@ public class ImageService {
         return null;
     }
 }
+
+
+
+

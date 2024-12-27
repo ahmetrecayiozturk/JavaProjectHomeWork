@@ -7,29 +7,29 @@ import org.project.models.Order;
 import java.util.List;
 
 public class OrderService {
-    private JsonRepository<Order> orderRepository;
+    private static  JsonRepository<Order> orderRepository;
 
     public OrderService(JsonRepository<Order> orderRepository) {
         this.orderRepository = orderRepository;
     }
 
     //emir eklenmesi
-    public void add(Order order){
+    public static void add(Order order){
         orderRepository.save(order);
     }
 
     //emir update edilmesi
-    public void update(Order order){
+    public static void update(Order order){
         orderRepository.update(order);
     }
 
     //emir silinmesi
-    public void delete(Integer orderId){
+    public static void delete(Integer orderId){
         orderRepository.delete(orderId);
     }
 
     //id'ye göre emir getirme
-    public Order getOrderById(Integer id) {
+    public static Order getOrderById(Integer id) {
         //tüm emirler önce bulunur ve sonra da id'si eşlenen emir döndürülür
         List<Order> orders = orderRepository.findAll();
         for (Order order : orders) {
@@ -40,17 +40,17 @@ public class OrderService {
         return null;
     }
     //tüm emirlerin döndürülmesi
-    public List<Order> getAllOrders() {
+    public static List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
 
     //getter-setter mantıkları
-    public JsonRepository<Order> getOrderRepository() {
+    public static JsonRepository<Order> getOrderRepository() {
         return orderRepository;
     }
 
     //getter-setter mantıkları
-    public void setOrderRepository(JsonRepository<Order> orderRepository) {
-        this.orderRepository = orderRepository;
+    public static void setOrderRepository(JsonRepository<Order> orderRepository) {
+        orderRepository = orderRepository;
     }
 }

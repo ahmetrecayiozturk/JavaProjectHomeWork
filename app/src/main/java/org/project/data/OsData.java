@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class OsData {
-    public static String getUserDataPath(String fileName) {
+    public static String getUserDataPath() {
         String userHome = System.getProperty("user.home");
 
         String os = System.getProperty("os.name").toLowerCase();
@@ -29,6 +29,6 @@ public class OsData {
             e.printStackTrace();
         }
 
-        return directoryPath.resolve(fileName).toString();
+        return directoryPath.toString();
     }
 }

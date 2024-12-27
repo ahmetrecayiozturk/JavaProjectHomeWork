@@ -1,12 +1,9 @@
 package org.project.services;
 
 import org.project.data.JsonRepository;
-import org.project.data.OsData;
 import org.project.models.User;
 
 import java.util.List;
-
-import static org.project.data.JsonRepository.initializeJsonFile;
 
 public class UserService {
     private static JsonRepository<User> userRepository;
@@ -15,9 +12,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    //user eklenmesi
     public static boolean addUser(User user) {
-        //emaile göre user getirilmesi, eğer yok ise eklenmesi
         User user4=getUserByEmail(user.getEmail());
         if(user4 != null) {
             return false;
@@ -26,22 +21,18 @@ public class UserService {
         return true;
     }
 
-    //user güncellenmesi
     public static void updateUser(User user) {
         userRepository.update(user);
     }
 
-    //user silinmesi
     public static void deleteUser(Integer userId) {
         userRepository.delete(userId);
     }
 
-    //userların getirilmesi
     public static List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    //auth işlemleri
     public static User authenticate(String email, String password) {
         List<User> users = userRepository.findAll();
         for (User user : users) {
@@ -51,8 +42,6 @@ public class UserService {
         }
         return null;
     }
-
-    //emaile göre user getirilemsi, id'ye göre yapılabilir?
     public static User getUserByEmail(String email) {
         List<User> users = userRepository.findAll();
         for (User user : users) {
@@ -61,11 +50,5 @@ public class UserService {
             }
         }
         return null;
-    }
-    //user dosyası oluşturma
-    public static void createUserFile(){
-        //User Servis
-        initializeJsonFile(OsData.getUserDataPath("users.json"));
-        UserService userService = new UserService(new JsonRepository<>(OsData.getUserDataPath("users.json"), User[].class));
     }
 }

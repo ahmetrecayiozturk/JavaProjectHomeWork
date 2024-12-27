@@ -10,12 +10,13 @@ import java.util.List;
 public class JsonRepository<T extends Identifiable> {
     private String filePath;
     private Class<T[]> type;
-    //constructor
-    public JsonRepository(String filePath, Class<T[]> type) {
-        this.filePath = filePath;
+
+    public JsonRepository(String appPath, Class<T[]> type) {
+        this.filePath = appPath+"/"+type.getComponentType().getSimpleName()+".json";
+        initializeJsonFile();
         this.type = type;
     }
-    //ekleme
+
     public void save(T item) {
         List<T> items = findAll();
         if (items == null) {
@@ -29,7 +30,7 @@ public class JsonRepository<T extends Identifiable> {
         items.add(item);
         writeToFile(items);
     }
-    //update etme
+
     public void update(T item) {
         List<T> items = findAll();
         if (items == null) {
@@ -44,7 +45,7 @@ public class JsonRepository<T extends Identifiable> {
         }
         writeToFile(items);
     }
-    //silme
+
     public void delete(Integer id) {
         List<T> items = findAll();
         if (items == null) {
@@ -60,37 +61,33 @@ public class JsonRepository<T extends Identifiable> {
         throw new IllegalArgumentException("Item not found: " + id);
 
     }
-    //hepsini getirme, iterasyon için
+
     public List<T> findAll() {
         try (FileReader reader = new FileReader(filePath)) {
             T[] array = new Gson().fromJson(reader, type);
             if (array != null) {
                 return new ArrayList<>(Arrays.asList(array));
             }
-        } catch (EOFException e) {
-            // Eğer dosya tamamen boşsa, boş bir liste döndür
-            return new ArrayList<>();
         } catch (IOException e) {
             e.printStackTrace();
         }
         return new ArrayList<>();
     }
-    //dosya yolu oluşturmak için
-    public static void initializeJsonFile(String filePath) {
-        File file = new File(filePath);
-        //eğer mecvut dosya yok ise boş bir dosya oluşturulur
+
+    public void initializeJsonFile() {
+        File file = new File(this.filePath);
         if (!file.exists()) {
             try {
                 file.createNewFile();
                 try (FileWriter writer = new FileWriter(file)) {
-                    writer.write("[]"); // Boş bir JSON dizisi
+                    writer.write("[]");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
-    //dosya yazmak için
+
     private void writeToFile(List<T> items) {
         try (FileWriter writer = new FileWriter(filePath)) {
             new Gson().toJson(items.toArray(), writer);
@@ -98,5 +95,4 @@ public class JsonRepository<T extends Identifiable> {
             e.printStackTrace();
         }
     }
-
 }

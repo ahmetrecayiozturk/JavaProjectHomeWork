@@ -14,7 +14,7 @@ public class StoreService {
     }
 
     //mağaza eklenmesi
-    public boolean add(Store store) {
+    public static boolean add(Store store) {
         //mağaza id'si ile önceden bir kayıt yapılmış mı kontrol edilmesi
         Store existingStore = getStoreByName(store.getName());
         if(existingStore != null){
@@ -27,17 +27,17 @@ public class StoreService {
     }
 
     //store update edilmesi
-    public void update(Store store) {
+    public static void update(Store store) {
         storeRepo.update(store);
     }
 
     //store delete edilmesi
-    public void delete(Integer storeId){
+    public static void delete(Integer storeId){
         storeRepo.delete(storeId);
     }
 
     //id'ye göre mağazanın getirilmesi
-    public Store getStoreById(int id) {
+    public static Store getStoreById(int id) {
         List<Store> stores = storeRepo.findAll();
         for (Store store : stores) {
             if (store.getId().equals(id)) {
@@ -48,7 +48,7 @@ public class StoreService {
     }
 
     //id'ye göre mağazanın getirilmesi
-    public Store getStoreByName(String name) {
+    public static  Store getStoreByName(String name) {
         List<Store> stores = storeRepo.findAll();
         for (Store store : stores) {
             if (store.getName().equals(name)) {
@@ -57,17 +57,17 @@ public class StoreService {
         }
         return null;
     }
-    public List<Store> getAllStores(){
+    public static List<Store> getAllStores(){
         return storeRepo.findAll();
     }
 
     //getter-setter mantığı
-    public JsonRepository<Store> getStoreRepo() {
+    public static JsonRepository<Store> getStoreRepo() {
         return storeRepo;
     }
 
     //getter-setter mantığı
-    public void setStoreRepo(JsonRepository<Store> storeRepo) {
-        this.storeRepo = storeRepo;
+    public static void setStoreRepo(JsonRepository<Store> storeRepo) {
+        storeRepo = storeRepo;
     }
 }

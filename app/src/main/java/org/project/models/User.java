@@ -35,15 +35,4 @@ public class User implements Identifiable {
     public Integer getId() {
         return id;
     }
-
-    public void setId(int id) {this.id = id;}
-
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                '}';
-    }
-
 }
