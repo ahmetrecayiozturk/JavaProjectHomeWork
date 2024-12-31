@@ -4,10 +4,8 @@ import javax.swing.*;
 import java.io.File;
 
 import org.project.models.Product;
-import org.project.services.ImageService;
 import org.project.services.ProductService;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

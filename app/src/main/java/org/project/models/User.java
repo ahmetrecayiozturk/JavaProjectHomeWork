@@ -8,11 +8,21 @@ public class User implements Identifiable {
     private Integer id;
     private String email;
     private String password;
+    private int storeId;
 
-    public User(String email, String password) {
+    public User(String email, String password, int storeId) {
         this.id = Math.abs(UUID.randomUUID().hashCode());
         this.password = password;
         this.email = email;
+        this.storeId = storeId;
+    }
+
+    public int getStoreId() {
+        return storeId;
+    }
+
+    public void setStoreId(int storeId) {
+        this.storeId = storeId;
     }
 
     public String getEmail() {

@@ -10,13 +10,33 @@ import java.util.UUID;
 public class Store implements Identifiable {
     private Integer id;
     private String name,address,phone;
-    public Store(String name, String address, String phone) {
+    private String description;
+    private String imageUrl;
+    public Store(String name, String address, String phone,String description,String imageUrl) {
         this.id = Math.abs(UUID.randomUUID().hashCode());
         this.name = name;
         this.address = address;
         this.phone = phone;
+        this.description = description;
+        this.imageUrl = imageUrl;
+
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     @Override
     public Integer getId() {

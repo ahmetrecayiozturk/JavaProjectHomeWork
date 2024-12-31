@@ -9,7 +9,7 @@ public class CargoService {
     private static JsonRepository<Cargo> cargoRepo;
     //kargo servisinin constructoru
     public CargoService(JsonRepository<Cargo> cargoRepo) {
-        cargoRepo = cargoRepo;
+        this.cargoRepo = cargoRepo;
     }
 
     //kargonun eklenmesi
@@ -37,6 +37,7 @@ public class CargoService {
         }
         return null;
     }
+
 
     //tüm kargoların getirilmesi
     public static List<Cargo> getAllCargos() {

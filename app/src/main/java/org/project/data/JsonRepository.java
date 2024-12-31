@@ -1,6 +1,7 @@
 package org.project.data;
 
 import com.google.gson.Gson;
+import org.project.App;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -11,8 +12,8 @@ public class JsonRepository<T extends Identifiable> {
     private String filePath;
     private Class<T[]> type;
 
-    public JsonRepository(String appPath, Class<T[]> type) {
-        this.filePath = appPath+"/"+type.getComponentType().getSimpleName()+".json";
+    public JsonRepository(Class<T[]> type) {
+        this.filePath = App.getAppDir().toString()+"/"+type.getComponentType().getSimpleName()+".json";
         initializeJsonFile();
         this.type = type;
     }

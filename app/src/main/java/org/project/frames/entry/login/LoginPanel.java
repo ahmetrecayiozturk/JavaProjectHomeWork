@@ -1,5 +1,6 @@
 package org.project.frames.entry.login;
 
+import org.project.App;
 import org.project.frames.home.HomeFrame;
 import org.project.models.User;
 import org.project.services.UserService;
@@ -36,8 +37,7 @@ public class LoginPanel extends JPanel {
                 User user=UserService.authenticate(email, password);
                 if (user != null) {
                     JOptionPane.showMessageDialog(frame, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    HomeFrame home = new HomeFrame();
-                    frame.dispose();
+                    App.switchToHomeFrame();
                 }else{
                     JOptionPane.showMessageDialog(frame, "Invalid email or password!", "Error", JOptionPane.ERROR_MESSAGE);
                 }

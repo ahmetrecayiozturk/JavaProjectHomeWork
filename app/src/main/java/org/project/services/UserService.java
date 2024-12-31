@@ -1,6 +1,8 @@
 package org.project.services;
 
+import org.project.App;
 import org.project.data.JsonRepository;
+import org.project.models.Store;
 import org.project.models.User;
 
 import java.util.List;
@@ -37,11 +39,12 @@ public class UserService {
         List<User> users = userRepository.findAll();
         for (User user : users) {
             if (user.getEmail().equals(email) && user.getPassword().equals(password)) {
+                App.setCurrentUser(user);
                 return user;
             }
         }
         return null;
-    }
+    }/*User user*/
     public static User getUserByEmail(String email) {
         List<User> users = userRepository.findAll();
         for (User user : users) {
@@ -50,5 +53,8 @@ public class UserService {
             }
         }
         return null;
+    }
+    public static Store getUserStore(User user) {
+        return StoreService.getStoreById(user.getStoreId());
     }
 }

@@ -1,5 +1,6 @@
 package org.project.services;
 
+import org.project.App;
 import org.project.models.Product;
 
 import javax.swing.*;
@@ -14,8 +15,8 @@ import java.util.UUID;
 public class ImageService {
     private static Path imageStorageDirectory;
 
-    public ImageService(String appStorageDirectory) {
-        imageStorageDirectory = Paths.get(appStorageDirectory, "images");
+    public ImageService() {
+        imageStorageDirectory = Paths.get(App.getAppDir().toString(), "images");
         createImagesDirectoryIfNotExist();
     }
 
@@ -81,6 +82,14 @@ public class ImageService {
             return selectedFile;
         }
         return null;
+    }
+
+    public static Path getImageStorageDirectory() {
+        return imageStorageDirectory;
+    }
+
+    public static void setImageStorageDirectory(Path imageStorageDirectory) {
+        ImageService.imageStorageDirectory = imageStorageDirectory;
     }
 }
 
