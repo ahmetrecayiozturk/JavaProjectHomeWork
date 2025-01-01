@@ -3,7 +3,6 @@ package org.project.frames.home;
 import org.project.frames.home.home.HomePage;
 import org.project.frames.home.home.panels.AddProduct;
 import org.project.frames.home.home.panels.Inventory;
-import org.project.frames.home.home.panels.Orders;
 import org.project.frames.home.home.panels.Products;
 
 import javax.swing.*;

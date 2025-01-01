@@ -19,16 +19,22 @@ public class AddProduct extends JPanel {
     private JTextArea descriptionField;
     private JTextField priceField;
     private JLabel imageLabel;
+    private ImageService imageService=new ImageService();
+    private ProductService productService=new ProductService();
 
     public String name;
     public String description;
     public Double price;
     public File image;
     public Path imagePath;
+    private CardLayout cardLayout;
+    private JPanel cardPanel;
 
     public final int innerPanelWith=500;
 
-    public AddProduct() {
+    public AddProduct(CardLayout cardLayout,JPanel cardPanel) {
+        this.cardLayout = cardLayout;
+        this.cardPanel = cardPanel;
 
         setLayout(null);
         setBounds(0, 0, innerPanelWith, 430);
@@ -45,7 +51,7 @@ public class AddProduct extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 try {
-                    image=ImageService.chooseImage();
+                    image=imageService.chooseImage();
                     assert image != null;
                     if (!image.exists()){
                         JOptionPane.showMessageDialog(null, "Image is null!");
@@ -104,7 +110,7 @@ public class AddProduct extends JPanel {
                     JOptionPane.showMessageDialog(null, "Upload an image!");
                 }else{
                     try {
-                        imagePath=ImageService.saveImage(image);
+                        imagePath=imageService.saveImage(image);
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -114,10 +120,16 @@ public class AddProduct extends JPanel {
                     newProduct.setPrice(price);
                     newProduct.setImageUrl(imagePath.toString());
                     newProduct.setProductCount(0);
-                    ProductService.add(newProduct);
+                    productService.add(newProduct);
 
                     JOptionPane.showMessageDialog(null, "Product saved!");
-                }
+                    for(Component component:cardPanel.getComponents()){
+                        if(component instanceof Products){
+                            Products productPanel=(Products) component;
+                            productPanel.refresh();
+                    }
+                    cardLayout.show(cardPanel, "Products");
+                }}
             }
         });
         add(saveButton);

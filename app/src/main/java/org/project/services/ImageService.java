@@ -13,7 +13,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 public class ImageService {
-    private static Path imageStorageDirectory;
+    private Path imageStorageDirectory;
 
     public ImageService() {
         imageStorageDirectory = Paths.get(App.getAppDir().toString(), "images");
@@ -30,7 +30,7 @@ public class ImageService {
         }
     }
 
-    public static Path saveImage(File imageFile) throws IOException {
+    public Path saveImage(File imageFile) throws IOException {
         String extension = getFileExtension(imageFile);
         String imageFileName = Math.abs(UUID.randomUUID().hashCode()) + extension;
         File targetFile = new File(imageStorageDirectory.toString(), imageFileName);
@@ -43,7 +43,7 @@ public class ImageService {
         }
         return imageFilePath;
     }
-    public static String getFileExtension(File file) {
+    public String getFileExtension(File file) {
         String fileName = file.getName();
         int dotIndex = fileName.lastIndexOf(".");
         if (dotIndex > 0) {
@@ -74,7 +74,7 @@ public class ImageService {
         return Files.exists(imagePath);
     }
 
-    public static File chooseImage() throws IOException {
+    public File chooseImage() throws IOException {
         JFileChooser fileChooser = new JFileChooser();
         int returnValue = fileChooser.showOpenDialog(null);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
@@ -84,12 +84,12 @@ public class ImageService {
         return null;
     }
 
-    public static Path getImageStorageDirectory() {
+    public Path getImageStorageDirectory() {
         return imageStorageDirectory;
     }
 
-    public static void setImageStorageDirectory(Path imageStorageDirectory) {
-        ImageService.imageStorageDirectory = imageStorageDirectory;
+    public void setImageStorageDirectory(Path imageStorageDirectory) {
+        this.imageStorageDirectory = imageStorageDirectory;
     }
 }
 

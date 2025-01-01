@@ -1,36 +1,37 @@
 package org.project.frames.home.home.panels;
 
-import org.project.models.Cargo;
-import org.project.models.Order;
 import org.project.models.Receiver;
-import org.project.services.CargoService;
-import org.project.services.OrderService;
 import org.project.services.ReceiverService;
-import org.project.data.JsonRepository;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.List;
 
 public class ReceiversPanel extends JPanel {
-    private ReceiverService receiverService;
-    private OrderService orderService;
-    private CargoService cargoService;
+    private int numRows;
+    private static final int RECEIVER_MAX_WIDTH = 1000;
+    private static final int RECEIVER_HEIGHT = 50;
+    private final ReceiverService receiverService = new ReceiverService();
     private List<Receiver> receivers;
-    private JPanel receiversListPanel;
 
     public ReceiversPanel() {
-        this.receiverService = new ReceiverService(new JsonRepository<>(Receiver[].class));
-        this.orderService = new OrderService(new JsonRepository<>(Order[].class));
-        this.cargoService = new CargoService(new JsonRepository<>(Cargo[].class));
         this.receivers = receiverService.getAllReceivers();
-        setLayout(new BorderLayout());
+        initialize();
+    }
 
-        receiversListPanel = new JPanel(new GridBagLayout());
-        loadReceivers();
-
-        JScrollPane scrollPane = new JScrollPane(receiversListPanel);
-        add(scrollPane, BorderLayout.CENTER);
+    private void initialize() {
+        setLayout(null);
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                updateNumRows();
+                revalidate();
+                repaint();
+            }
+        });
+        addReceivers();
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridLayout(1, 3, 10, 10));
@@ -43,35 +44,25 @@ public class ReceiversPanel extends JPanel {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private void loadReceivers() {
-        receiversListPanel.removeAll();
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.NORTH; // Kartların üstten başlamasını sağlar
-        gbc.insets = new Insets(10, 10, 10, 10);
+    private void updateNumRows() {
+        int panelHeight = getHeight();
+        numRows = Math.max(1, panelHeight / (RECEIVER_HEIGHT + 10));
+    }
 
+    private void addReceivers() {
         for (Receiver receiver : receivers) {
-            receiversListPanel.add(createReceiverPanel(receiver), gbc);
-            gbc.gridy++;
+            add(createReceiverPanel(receiver));
         }
-        revalidate();
-        repaint();
     }
 
     private JPanel createReceiverPanel(Receiver receiver) {
-        JPanel card = new JPanel(new BorderLayout());
-        card.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        JPanel infoPanel = new JPanel(new GridLayout(2, 1));
-        JLabel titleLabel = new JLabel("Receiver: " + receiver.getName() + " " + receiver.getSurname());
-        JTextArea contentArea = new JTextArea(receiver.toString());
-        contentArea.setEditable(false);
-        contentArea.setLineWrap(true);
-        contentArea.setWrapStyleWord(true);
-        infoPanel.add(titleLabel);
-        infoPanel.add(new JScrollPane(contentArea));
+        JPanel receiverPanel = new JPanel(new BorderLayout());
+        receiverPanel.setPreferredSize(new Dimension(RECEIVER_MAX_WIDTH, RECEIVER_HEIGHT));
+        receiverPanel.setBackground(new Color(100, 150, 100, 255));
+
+        JLabel receiverLabel = new JLabel("Receiver: " + receiver.getName() + " " + receiver.getSurname());
+        receiverLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        receiverPanel.add(receiverLabel, BorderLayout.WEST);
 
         JPanel buttonPanel = new JPanel(new GridLayout(1, 3, 10, 10));
         JButton detailsButton = new JButton("Details");
@@ -89,10 +80,21 @@ public class ReceiversPanel extends JPanel {
         buttonPanel.add(updateButton);
         buttonPanel.add(deleteButton);
 
-        card.add(infoPanel, BorderLayout.CENTER);
-        card.add(buttonPanel, BorderLayout.SOUTH);
+        receiverPanel.add(buttonPanel, BorderLayout.EAST);
 
-        return card;
+        return receiverPanel;
+    }
+
+    @Override
+    public void doLayout() {
+        super.doLayout();
+        int y = 0;
+        int x = (getWidth() - RECEIVER_MAX_WIDTH) / 2;
+
+        for (Component component : getComponents()) {
+            component.setBounds(x, y * (RECEIVER_HEIGHT + 10) + RECEIVER_HEIGHT / 4, RECEIVER_MAX_WIDTH, RECEIVER_HEIGHT);
+            y++;
+        }
     }
 
     private void showDetailsDialog(Receiver receiver) {
@@ -203,6 +205,7 @@ public class ReceiversPanel extends JPanel {
 
     public void refresh() {
         this.receivers = receiverService.getAllReceivers();
-        loadReceivers();
+        removeAll();
+        initialize();
     }
 }

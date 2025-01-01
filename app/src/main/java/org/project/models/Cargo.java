@@ -4,7 +4,7 @@ import org.project.data.Identifiable;
 
 import java.util.UUID;
 
-public class Cargo<T> implements Identifiable {
+public class Cargo implements Identifiable {
     private Integer id;
     private boolean isdelivered;
     private Order entity;

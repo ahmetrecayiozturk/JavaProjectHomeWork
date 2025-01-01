@@ -7,15 +7,13 @@ import java.util.List;
 
 public class ReceiverService {
 
-    private static JsonRepository<Receiver> receiverRepo;
+    private JsonRepository<Receiver> receiverRepo=new JsonRepository<>( Receiver[].class);
 
-    //receiver servisinin constructoru
-    public ReceiverService(JsonRepository<Receiver> receiverRepo) {
-        this.receiverRepo = receiverRepo;
+    public ReceiverService() {
+
     }
 
-    //receiver eklenmesi
-    public static boolean add(Receiver receiver) {
+    public boolean add(Receiver receiver) {
         Receiver existingReceiver = getReceiverByEmail(receiver.getEmail());
         if(existingReceiver != null){
             return false;
@@ -26,18 +24,15 @@ public class ReceiverService {
         }
     }
 
-    //receiver güncellenmesi
-    public static void update(Receiver receiver) {
+    public void update(Receiver receiver) {
         receiverRepo.update(receiver);
     }
 
-    //receiver silinmesi
-    public static void delete(Integer receiverId) {
+    public void delete(Integer receiverId) {
         receiverRepo.delete(receiverId);
     }
 
-    //id ye göre receiverin getirilmesi
-    public static Receiver getReceiverById(Integer id) {
+    public Receiver getReceiverById(Integer id) {
         //önce tüm receiverleri döndürürüz sonra da id si eşlenen receiver döndürülür
         List<Receiver> receivers = receiverRepo.findAll();
         for (Receiver receiver : receivers) {
@@ -48,8 +43,7 @@ public class ReceiverService {
         return null;
     }
 
-    //emaile ye göre receiverin getirilmesi
-    public static Receiver getReceiverByEmail(String email) {
+    public Receiver getReceiverByEmail(String email) {
         //önce tüm receiverleri döndürürüz sonra da id si eşlenen receiver döndürülür
         List<Receiver> receivers = receiverRepo.findAll();
         for (Receiver receiver : receivers) {
@@ -60,18 +54,15 @@ public class ReceiverService {
         return null;
     }
 
-    //tüm receiverlerin döndürülmesi
-    public static List<Receiver> getAllReceivers() {
+    public List<Receiver> getAllReceivers() {
         return receiverRepo.findAll();
     }
-    
-    //getter-setter mantığı
-    public static JsonRepository<Receiver> getReceiverRepo() {
+
+    public JsonRepository<Receiver> getReceiverRepo() {
         return receiverRepo;
     }
 
-    //getter-setter mantığı
-    public static void setReceiverRepo(JsonRepository<Receiver> receiverRepo) {
+    public void setReceiverRepo(JsonRepository<Receiver> receiverRepo) {
         receiverRepo = receiverRepo;
     }
 }

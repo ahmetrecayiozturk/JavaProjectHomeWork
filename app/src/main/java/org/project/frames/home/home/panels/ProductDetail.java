@@ -15,6 +15,7 @@ public class ProductDetail extends JPanel {
     private JLabel descriptionLabel;
     private JLabel priceLabel;
     private JLabel imageLabel;
+    private ProductService productService=new ProductService();
 
     private Product product;
 
@@ -71,7 +72,7 @@ public class ProductDetail extends JPanel {
                 int confirmation = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this product?",
                         "Delete Confirmation", JOptionPane.YES_NO_OPTION);
                 if (confirmation == JOptionPane.YES_OPTION) {
-                    ProductService.delete(product.getId()); // Assuming ProductService.delete() method exists
+                    productService.delete(product.getId()); // Assuming ProductService.delete() method exists
                     JOptionPane.showMessageDialog(null, "Product deleted!");
                 }
             }

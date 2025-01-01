@@ -17,13 +17,17 @@ public class Products extends JPanel {
     private JPanel cardPanel;
     private List<Product> products;
     private ProductDetail productDetail;
+    private ProductService productService=new ProductService();
 
     public Products(CardLayout cardLayout,JPanel cardPanel,ProductDetail productDetail) {
-        this.products=ProductService.getAllProducts();
         this.numColumns = 2;
         this.cardLayout = cardLayout;
         this.cardPanel = cardPanel;
         this.productDetail=productDetail;
+        initialize();
+    }
+    public void initialize(){
+        this.products=productService.getAllProducts();
         setLayout(null);
 
         addComponentListener(new ComponentAdapter() {
@@ -54,51 +58,110 @@ public class Products extends JPanel {
     private JPanel createProductPanel(Product product) {
         JPanel productPanel = new JPanel();
         productPanel.setPreferredSize(new Dimension(PRODUCT_SIZE, PRODUCT_SIZE));
-        productPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        productPanel.setLayout(null);
-        JLabel productLabel =new JLabel(product.getName());
-        productLabel.setBounds(10, 10, 150, 30);
-        productPanel.add(productLabel);
-
+        productPanel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        productPanel.setLayout(new BorderLayout(10, 10));
+        productPanel.setBackground(Color.WHITE);
+        
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(Color.WHITE);
+        JLabel productLabel = new JLabel(product.getName());
+        productLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        productLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        topPanel.add(productLabel, BorderLayout.CENTER);
+        
+        JPanel imagePanel = new JPanel(new BorderLayout());
+        imagePanel.setBackground(Color.WHITE);
         ImageIcon productImageIcon = new ImageIcon(product.getImageUrl());
         Image productImage = productImageIcon.getImage();
-        Image resizedImage = productImage.getScaledInstance(PRODUCT_SIZE, PRODUCT_SIZE, Image.SCALE_SMOOTH);
-        productImageIcon = new ImageIcon(resizedImage);
-        JLabel productImageLabel = new JLabel(productImageIcon);
-        productImageLabel.setBounds(10, 50, PRODUCT_SIZE - 20, PRODUCT_SIZE - 60);
-
-        productPanel.add(productImageLabel);
-
-
+        Image resizedImage = productImage.getScaledInstance(PRODUCT_SIZE - 40, PRODUCT_SIZE - 100, Image.SCALE_SMOOTH);
+        JLabel productImageLabel = new JLabel(new ImageIcon(resizedImage));
+        productImageLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        imagePanel.add(productImageLabel, BorderLayout.CENTER);
+        
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setBackground(Color.WHITE);
+        JLabel priceLabel = new JLabel(String.format("$ %.2f", product.getPrice()));
+        priceLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        priceLabel.setForeground(new Color(0, 100, 0));
+        priceLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        bottomPanel.add(priceLabel, BorderLayout.CENTER);
+        
+        productPanel.add(topPanel, BorderLayout.NORTH);
+        productPanel.add(imagePanel, BorderLayout.CENTER);
+        productPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         productPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                productPanel.setBorder(BorderFactory.createLineBorder(new Color(0, 120, 215), 2));
+                productPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            }
 
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                productPanel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+                productPanel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            }
+
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
                 productDetail.setProduct(product);
                 cardLayout.show(cardPanel, "productDetail");
             }
         });
+
         return productPanel;
     }
+
     private JPanel addNewProduct() {
         JPanel productPanel = new JPanel();
         productPanel.setPreferredSize(new Dimension(PRODUCT_SIZE, PRODUCT_SIZE));
-        productPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        productPanel.setLayout(null);
-        JLabel productNameLabel = new JLabel("+");
-        productNameLabel.setFont(new Font("Arial", Font.BOLD, 60));
-        productNameLabel.setBounds(110, 90, 50, 30);
-        productPanel.add(productNameLabel);
-        JLabel text=new JLabel("add new product");
-        text.setBounds(80, 140, 150, 30);
-        productPanel.add(text);
+        productPanel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        productPanel.setLayout(new BorderLayout());
+        productPanel.setBackground(Color.WHITE);
+
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        centerPanel.setBackground(Color.WHITE);
+        
+        JLabel plusLabel = new JLabel("+");
+        plusLabel.setFont(new Font("Arial", Font.BOLD, 60));
+        plusLabel.setForeground(new Color(0, 120, 215));
+        
+        JLabel textLabel = new JLabel("Add New Product");
+        textLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        textLabel.setForeground(new Color(100, 100, 100));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(0, 0, 10, 0);
+        centerPanel.add(plusLabel, gbc);
+        
+        gbc.gridy = 1;
+        centerPanel.add(textLabel, gbc);
+        
+        productPanel.add(centerPanel, BorderLayout.CENTER);
+
+        // Hover efekti
         productPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                productPanel.setBorder(BorderFactory.createLineBorder(new Color(0, 120, 215), 2));
+                productPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                productPanel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+                productPanel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            }
+
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 cardLayout.show(cardPanel, "createProduct");
             }
         });
+
         return productPanel;
     }
 
@@ -118,6 +181,10 @@ public class Products extends JPanel {
             component.setBounds(x * columnWidth+remainedWith/2, y * (PRODUCT_SIZE + 10)+PRODUCT_SIZE/6, PRODUCT_SIZE, PRODUCT_SIZE);
             x++;
         }
+    }
+    public void refresh(){
+        removeAll();
+        initialize();
     }
 
 }

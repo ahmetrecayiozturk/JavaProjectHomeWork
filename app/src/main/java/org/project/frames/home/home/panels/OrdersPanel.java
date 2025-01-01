@@ -9,31 +9,39 @@ import org.project.services.ProductService;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.List;
 
 public class OrdersPanel extends JPanel {
-    private OrderService orderService;
-    private ReceiverService receiverService;
-    private ProductService productService;
+    private int numRows;
+    private static final int ORDER_MAX_WIDTH = 1000;
+    private static final int ORDER_HEIGHT = 50;
+    private final OrderService orderService = new OrderService();
+    private final ReceiverService receiverService = new ReceiverService();
+    private final ProductService productService = new ProductService();
     private List<Order> orders;
     private List<Receiver> receivers;
     private List<Product> products;
-    private JPanel ordersListPanel;
 
     public OrdersPanel() {
-        this.orderService = orderService;
-        this.receiverService = receiverService;
-        this.productService = productService;
         this.orders = orderService.getAllOrders();
         this.receivers = receiverService.getAllReceivers();
         this.products = productService.getAllProducts();
-        setLayout(new BorderLayout());
+        initialize();
+    }
 
-        ordersListPanel = new JPanel(new GridBagLayout());
-        loadOrders();
-
-        JScrollPane scrollPane = new JScrollPane(ordersListPanel);
-        add(scrollPane, BorderLayout.CENTER);
+    private void initialize() {
+        setLayout(null);
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                updateNumRows();
+                revalidate();
+                repaint();
+            }
+        });
+        addOrders();
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridLayout(1, 3, 10, 10));
@@ -46,35 +54,25 @@ public class OrdersPanel extends JPanel {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private void loadOrders() {
-        ordersListPanel.removeAll();
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.NORTH; // Kartların üstten başlamasını sağlar
-        gbc.insets = new Insets(10, 10, 10, 10);
+    private void updateNumRows() {
+        int panelHeight = getHeight();
+        numRows = Math.max(1, panelHeight / (ORDER_HEIGHT + 10));
+    }
 
+    private void addOrders() {
         for (Order order : orders) {
-            ordersListPanel.add(createOrderPanel(order), gbc);
-            gbc.gridy++;
+            add(createOrderPanel(order));
         }
-        revalidate();
-        repaint();
     }
 
     private JPanel createOrderPanel(Order order) {
-        JPanel card = new JPanel(new BorderLayout());
-        card.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        JPanel infoPanel = new JPanel(new GridLayout(2, 1));
-        JLabel titleLabel = new JLabel("Order ID: " + order.getId());
-        JTextArea contentArea = new JTextArea(order.toString());
-        contentArea.setEditable(false);
-        contentArea.setLineWrap(true);
-        contentArea.setWrapStyleWord(true);
-        infoPanel.add(titleLabel);
-        infoPanel.add(new JScrollPane(contentArea));
+        JPanel orderPanel = new JPanel(new BorderLayout());
+        orderPanel.setPreferredSize(new Dimension(ORDER_MAX_WIDTH, ORDER_HEIGHT));
+        orderPanel.setBackground(new Color(100, 150, 100, 255));
+
+        JLabel orderLabel = new JLabel("Order ID: " + order.getId());
+        orderLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        orderPanel.add(orderLabel, BorderLayout.WEST);
 
         JPanel buttonPanel = new JPanel(new GridLayout(1, 3, 10, 10));
         JButton detailsButton = new JButton("Details");
@@ -92,10 +90,21 @@ public class OrdersPanel extends JPanel {
         buttonPanel.add(updateButton);
         buttonPanel.add(deleteButton);
 
-        card.add(infoPanel, BorderLayout.CENTER);
-        card.add(buttonPanel, BorderLayout.SOUTH);
+        orderPanel.add(buttonPanel, BorderLayout.EAST);
 
-        return card;
+        return orderPanel;
+    }
+
+    @Override
+    public void doLayout() {
+        super.doLayout();
+        int y = 0;
+        int x = (getWidth() - ORDER_MAX_WIDTH) / 2;
+
+        for (Component component : getComponents()) {
+            component.setBounds(x, y * (ORDER_HEIGHT + 10) + ORDER_HEIGHT / 4, ORDER_MAX_WIDTH, ORDER_HEIGHT);
+            y++;
+        }
     }
 
     private void showDetailsDialog(Order order) {
@@ -182,6 +191,7 @@ public class OrdersPanel extends JPanel {
 
     public void refresh() {
         this.orders = orderService.getAllOrders();
-        loadOrders();
+        removeAll();
+        initialize();
     }
 }

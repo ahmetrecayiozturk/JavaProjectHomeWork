@@ -17,11 +17,16 @@ public class Inventory extends JPanel {
     private CardLayout cardLayout;
     private JPanel cardPanel;
     private List<Product> products;
+    private ProductService productService=new ProductService();
 
     public Inventory(CardLayout cardLayout,JPanel cardPanel) {
-        this.products=ProductService.getAllProducts();
         this.cardLayout = cardLayout;
         this.cardPanel = cardPanel;
+        initialize();
+    }
+
+    private void initialize(){
+        this.products=productService.getAllProducts();
         setLayout(null);
         addComponentListener(new ComponentAdapter() {
             @Override
@@ -90,5 +95,9 @@ public class Inventory extends JPanel {
             component.setBounds(x, y * (PRODUCT_HEIGHT + 10)+PRODUCT_HEIGHT/4 , PRODUCT_MAX_WIDTH, PRODUCT_HEIGHT);
             y++;
         }
+    }
+    public void refresh(){
+        removeAll();
+        initialize();
     }
 }

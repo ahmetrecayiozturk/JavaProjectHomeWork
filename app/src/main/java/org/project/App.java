@@ -31,13 +31,13 @@ public class App {
         OsData.createDirectoryIfNotExist();
     }
     public static void initializeServices(){
-        UserService userService = new UserService(new JsonRepository<>( User[].class));
-        ProductService productService= new ProductService(new JsonRepository<>( Product[].class));
+        UserService userService = new UserService();
+        ProductService productService= new ProductService();
         ImageService imageService=new ImageService();
-        CargoService cargoService=new CargoService(new JsonRepository<>( Cargo[].class));
-        ReceiverService receiverService=new ReceiverService(new JsonRepository<>( Receiver[].class));
-        OrderService orderService=new OrderService(new JsonRepository<>( Order[].class));
-        StoreService storeService=new StoreService(new JsonRepository<>( Store[].class));
+        CargoService cargoService=new CargoService();
+        ReceiverService receiverService=new ReceiverService();
+        OrderService orderService=new OrderService();
+        StoreService storeService=new StoreService();
     }
     public static void startEntryFrame() {
         SwingUtilities.invokeLater(new Runnable() {
@@ -60,7 +60,8 @@ public class App {
     }
 
     public static void switchToHomeFrame() {
-        currentStore=UserService.getUserStore(currentUser);
+        StoreService storeService=new StoreService();
+        currentStore=storeService.getStoreById(currentUser.getStoreId());
         entryFrame.dispose();
         SwingUtilities.invokeLater(new Runnable() {
             @Override

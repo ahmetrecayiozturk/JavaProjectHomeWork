@@ -4,31 +4,39 @@ import org.project.models.Cargo;
 import org.project.models.Order;
 import org.project.services.CargoService;
 import org.project.services.OrderService;
-import org.project.data.JsonRepository;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.List;
 
 public class Cargos extends JPanel {
-    private CargoService cargoService;
-    private OrderService orderService;
+    private int numRows;
+    private static final int CARGO_MAX_WIDTH = 1000;
+    private static final int CARGO_HEIGHT = 50;
+    private final CargoService cargoService = new CargoService();
+    private final OrderService orderService = new OrderService();
     private List<Cargo> cargos;
     private List<Order> orders;
-    private JPanel cargosListPanel;
 
     public Cargos() {
-        this.cargoService = new CargoService(new JsonRepository<>(Cargo[].class));
-        this.orderService = new OrderService(new JsonRepository<>(Order[].class));
         this.cargos = cargoService.getAllCargos();
         this.orders = orderService.getAllOrders();
-        setLayout(new BorderLayout());
+        initialize();
+    }
 
-        cargosListPanel = new JPanel(new GridBagLayout());
-        loadCargos();
-
-        JScrollPane scrollPane = new JScrollPane(cargosListPanel);
-        add(scrollPane, BorderLayout.CENTER);
+    private void initialize() {
+        setLayout(null);
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                updateNumRows();
+                revalidate();
+                repaint();
+            }
+        });
+        addCargos();
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridLayout(1, 3, 10, 10));
@@ -41,35 +49,25 @@ public class Cargos extends JPanel {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
-    private void loadCargos() {
-        cargosListPanel.removeAll();
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.NORTH; // Kartların üstten başlamasını sağlar
-        gbc.insets = new Insets(10, 10, 10, 10);
+    private void updateNumRows() {
+        int panelHeight = getHeight();
+        numRows = Math.max(1, panelHeight / (CARGO_HEIGHT + 10));
+    }
 
+    private void addCargos() {
         for (Cargo cargo : cargos) {
-            cargosListPanel.add(createCargoPanel(cargo), gbc);
-            gbc.gridy++;
+            add(createCargoPanel(cargo));
         }
-        revalidate();
-        repaint();
     }
 
     private JPanel createCargoPanel(Cargo cargo) {
-        JPanel card = new JPanel(new BorderLayout());
-        card.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        JPanel infoPanel = new JPanel(new GridLayout(2, 1));
-        JLabel titleLabel = new JLabel("Cargo ID: " + cargo.getId());
-        JTextArea contentArea = new JTextArea(cargo.toString());
-        contentArea.setEditable(false);
-        contentArea.setLineWrap(true);
-        contentArea.setWrapStyleWord(true);
-        infoPanel.add(titleLabel);
-        infoPanel.add(new JScrollPane(contentArea));
+        JPanel cargoPanel = new JPanel(new BorderLayout());
+        cargoPanel.setPreferredSize(new Dimension(CARGO_MAX_WIDTH, CARGO_HEIGHT));
+        cargoPanel.setBackground(new Color(100, 150, 100, 255));
+
+        JLabel cargoLabel = new JLabel("Cargo ID: " + cargo.getId());
+        cargoLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        cargoPanel.add(cargoLabel, BorderLayout.WEST);
 
         JPanel buttonPanel = new JPanel(new GridLayout(1, 3, 10, 10));
         JButton detailsButton = new JButton("Details");
@@ -87,10 +85,21 @@ public class Cargos extends JPanel {
         buttonPanel.add(updateButton);
         buttonPanel.add(deleteButton);
 
-        card.add(infoPanel, BorderLayout.CENTER);
-        card.add(buttonPanel, BorderLayout.SOUTH);
+        cargoPanel.add(buttonPanel, BorderLayout.EAST);
 
-        return card;
+        return cargoPanel;
+    }
+
+    @Override
+    public void doLayout() {
+        super.doLayout();
+        int y = 0;
+        int x = (getWidth() - CARGO_MAX_WIDTH) / 2;
+
+        for (Component component : getComponents()) {
+            component.setBounds(x, y * (CARGO_HEIGHT + 10) + CARGO_HEIGHT / 4, CARGO_MAX_WIDTH, CARGO_HEIGHT);
+            y++;
+        }
     }
 
     private void showDetailsDialog(Cargo cargo) {
@@ -177,6 +186,7 @@ public class Cargos extends JPanel {
 
     public void refresh() {
         this.cargos = cargoService.getAllCargos();
-        loadCargos();
+        removeAll();
+        initialize();
     }
 }
