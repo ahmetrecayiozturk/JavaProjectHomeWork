@@ -19,6 +19,98 @@ public class OrderDetail extends JPanel {
 
     private Order<Receiver, Product> order;
 
+    public OrderDetail() {
+        initialize();
+    }
+
+    public void initialize() {
+        removeAll();
+        setLayout(new GridBagLayout());
+        setBackground(Color.WHITE);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        orderIdLabel = createLabel("");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        add(orderIdLabel, gbc);
+
+        receiverNameLabel = createLabel("");
+        gbc.gridy++;
+        add(receiverNameLabel, gbc);
+
+        receiverEmailLabel = createLabel("");
+        gbc.gridy++;
+        add(receiverEmailLabel, gbc);
+
+        receiverAddressLabel = createLabel("");
+        gbc.gridy++;
+        add(receiverAddressLabel, gbc);
+
+        productNameLabel = createLabel("");
+        gbc.gridy++;
+        add(productNameLabel, gbc);
+
+        productDescriptionLabel = createLabel("");
+        gbc.gridy++;
+        add(productDescriptionLabel, gbc);
+
+        productPriceLabel = createLabel("");
+        gbc.gridy++;
+        add(productPriceLabel, gbc);
+
+        productCategoryLabel = createLabel("");
+        gbc.gridy++;
+        add(productCategoryLabel, gbc);
+
+        revalidate();
+        repaint();
+    }
+
+    private JLabel createLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Arial", Font.PLAIN, 14));
+        label.setForeground(new Color(50, 50, 50));
+        return label;
+    }
+
+    public void setOrder(Order<Receiver, Product> order) {
+        this.order = order;
+        orderIdLabel.setText("Order ID: " + order.getId());
+        receiverNameLabel.setText("Receiver: " + order.getEntity1().getName() + " " + order.getEntity1().getSurname());
+        receiverEmailLabel.setText("Email: " + order.getEntity1().getEmail());
+        receiverAddressLabel.setText("Address: " + order.getEntity1().getAddress());
+        productNameLabel.setText("Product: " + order.getEntity2().getName());
+        productDescriptionLabel.setText("Description: " + order.getEntity2().getDescription());
+        productPriceLabel.setText("Price: $" + order.getEntity2().getPrice());
+        revalidate();
+        repaint();
+    }
+}
+/*
+package org.project.frames.home.home.panels;
+
+import org.project.models.Order;
+import org.project.models.Receiver;
+import org.project.models.Product;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class OrderDetail extends JPanel {
+    private JLabel orderIdLabel;
+    private JLabel receiverNameLabel;
+    private JLabel receiverEmailLabel;
+    private JLabel receiverAddressLabel;
+    private JLabel productNameLabel;
+    private JLabel productDescriptionLabel;
+    private JLabel productPriceLabel;
+    private JLabel productCategoryLabel;
+
+    private Order<Receiver, Product> order;
+
     private final int innerPanelWidth = 500;
 
     public OrderDetail() {
@@ -92,6 +184,7 @@ public class OrderDetail extends JPanel {
         repaint();
     }
 }
+*/
 /*
 package org.project.frames.home.home.panels;
 

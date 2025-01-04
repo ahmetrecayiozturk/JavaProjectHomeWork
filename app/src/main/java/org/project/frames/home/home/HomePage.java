@@ -42,7 +42,7 @@ public class HomePage extends JPanel {
         cargos = new Cargos();
         receiversPanel = new ReceiversPanel();
         orderDetail = new OrderDetail();
-        ordersPanel = new OrdersPanel(cardLayout, contentPanel, orderDetail);
+        ordersPanel = new OrdersPanel();
 
         contentPanel.add(inventory, "Inventory");
         contentPanel.add(products, "Products");
