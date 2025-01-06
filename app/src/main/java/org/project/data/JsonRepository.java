@@ -109,6 +109,17 @@ public class JsonRepository<T extends Identifiable> {
             e.printStackTrace();
         }
     }
+
+    public String findAllJson() {
+        try (FileReader reader = new FileReader(filePath)) {
+            char[] buffer = new char[(int) new File(filePath).length()];
+            reader.read(buffer);
+            return new String(buffer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "[]";
+    }
 }
 /*
 package org.project.data;

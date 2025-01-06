@@ -1,11 +1,13 @@
 package org.project.services;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.project.data.JsonRepository;
 import org.project.models.Order;
 import org.project.models.Product;
 import org.project.models.Receiver;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 public class OrderService {
@@ -77,13 +79,18 @@ public class OrderService {
         return null;
     }
 
-    public static List<Order> getAllOrders() {
+    public static List<Order> getAllOrders2() {
         return orderRepository.findAll();
     }
 
     public static String getAllOrdersJson() {
         List<Order> orders = getAllOrders();
         return new Gson().toJson(orders);
+    }
+
+    public static List<Order> getAllOrders() {
+        Type orderListType = new TypeToken<List<Order>>() {}.getType();
+        return new Gson().fromJson(orderRepository.findAllJson(), orderListType);
     }
 
     public static JsonRepository<Order> getOrderRepository() {
