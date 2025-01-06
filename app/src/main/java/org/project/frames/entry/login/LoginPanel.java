@@ -9,8 +9,6 @@ import javax.swing.*;
 import java.awt.*;
 
 public class LoginPanel extends JPanel {
-    private UserService userService=new UserService();
-
     public LoginPanel(JFrame frame,CardLayout cardLayout, JPanel cardPanel) {
         setBackground(Color.BLUE);
         setLayout(null);
@@ -35,7 +33,7 @@ public class LoginPanel extends JPanel {
             }else {
                 String email = emailField.getText();
                 String password = String.valueOf(passwordField.getPassword());
-                User user=userService.authenticate(email, password);
+                User user=UserService.authenticate(email, password);
                 if (user != null) {
                     JOptionPane.showMessageDialog(frame, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
                     App.switchToHomeFrame();

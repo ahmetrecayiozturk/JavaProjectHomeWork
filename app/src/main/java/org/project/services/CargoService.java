@@ -6,23 +6,23 @@ import org.project.models.Cargo;
 import java.util.List;
 
 public class CargoService {
-    private JsonRepository<Cargo> cargoRepo=new JsonRepository<>( Cargo[].class);
+    private static JsonRepository<Cargo> cargoRepo=new JsonRepository<>( Cargo[].class);
     public CargoService() {
     }
 
-    public void add(Cargo cargo){
+    public static void add(Cargo cargo){
         cargoRepo.save(cargo);
     }
 
-    public void update(Cargo cargo){
+    public static void update(Cargo cargo){
         cargoRepo.update(cargo);
     }
 
-    public void delete(Integer cargoId){
+    public static void delete(Integer cargoId){
         cargoRepo.delete(cargoId);
     }
 
-    public Cargo getCargoById(Integer id) {
+    public static Cargo getCargoById(Integer id) {
         List<Cargo> cargos = cargoRepo.findAll();
         for (Cargo cargo : cargos) {
             if (cargo.getId().equals(id)) {
@@ -33,11 +33,11 @@ public class CargoService {
     }
 
 
-    public List<Cargo> getAllCargos() {
+    public static List<Cargo> getAllCargos() {
         return cargoRepo.findAll();
     }
 
-    public void isDelivered(){
+    public static void isDelivered(){
         getAllCargos().forEach(order -> {
             if(!order.isDelivered()){
                 order.setDelivered(true);
@@ -46,7 +46,7 @@ public class CargoService {
     }
 
     //tüm kargoların yanlış gönderilmesi durumunda hepsini not delivered etme
-    public void isNotDelivered(){
+    public static void isNotDelivered(){
         getAllCargos().forEach(order -> {
             if(order.isDelivered()){
                 order.setDelivered(false);
@@ -55,7 +55,7 @@ public class CargoService {
     }
 
     //kargoyu null checkten sonta eğer delivered edilmemişse delivered etme
-    public void markAsDeliveredById(Integer id) {
+    public static void markAsDeliveredById(Integer id) {
         //id ye göre kargonun bulunması
         Cargo cargo = getCargoById(id);
         //kargoyu null checkten sonta eğer delivered edilmemişse delivered etme
@@ -67,7 +67,7 @@ public class CargoService {
 
     //kargoyu null checkten sonta eğer delivered edilmişse notdelivered etme, aksaklık olursa ya da kargonun
     //yanlış teslimi olaylarında kullanılır
-    public void markAsNotDeliveredById(Integer id) {
+    public static void markAsNotDeliveredById(Integer id) {
         //id ye göre kargonun bulunması
         Cargo cargo = getCargoById(id);
         //kargoyu null checkten sonta eğer delivered edilmişse notdelivered etme
@@ -77,11 +77,11 @@ public class CargoService {
         }
     }
 
-    public JsonRepository<Cargo> getCargoRepo() {
+    public static JsonRepository<Cargo> getCargoRepo() {
         return cargoRepo;
     }
 
-    public void setCargoRepo(JsonRepository<Cargo> cargoRepo) {
+    public static void setCargoRepo(JsonRepository<Cargo> cargoRepo) {
         cargoRepo = cargoRepo;
     }
 }

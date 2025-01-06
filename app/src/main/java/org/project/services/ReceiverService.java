@@ -7,13 +7,13 @@ import java.util.List;
 
 public class ReceiverService {
 
-    private JsonRepository<Receiver> receiverRepo=new JsonRepository<>( Receiver[].class);
+    private static JsonRepository<Receiver> receiverRepo=new JsonRepository<>( Receiver[].class);
 
     public ReceiverService() {
 
     }
 
-    public boolean add(Receiver receiver) {
+    public static boolean add(Receiver receiver) {
         Receiver existingReceiver = getReceiverByEmail(receiver.getEmail());
         if(existingReceiver != null){
             return false;
@@ -24,15 +24,15 @@ public class ReceiverService {
         }
     }
 
-    public void update(Receiver receiver) {
+    public static void update(Receiver receiver) {
         receiverRepo.update(receiver);
     }
 
-    public void delete(Integer receiverId) {
+    public static void delete(Integer receiverId) {
         receiverRepo.delete(receiverId);
     }
 
-    public Receiver getReceiverById(Integer id) {
+    public static Receiver getReceiverById(Integer id) {
         //önce tüm receiverleri döndürürüz sonra da id si eşlenen receiver döndürülür
         List<Receiver> receivers = receiverRepo.findAll();
         for (Receiver receiver : receivers) {
@@ -43,7 +43,7 @@ public class ReceiverService {
         return null;
     }
 
-    public Receiver getReceiverByEmail(String email) {
+    public static Receiver getReceiverByEmail(String email) {
         //önce tüm receiverleri döndürürüz sonra da id si eşlenen receiver döndürülür
         List<Receiver> receivers = receiverRepo.findAll();
         for (Receiver receiver : receivers) {
@@ -54,15 +54,15 @@ public class ReceiverService {
         return null;
     }
 
-    public List<Receiver> getAllReceivers() {
+    public static List<Receiver> getAllReceivers() {
         return receiverRepo.findAll();
     }
 
-    public JsonRepository<Receiver> getReceiverRepo() {
+    public static JsonRepository<Receiver> getReceiverRepo() {
         return receiverRepo;
     }
 
-    public void setReceiverRepo(JsonRepository<Receiver> receiverRepo) {
+    public static void setReceiverRepo(JsonRepository<Receiver> receiverRepo) {
         receiverRepo = receiverRepo;
     }
 }

@@ -8,6 +8,55 @@ public class Order<T1, T2> implements Identifiable {
     private Integer id;
     private T1 entity1;
     private T2 entity2;
+    private int quantity;
+
+    public Order(T1 entity1, T2 entity2, int quantity) {
+        this.id = Math.abs(UUID.randomUUID().hashCode());
+        this.entity1 = entity1;
+        this.entity2 = entity2;
+        this.quantity = quantity;
+    }
+
+    @Override
+    public Integer getId() {
+        return id;
+    }
+
+    public T1 getEntity1() {
+        return entity1;
+    }
+
+    public void setEntity1(T1 entity1) {
+        this.entity1 = entity1;
+    }
+
+    public T2 getEntity2() {
+        return entity2;
+    }
+
+    public void setEntity2(T2 entity2) {
+        this.entity2 = entity2;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+}
+/*
+package org.project.models;
+
+import org.project.data.Identifiable;
+
+import java.util.UUID;
+
+public class Order<T1, T2> implements Identifiable {
+    private Integer id;
+    private T1 entity1;
+    private T2 entity2;
 
     public Order(T1 entity1, T2 entity2) {
         this.id = Math.abs(UUID.randomUUID().hashCode());
@@ -49,4 +98,5 @@ public class Order<T1, T2> implements Identifiable {
                 '}';
     }
 }
+*/
 

@@ -8,16 +8,16 @@ public class Product implements Identifiable {
     public Integer id;
     public String name;
     public String description;
-    public String sellerId;
+    public int storeId;
     public String imageUrl;
     public Double price;
     public int productCount;
 
-    public Product(String name, String description, String sellerId, String imageUrl, Double price, int productCount) {
+    public Product(String name, String description, int storeId, String imageUrl, Double price, int productCount) {
         this.id = Math.abs(UUID.randomUUID().hashCode());
         this.name = name;
         this.description = description;
-        this.sellerId = sellerId;
+        this.storeId = storeId;
         this.imageUrl = imageUrl;
         this.price = price;
         this.productCount=productCount;
@@ -60,12 +60,12 @@ public class Product implements Identifiable {
         this.description = description;
     }
 
-    public String getSellerId() {
-        return sellerId;
+    public int getStoreId() {
+        return storeId;
     }
 
-    public void setSellerId(String sellerId) {
-        this.sellerId = sellerId;
+    public void setStoreId(int storeId) {
+        this.storeId = storeId;
     }
 
     public String getImageUrl() {

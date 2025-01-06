@@ -7,12 +7,12 @@ import java.util.List;
 
 public class StoreService {
 
-    private JsonRepository<Store> storeRepo=new JsonRepository<>( Store[].class);
+    private static JsonRepository<Store> storeRepo=new JsonRepository<>( Store[].class);
 
     public StoreService() {
     }
 
-    public boolean add(Store store) {
+    public static boolean add(Store store) {
         Store existingStore = getStoreByName(store.getName());
         if(existingStore != null){
             return false;
@@ -23,15 +23,15 @@ public class StoreService {
         }
     }
 
-    public void update(Store store) {
+    public static void update(Store store) {
         storeRepo.update(store);
     }
 
-    public void delete(Integer storeId){
+    public static void delete(Integer storeId){
         storeRepo.delete(storeId);
     }
 
-    public Store getStoreById(int id) {
+    public static Store getStoreById(int id) {
         List<Store> stores = storeRepo.findAll();
         for (Store store : stores) {
             if (store.getId().equals(id)) {
@@ -41,7 +41,7 @@ public class StoreService {
         return null;
     }
 
-    public  Store getStoreByName(String name) {
+    public static Store getStoreByName(String name) {
         List<Store> stores = storeRepo.findAll();
         for (Store store : stores) {
             if (store.getName().equals(name)) {
@@ -50,15 +50,15 @@ public class StoreService {
         }
         return null;
     }
-    public List<Store> getAllStores(){
+    public static List<Store> getAllStores(){
         return storeRepo.findAll();
     }
 
-    public JsonRepository<Store> getStoreRepo() {
+    public static JsonRepository<Store> getStoreRepo() {
         return storeRepo;
     }
 
-    public void setStoreRepo(JsonRepository<Store> storeRepo) {
+    public static void setStoreRepo(JsonRepository<Store> storeRepo) {
         storeRepo = storeRepo;
     }
 

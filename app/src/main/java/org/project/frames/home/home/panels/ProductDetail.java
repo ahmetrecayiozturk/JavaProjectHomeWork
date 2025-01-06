@@ -1,85 +1,176 @@
 package org.project.frames.home.home.panels;
 
 import javax.swing.*;
+import java.awt.event.*;
 import java.io.File;
 
 import org.project.models.Product;
+import org.project.services.ImageService;
 import org.project.services.ProductService;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.nio.file.Path;
+
+import static java.lang.Integer.valueOf;
 
 public class ProductDetail extends JPanel {
     private JLabel nameLabel;
     private JLabel descriptionLabel;
     private JLabel priceLabel;
     private JLabel imageLabel;
-    private ProductService productService=new ProductService();
+    private JLabel stockLabel;
+    private JTextField nameField;
+    private JTextArea descriptionField;
+    private JTextField priceField;
+    private JTextField stockField;
+    private boolean isEditable=false;
+    private Product product=new Product("","",-1,"",0.0,0);
+    private final int innerPanelWidth = 600;
+    private int panelWidth;
+    private int panelHeight;
+    private JPanel innerPanel=new JPanel();
+    private Path imagePath;
+    private CardLayout cardLayout;
+    private JPanel cardPanel;
 
-    private Product product;
-
-    private final int innerPanelWidth = 500;
-
-    public ProductDetail() {
-        product=new Product("","","","",0.0,0);
-        initialze();
+    public ProductDetail(CardLayout cardLayout, JPanel cardPanel) {
+        this.cardLayout = cardLayout;
+        this.cardPanel = cardPanel;
+        refresh();
+        add(innerPanel);
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                panelWidth = getWidth();
+                panelHeight = getHeight();
+                updatePanelPositionToCenter(innerPanel);
+                revalidate();
+                repaint();
+            }
+        });
     }
-    public void initialze(){
-        removeAll();
-        setLayout(null);
-        setBounds(0, 0, innerPanelWidth, 430);
+    public void initializeInnerPanel(){
+        innerPanel.removeAll();
+        innerPanel.setLayout(null);
+        innerPanel.setPreferredSize(new Dimension(innerPanelWidth, 700));
+        innerPanel.setBounds(0, 0, innerPanelWidth, 700);
+        innerPanel.setBackground(Color.WHITE);
 
         imageLabel = new JLabel();
-        imageLabel.setBounds(50, 40, 400, 300);
+        imageLabel.setBounds(50, 30, 400, 300);
         imageLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         imageLabel.setVerticalAlignment(SwingConstants.CENTER);
-        imageLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        add(imageLabel);
+        innerPanel.add(imageLabel);
 
+        imageLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(isEditable) {
+                    try {
+                        File image = ImageService.chooseImage();
+                        assert image != null;
+                        if (!image.exists()) {
+                            JOptionPane.showMessageDialog(null, "Image is null!");
+                            return;
+                        }
+                        imagePath = ImageService.saveImage(image);
+
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    product.setImageUrl(imagePath.toString());
+                    setImage(imagePath.toString());
+                }
+
+            }
+        });
         setImage(product.getImageUrl());
 
-        nameLabel = new JLabel("Product Name: " + product.getName());
-        nameLabel.setBounds(50, 360, 400, 30);
-        add(nameLabel);
+        nameLabel = new JLabel("Name: " );
+        nameLabel.setBounds(25, 360, 75, 30);
+        innerPanel.add(nameLabel);
 
-        descriptionLabel = new JLabel( product.getDescription() );
-        descriptionLabel.setBounds(50, 400, 400, 60);
-        //descriptionLabel.setLineWrap(true);
-        //descriptionLabel.setWrapStyleWord(true);
-        add(descriptionLabel);
+        nameField = new JTextField(product.getName());
+        nameField.setBounds(100, 360, 400, 30);
+        nameField.setEditable(false);
+        innerPanel.add(nameField);
 
-        priceLabel = new JLabel("Price: $" + product.getPrice());
-        priceLabel.setBounds(50, 480, 400, 30);
-        add(priceLabel);
+        descriptionLabel = new JLabel("Description:");
+        descriptionLabel.setBounds(25, 400, 75, 60);
+        innerPanel.add(descriptionLabel);
+
+        descriptionField = new JTextArea(product.getDescription());
+        descriptionField.setBounds(100, 400, 400, 60);
+        descriptionField.setLineWrap(true);
+        descriptionField.setWrapStyleWord(true);
+        descriptionField.setEditable(false);
+        innerPanel.add(descriptionField);
+
+        priceLabel = new JLabel("Price: ");
+        priceLabel.setBounds(25, 480, 75, 30);
+        innerPanel.add(priceLabel);
+
+        priceField = new JTextField(String.valueOf(product.getPrice()));
+        priceField.setBounds(100, 480, 400, 30);
+        priceField.setEditable(false);
+        innerPanel.add(priceField);
+
+        stockLabel = new JLabel("Stock: " );
+        stockLabel.setBounds(25, 520, 75, 30);
+        innerPanel.add(stockLabel);
+
+        stockField = new JTextField(String.valueOf(product.getProductCount()));
+        stockField.setBounds(100, 520, 400, 30);
+        stockField.setEditable(false);
+        innerPanel.add(stockField);
 
         JButton editButton = new JButton("Edit");
-        editButton.setBounds(200, 550, 100, 30);
+        editButton.setBounds(150, 580, 100, 30);
         editButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if(!isEditable) {
+                    nameField.setEditable(true);
+                    descriptionField.setEditable(true);
+                    priceField.setEditable(true);
+                    stockField.setEditable(true);
+                    editButton.setText("Save");
+                    imageLabel.setText("Editable");
+                    isEditable=true;
+                }else{
+                    nameField.setEditable(false);
+                    descriptionField.setEditable(false);
+                    priceField.setEditable(false);
+                    stockField.setEditable(false);
+                    editButton.setText("Edit");
+                    isEditable=false;
+                    product.setName(nameField.getText());
+                    product.setDescription(descriptionField.getText());
+                    product.setPrice(Double.valueOf(priceField.getText()));
+                    product.setProductCount(Integer.parseInt(stockField.getText()));
+                    ProductService.update(product);
+                }
             }
         });
-        add(editButton);
+        innerPanel.add(editButton);
 
-        // Delete Button
         JButton deleteButton = new JButton("Delete");
-        deleteButton.setBounds(320, 550, 100, 30);
+        deleteButton.setBounds(280, 580, 100, 30);
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int confirmation = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this product?",
                         "Delete Confirmation", JOptionPane.YES_NO_OPTION);
                 if (confirmation == JOptionPane.YES_OPTION) {
-                    productService.delete(product.getId()); // Assuming ProductService.delete() method exists
+                    ProductService.delete(product.getId());
                     JOptionPane.showMessageDialog(null, "Product deleted!");
+                    cardLayout.show(cardPanel, "Products");
                 }
             }
         });
-        add(deleteButton);
-        revalidate();
-        repaint();
+        innerPanel.add(deleteButton);
     }
 
     public void setImage(String imageUrl) {
@@ -97,8 +188,21 @@ public class ProductDetail extends JPanel {
     }
     public void setProduct(Product product) {
         this.product = product;
+        refresh();
+    }
+    public void refresh() {
+        innerPanel.removeAll();
+        initializeInnerPanel();
+        revalidate();
+        repaint();
+    }
+    private void updatePanelPositionToCenter( JPanel innerPanel) {
+        Dimension innerPanelSize = innerPanel.getPreferredSize();
 
-        initialze();
+        int x = (panelWidth - innerPanelSize.width) / 2;
+        int y = (panelHeight - innerPanelSize.height) / 2;
+
+        innerPanel.setBounds(x, y, innerPanelSize.width, innerPanelSize.height);
     }
 }
 

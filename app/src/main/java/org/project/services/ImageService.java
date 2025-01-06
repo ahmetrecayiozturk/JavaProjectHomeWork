@@ -13,14 +13,13 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 public class ImageService {
-    private Path imageStorageDirectory;
+    private static Path imageStorageDirectory=Paths.get(App.getAppDir().toString(), "images");
 
     public ImageService() {
-        imageStorageDirectory = Paths.get(App.getAppDir().toString(), "images");
         createImagesDirectoryIfNotExist();
     }
 
-    private void createImagesDirectoryIfNotExist() {
+    private static void createImagesDirectoryIfNotExist() {
         try {
             if (!Files.exists(imageStorageDirectory)) {
                 Files.createDirectories(imageStorageDirectory);
@@ -30,7 +29,7 @@ public class ImageService {
         }
     }
 
-    public Path saveImage(File imageFile) throws IOException {
+    public static Path saveImage(File imageFile) throws IOException {
         String extension = getFileExtension(imageFile);
         String imageFileName = Math.abs(UUID.randomUUID().hashCode()) + extension;
         File targetFile = new File(imageStorageDirectory.toString(), imageFileName);
@@ -43,7 +42,7 @@ public class ImageService {
         }
         return imageFilePath;
     }
-    public String getFileExtension(File file) {
+    public static String getFileExtension(File file) {
         String fileName = file.getName();
         int dotIndex = fileName.lastIndexOf(".");
         if (dotIndex > 0) {
@@ -52,7 +51,7 @@ public class ImageService {
         return "";
     }
 
-    public boolean deleteImage(Product product) {
+    public static boolean deleteImage(Product product) {
         Path imagePath = imageStorageDirectory.resolve(product.getImageUrl());
         try {
             return Files.deleteIfExists(imagePath);
@@ -62,19 +61,19 @@ public class ImageService {
         }
     }
 
-    public String updateImage(Product product, File image) throws IOException {
+    public static String updateImage(Product product, File image) throws IOException {
         if (deleteImage(product)) {
             saveImage(image);
         }
         return product.getImageUrl();
     }
 
-    public boolean imageExists(Product product) {
+    public static boolean imageExists(Product product) {
         Path imagePath = imageStorageDirectory.resolve(product.getImageUrl());
         return Files.exists(imagePath);
     }
 
-    public File chooseImage() throws IOException {
+    public static File chooseImage() throws IOException {
         JFileChooser fileChooser = new JFileChooser();
         int returnValue = fileChooser.showOpenDialog(null);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
@@ -84,12 +83,12 @@ public class ImageService {
         return null;
     }
 
-    public Path getImageStorageDirectory() {
+    public static Path getImageStorageDirectory() {
         return imageStorageDirectory;
     }
 
-    public void setImageStorageDirectory(Path imageStorageDirectory) {
-        this.imageStorageDirectory = imageStorageDirectory;
+    public static void setImageStorageDirectory(Path imageStorageDirectory) {
+        ImageService.imageStorageDirectory = imageStorageDirectory;
     }
 }
 

@@ -12,10 +12,6 @@ public class OrderDetail extends JPanel {
     private JLabel receiverNameLabel;
     private JLabel receiverEmailLabel;
     private JLabel receiverAddressLabel;
-    private JLabel productNameLabel;
-    private JLabel productDescriptionLabel;
-    private JLabel productPriceLabel;
-    private JLabel productCategoryLabel;
 
     private Order<Receiver, Product> order;
 
@@ -25,9 +21,11 @@ public class OrderDetail extends JPanel {
 
     public void initialize() {
         removeAll();
-        setLayout(new GridBagLayout());
+        setLayout(new BorderLayout());
         setBackground(Color.WHITE);
 
+        JPanel detailsPanel = new JPanel(new GridBagLayout());
+        detailsPanel.setBackground(Color.WHITE);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.anchor = GridBagConstraints.WEST;
@@ -35,35 +33,21 @@ public class OrderDetail extends JPanel {
         orderIdLabel = createLabel("");
         gbc.gridx = 0;
         gbc.gridy = 0;
-        add(orderIdLabel, gbc);
+        detailsPanel.add(orderIdLabel, gbc);
 
         receiverNameLabel = createLabel("");
         gbc.gridy++;
-        add(receiverNameLabel, gbc);
+        detailsPanel.add(receiverNameLabel, gbc);
 
         receiverEmailLabel = createLabel("");
         gbc.gridy++;
-        add(receiverEmailLabel, gbc);
+        detailsPanel.add(receiverEmailLabel, gbc);
 
         receiverAddressLabel = createLabel("");
         gbc.gridy++;
-        add(receiverAddressLabel, gbc);
+        detailsPanel.add(receiverAddressLabel, gbc);
 
-        productNameLabel = createLabel("");
-        gbc.gridy++;
-        add(productNameLabel, gbc);
-
-        productDescriptionLabel = createLabel("");
-        gbc.gridy++;
-        add(productDescriptionLabel, gbc);
-
-        productPriceLabel = createLabel("");
-        gbc.gridy++;
-        add(productPriceLabel, gbc);
-
-        productCategoryLabel = createLabel("");
-        gbc.gridy++;
-        add(productCategoryLabel, gbc);
+        add(detailsPanel, BorderLayout.CENTER);
 
         revalidate();
         repaint();
@@ -71,7 +55,7 @@ public class OrderDetail extends JPanel {
 
     private JLabel createLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setFont(new Font("Arial", Font.PLAIN, 14));
+        label.setFont(new Font("Arial", Font.BOLD, 16));
         label.setForeground(new Color(50, 50, 50));
         return label;
     }
@@ -81,12 +65,49 @@ public class OrderDetail extends JPanel {
         orderIdLabel.setText("Order ID: " + order.getId());
         receiverNameLabel.setText("Receiver: " + order.getEntity1().getName() + " " + order.getEntity1().getSurname());
         receiverEmailLabel.setText("Email: " + order.getEntity1().getEmail());
-        receiverAddressLabel.setText("Address: " + order.getEntity1().getAddress());
-        productNameLabel.setText("Product: " + order.getEntity2().getName());
-        productDescriptionLabel.setText("Description: " + order.getEntity2().getDescription());
-        productPriceLabel.setText("Price: $" + order.getEntity2().getPrice());
+        receiverAddressLabel.setText("<html><body style='width: 300px'>Address: " + order.getEntity1().getAddress() + "</body></html>");
         revalidate();
         repaint();
+
+        // Yeni sayfa açma işlemi
+        showOrderDetail();
+    }
+
+    private void showOrderDetail() {
+        JDialog dialog = new JDialog((Frame) null, "Order Details", true);
+        dialog.setSize(1000, 800);
+        dialog.setLocationRelativeTo(null);
+
+        JPanel contentPanel = new JPanel(new GridLayout(1, 2));
+
+        // Product details panel
+        ProductDetail2 productDetail2 = new ProductDetail2();
+        productDetail2.setProduct(order.getEntity2(), order.getQuantity());
+        contentPanel.add(productDetail2);
+
+        // Receiver details panel
+        JPanel receiverPanel = new JPanel(new GridBagLayout());
+        receiverPanel.setBackground(Color.WHITE);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        JLabel receiverNameLabel = createLabel("Receiver: " + order.getEntity1().getName() + " " + order.getEntity1().getSurname());
+        gbc.gridy = 0;
+        receiverPanel.add(receiverNameLabel, gbc);
+
+        JLabel receiverEmailLabel = createLabel("Email: " + order.getEntity1().getEmail());
+        gbc.gridy++;
+        receiverPanel.add(receiverEmailLabel, gbc);
+
+        JLabel receiverAddressLabel = createLabel("<html><body style='width: 300px'>Address: " + order.getEntity1().getAddress() + "</body></html>");
+        gbc.gridy++;
+        receiverPanel.add(receiverAddressLabel, gbc);
+
+        contentPanel.add(receiverPanel);
+
+        dialog.add(contentPanel);
+        dialog.setVisible(true);
     }
 }
 /*
@@ -104,14 +125,8 @@ public class OrderDetail extends JPanel {
     private JLabel receiverNameLabel;
     private JLabel receiverEmailLabel;
     private JLabel receiverAddressLabel;
-    private JLabel productNameLabel;
-    private JLabel productDescriptionLabel;
-    private JLabel productPriceLabel;
-    private JLabel productCategoryLabel;
 
     private Order<Receiver, Product> order;
-
-    private final int innerPanelWidth = 500;
 
     public OrderDetail() {
         initialize();
@@ -119,10 +134,11 @@ public class OrderDetail extends JPanel {
 
     public void initialize() {
         removeAll();
-        setLayout(new GridBagLayout());
+        setLayout(new BorderLayout());
         setBackground(Color.WHITE);
-        setBounds(0, 0, innerPanelWidth, 400);
 
+        JPanel detailsPanel = new JPanel(new GridBagLayout());
+        detailsPanel.setBackground(Color.WHITE);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.anchor = GridBagConstraints.WEST;
@@ -130,35 +146,21 @@ public class OrderDetail extends JPanel {
         orderIdLabel = createLabel("");
         gbc.gridx = 0;
         gbc.gridy = 0;
-        add(orderIdLabel, gbc);
+        detailsPanel.add(orderIdLabel, gbc);
 
         receiverNameLabel = createLabel("");
         gbc.gridy++;
-        add(receiverNameLabel, gbc);
+        detailsPanel.add(receiverNameLabel, gbc);
 
         receiverEmailLabel = createLabel("");
         gbc.gridy++;
-        add(receiverEmailLabel, gbc);
+        detailsPanel.add(receiverEmailLabel, gbc);
 
         receiverAddressLabel = createLabel("");
         gbc.gridy++;
-        add(receiverAddressLabel, gbc);
+        detailsPanel.add(receiverAddressLabel, gbc);
 
-        productNameLabel = createLabel("");
-        gbc.gridy++;
-        add(productNameLabel, gbc);
-
-        productDescriptionLabel = createLabel("");
-        gbc.gridy++;
-        add(productDescriptionLabel, gbc);
-
-        productPriceLabel = createLabel("");
-        gbc.gridy++;
-        add(productPriceLabel, gbc);
-
-        productCategoryLabel = createLabel("");
-        gbc.gridy++;
-        add(productCategoryLabel, gbc);
+        add(detailsPanel, BorderLayout.CENTER);
 
         revalidate();
         repaint();
@@ -166,7 +168,7 @@ public class OrderDetail extends JPanel {
 
     private JLabel createLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setFont(new Font("Arial", Font.PLAIN, 14));
+        label.setFont(new Font("Arial", Font.BOLD, 16));
         label.setForeground(new Color(50, 50, 50));
         return label;
     }
@@ -176,12 +178,49 @@ public class OrderDetail extends JPanel {
         orderIdLabel.setText("Order ID: " + order.getId());
         receiverNameLabel.setText("Receiver: " + order.getEntity1().getName() + " " + order.getEntity1().getSurname());
         receiverEmailLabel.setText("Email: " + order.getEntity1().getEmail());
-        receiverAddressLabel.setText("Address: " + order.getEntity1().getAddress());
-        productNameLabel.setText("Product: " + order.getEntity2().getName());
-        productDescriptionLabel.setText("Description: " + order.getEntity2().getDescription());
-        productPriceLabel.setText("Price: $" + order.getEntity2().getPrice());
+        receiverAddressLabel.setText("<html><body style='width: 300px'>Address: " + order.getEntity1().getAddress() + "</body></html>");
         revalidate();
         repaint();
+
+        // Yeni sayfa açma işlemi
+        showOrderDetail();
+    }
+
+    private void showOrderDetail() {
+        JDialog dialog = new JDialog((Frame) null, "Order Details", true);
+        dialog.setSize(1000, 800);
+        dialog.setLocationRelativeTo(null);
+
+        JPanel contentPanel = new JPanel(new GridLayout(1, 2));
+
+        // Product details panel
+        ProductDetail2 productDetail2 = new ProductDetail2();
+        productDetail2.setProduct(order.getEntity2());
+        contentPanel.add(productDetail2);
+
+        // Receiver details panel
+        JPanel receiverPanel = new JPanel(new GridBagLayout());
+        receiverPanel.setBackground(Color.WHITE);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        JLabel receiverNameLabel = createLabel("Receiver: " + order.getEntity1().getName() + " " + order.getEntity1().getSurname());
+        gbc.gridy = 0;
+        receiverPanel.add(receiverNameLabel, gbc);
+
+        JLabel receiverEmailLabel = createLabel("Email: " + order.getEntity1().getEmail());
+        gbc.gridy++;
+        receiverPanel.add(receiverEmailLabel, gbc);
+
+        JLabel receiverAddressLabel = createLabel("<html><body style='width: 300px'>Address: " + order.getEntity1().getAddress() + "</body></html>");
+        gbc.gridy++;
+        receiverPanel.add(receiverAddressLabel, gbc);
+
+        contentPanel.add(receiverPanel);
+
+        dialog.add(contentPanel);
+        dialog.setVisible(true);
     }
 }
 */
@@ -200,14 +239,8 @@ public class OrderDetail extends JPanel {
     private JLabel receiverNameLabel;
     private JLabel receiverEmailLabel;
     private JLabel receiverAddressLabel;
-    private JLabel productNameLabel;
-    private JLabel productDescriptionLabel;
-    private JLabel productPriceLabel;
-    private JLabel productCategoryLabel;
 
     private Order<Receiver, Product> order;
-
-    private final int innerPanelWidth = 500;
 
     public OrderDetail() {
         initialize();
@@ -215,43 +248,168 @@ public class OrderDetail extends JPanel {
 
     public void initialize() {
         removeAll();
-        setLayout(null);
-        setBounds(0, 0, innerPanelWidth, 400);
+        setLayout(new GridBagLayout());
+        setBackground(Color.WHITE);
 
-        orderIdLabel = new JLabel();
-        orderIdLabel.setBounds(50, 20, 400, 30);
-        add(orderIdLabel);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.anchor = GridBagConstraints.WEST;
 
-        receiverNameLabel = new JLabel();
-        receiverNameLabel.setBounds(50, 60, 400, 30);
-        add(receiverNameLabel);
+        orderIdLabel = createLabel("");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        add(orderIdLabel, gbc);
 
-        receiverEmailLabel = new JLabel();
-        receiverEmailLabel.setBounds(50, 100, 400, 30);
-        add(receiverEmailLabel);
+        receiverNameLabel = createLabel("");
+        gbc.gridy++;
+        add(receiverNameLabel, gbc);
 
-        receiverAddressLabel = new JLabel();
-        receiverAddressLabel.setBounds(50, 140, 400, 30);
-        add(receiverAddressLabel);
+        receiverEmailLabel = createLabel("");
+        gbc.gridy++;
+        add(receiverEmailLabel, gbc);
 
-        productNameLabel = new JLabel();
-        productNameLabel.setBounds(50, 180, 400, 30);
-        add(productNameLabel);
-
-        productDescriptionLabel = new JLabel();
-        productDescriptionLabel.setBounds(50, 220, 400, 30);
-        add(productDescriptionLabel);
-
-        productPriceLabel = new JLabel();
-        productPriceLabel.setBounds(50, 260, 400, 30);
-        add(productPriceLabel);
-
-        productCategoryLabel = new JLabel();
-        productCategoryLabel.setBounds(50, 300, 400, 30);
-        add(productCategoryLabel);
+        receiverAddressLabel = createLabel("");
+        gbc.gridy++;
+        add(receiverAddressLabel, gbc);
 
         revalidate();
         repaint();
+    }
+
+    private JLabel createLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Arial", Font.PLAIN, 14));
+        label.setForeground(new Color(50, 50, 50));
+        return label;
+    }
+
+    public void setOrder(Order<Receiver, Product> order) {
+        this.order = order;
+        orderIdLabel.setText("Order ID: " + order.getId());
+        receiverNameLabel.setText("Receiver: " + order.getEntity1().getName() + " " + order.getEntity1().getSurname());
+        receiverEmailLabel.setText("Email: " + order.getEntity1().getEmail());
+        receiverAddressLabel.setText("Address: " + order.getEntity1().getAddress());
+        revalidate();
+        repaint();
+
+        // Yeni sayfa açma işlemi
+        showOrderDetail();
+    }
+
+    private void showOrderDetail() {
+        JDialog dialog = new JDialog((Frame) null, "Order Details", true);
+        dialog.setSize(1000, 800);
+        dialog.setLocationRelativeTo(null);
+
+        JPanel contentPanel = new JPanel(new GridLayout(1, 2));
+
+        // Product details panel
+        ProductDetail2 productDetail2 = new ProductDetail2();
+        productDetail2.setProduct(order.getEntity2());
+        contentPanel.add(productDetail2);
+
+        // Receiver details panel
+        JPanel receiverPanel = new JPanel(new GridBagLayout());
+        receiverPanel.setBackground(Color.WHITE);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        JLabel receiverNameLabel = createLabel("Receiver: " + order.getEntity1().getName() + " " + order.getEntity1().getSurname());
+        gbc.gridy = 0;
+        receiverPanel.add(receiverNameLabel, gbc);
+
+        JLabel receiverEmailLabel = createLabel("Email: " + order.getEntity1().getEmail());
+        gbc.gridy++;
+        receiverPanel.add(receiverEmailLabel, gbc);
+
+        JLabel receiverAddressLabel = createLabel("Address: " + order.getEntity1().getAddress());
+        gbc.gridy++;
+        receiverPanel.add(receiverAddressLabel, gbc);
+
+        contentPanel.add(receiverPanel);
+
+        dialog.add(contentPanel);
+        dialog.setVisible(true);
+    }
+}*/
+/*
+package org.project.frames.home.home.panels;
+
+import org.project.models.Order;
+import org.project.models.Receiver;
+import org.project.models.Product;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class OrderDetail extends JPanel {
+    private JLabel orderIdLabel;
+    private JLabel receiverNameLabel;
+    private JLabel receiverEmailLabel;
+    private JLabel receiverAddressLabel;
+    private JLabel productNameLabel;
+    private JLabel productDescriptionLabel;
+    private JLabel productPriceLabel;
+    private JLabel productCategoryLabel;
+
+    private Order<Receiver, Product> order;
+
+    public OrderDetail() {
+        initialize();
+    }
+
+    public void initialize() {
+        removeAll();
+        setLayout(new GridBagLayout());
+        setBackground(Color.WHITE);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        orderIdLabel = createLabel("");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        add(orderIdLabel, gbc);
+
+        receiverNameLabel = createLabel("");
+        gbc.gridy++;
+        add(receiverNameLabel, gbc);
+
+        receiverEmailLabel = createLabel("");
+        gbc.gridy++;
+        add(receiverEmailLabel, gbc);
+
+        receiverAddressLabel = createLabel("");
+        gbc.gridy++;
+        add(receiverAddressLabel, gbc);
+
+        productNameLabel = createLabel("");
+        gbc.gridy++;
+        add(productNameLabel, gbc);
+
+        productDescriptionLabel = createLabel("");
+        gbc.gridy++;
+        add(productDescriptionLabel, gbc);
+
+        productPriceLabel = createLabel("");
+        gbc.gridy++;
+        add(productPriceLabel, gbc);
+
+        productCategoryLabel = createLabel("");
+        gbc.gridy++;
+        add(productCategoryLabel, gbc);
+
+        revalidate();
+        repaint();
+    }
+
+    private JLabel createLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Arial", Font.PLAIN, 14));
+        label.setForeground(new Color(50, 50, 50));
+        return label;
     }
 
     public void setOrder(Order<Receiver, Product> order) {
@@ -265,62 +423,50 @@ public class OrderDetail extends JPanel {
         productPriceLabel.setText("Price: $" + order.getEntity2().getPrice());
         revalidate();
         repaint();
-    }
-}*/
-/*
-package org.project.frames.home.home.panels;
 
-import org.project.models.Order;
-import org.project.models.Receiver;
-import org.project.models.Product;
-import org.project.services.OrderService;
-
-import javax.swing.*;
-import java.awt.*;
-
-public class OrderDetail extends JPanel {
-    private JLabel orderIdLabel;
-    private JLabel receiverLabel;
-    private JLabel productLabel;
-    private OrderService orderService = new OrderService();
-
-    private Order<Receiver, Product> order;
-
-    private final int innerPanelWidth = 500;
-
-    public OrderDetail() {
-        order = new Order<>(new Receiver("example@example.com", "password", "John", "Doe", "123 Main St"), new Product("Product", "Description", "Category", "ImageUrl", 0.0, 0));
-        initialize();
+        // Yeni sayfa açma işlemi
+        showProductAndReceiverDetail();
     }
 
-    public void initialize() {
-        removeAll();
-        setLayout(null);
-        setBounds(0, 0, innerPanelWidth, 300);
+    private void showProductAndReceiverDetail() {
+        JDialog dialog = new JDialog((Frame) null, "Product and Receiver Details", true);
+        dialog.setSize(1250, 700);
+        dialog.setLocationRelativeTo(null);
 
-        orderIdLabel = new JLabel();
-        orderIdLabel.setBounds(50, 40, 400, 30);
-        add(orderIdLabel);
+        JPanel contentPanel = new JPanel(new GridLayout(1, 2));
 
-        receiverLabel = new JLabel();
-        receiverLabel.setBounds(50, 80, 400, 30);
-        add(receiverLabel);
+        ///
+        // ProductDetail panelini oluştur ve butonları gizle
 
-        productLabel = new JLabel();
-        productLabel.setBounds(50, 120, 400, 30);
-        add(productLabel);
+        ///
+        // ProductDetail panelini oluştur ve butonları gizle
+        CardLayout cardLayout = new CardLayout();
+        JPanel cardPanel = new JPanel(cardLayout);
+        JPanel productPanel = new JPanel();
+        productPanel.setLayout(new BoxLayout(productPanel, BoxLayout.Y_AXIS));
+        for (int i = 0; i < order.getQuantity(); i++) {
+            ProductDetail productDetail = new ProductDetail(cardLayout, cardPanel);
+            productDetail.setProduct(order.getEntity2());
+            hideButtons(productDetail);
+            productPanel.add(productDetail);
+        }
+        contentPanel.add(new JScrollPane(productPanel));
 
-        revalidate();
-        repaint();
+        // ReceiverDetail panelini oluştur
+        ReceiverDetail receiverDetail = new ReceiverDetail();
+        receiverDetail.setReceiver(order.getEntity1());
+        contentPanel.add(receiverDetail);
+
+        dialog.add(contentPanel);
+        dialog.setVisible(true);
     }
 
-    public void setOrder(Order<Receiver, Product> order) {
-        this.order = order;
-        orderIdLabel.setText("Order ID: " + order.getId());
-        receiverLabel.setText("Receiver: " + order.getEntity1().getName() + " " + order.getEntity1().getSurname());
-        productLabel.setText("Product: " + order.getEntity2().getName());
-        revalidate();
-        repaint();
+    private void hideButtons(ProductDetail productDetail) {
+        for (Component component : productDetail.getComponents()) {
+            if (component instanceof JButton) {
+                component.setVisible(false);
+            }
+        }
     }
 }*/
 /*
@@ -335,44 +481,118 @@ import java.awt.*;
 
 public class OrderDetail extends JPanel {
     private JLabel orderIdLabel;
-    private JLabel receiverLabel;
-    private JLabel productLabel;
+    private JLabel receiverNameLabel;
+    private JLabel receiverEmailLabel;
+    private JLabel receiverAddressLabel;
+    private JLabel productNameLabel;
+    private JLabel productDescriptionLabel;
+    private JLabel productPriceLabel;
+    private JLabel productCategoryLabel;
+
     private Order<Receiver, Product> order;
 
-    private final int innerPanelWidth = 500;
-
     public OrderDetail() {
-        order = new Order<>(new Receiver("example@example.com", "password", "John", "Doe", "123 Main St"), new Product("Product", "Description", "Category", "ImageUrl", 0.0, 0));
         initialize();
     }
 
     public void initialize() {
         removeAll();
-        setLayout(null);
-        setBounds(0, 0, innerPanelWidth, 300);
+        setLayout(new GridBagLayout());
+        setBackground(Color.WHITE);
 
-        orderIdLabel = new JLabel();
-        orderIdLabel.setBounds(50, 40, 400, 30);
-        add(orderIdLabel);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.anchor = GridBagConstraints.WEST;
 
-        receiverLabel = new JLabel();
-        receiverLabel.setBounds(50, 80, 400, 30);
-        add(receiverLabel);
+        orderIdLabel = createLabel("");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        add(orderIdLabel, gbc);
 
-        productLabel = new JLabel();
-        productLabel.setBounds(50, 120, 400, 30);
-        add(productLabel);
+        receiverNameLabel = createLabel("");
+        gbc.gridy++;
+        add(receiverNameLabel, gbc);
+
+        receiverEmailLabel = createLabel("");
+        gbc.gridy++;
+        add(receiverEmailLabel, gbc);
+
+        receiverAddressLabel = createLabel("");
+        gbc.gridy++;
+        add(receiverAddressLabel, gbc);
+
+        productNameLabel = createLabel("");
+        gbc.gridy++;
+        add(productNameLabel, gbc);
+
+        productDescriptionLabel = createLabel("");
+        gbc.gridy++;
+        add(productDescriptionLabel, gbc);
+
+        productPriceLabel = createLabel("");
+        gbc.gridy++;
+        add(productPriceLabel, gbc);
+
+        productCategoryLabel = createLabel("");
+        gbc.gridy++;
+        add(productCategoryLabel, gbc);
 
         revalidate();
         repaint();
     }
 
+    private JLabel createLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Arial", Font.PLAIN, 14));
+        label.setForeground(new Color(50, 50, 50));
+        return label;
+    }
+
     public void setOrder(Order<Receiver, Product> order) {
         this.order = order;
         orderIdLabel.setText("Order ID: " + order.getId());
-        receiverLabel.setText("Receiver: " + order.getEntity1().getName() + " " + order.getEntity1().getSurname());
-        productLabel.setText("Product: " + order.getEntity2().getName());
+        receiverNameLabel.setText("Receiver: " + order.getEntity1().getName() + " " + order.getEntity1().getSurname());
+        receiverEmailLabel.setText("Email: " + order.getEntity1().getEmail());
+        receiverAddressLabel.setText("Address: " + order.getEntity1().getAddress());
+        productNameLabel.setText("Product: " + order.getEntity2().getName());
+        productDescriptionLabel.setText("Description: " + order.getEntity2().getDescription());
+        productPriceLabel.setText("Price: $" + order.getEntity2().getPrice());
         revalidate();
         repaint();
+
+        // Yeni sayfa açma işlemi
+        showProductAndReceiverDetail();
+    }
+
+    private void showProductAndReceiverDetail() {
+        JDialog dialog = new JDialog((Frame) null, "Product and Receiver Details", true);
+        dialog.setSize(1250, 700);
+        dialog.setLocationRelativeTo(null);
+
+        JPanel contentPanel = new JPanel(new GridLayout(1, 2));
+
+        // ProductDetail panelini oluştur ve butonları gizle
+        CardLayout cardLayout = new CardLayout();
+        JPanel cardPanel = new JPanel(cardLayout);
+        ProductDetail productDetail = new ProductDetail(cardLayout, cardPanel);
+        productDetail.setProduct(order.getEntity2());
+        hideButtons(productDetail);
+        contentPanel.add(productDetail);
+
+        // ReceiverDetail panelini oluştur
+        ReceiverDetail receiverDetail = new ReceiverDetail();
+        receiverDetail.setReceiver(order.getEntity1());
+        contentPanel.add(receiverDetail);
+
+        dialog.add(contentPanel);
+        dialog.setVisible(true);
+    }
+
+    private void hideButtons(ProductDetail productDetail) {
+        for (Component component : productDetail.getComponents()) {
+            if (component instanceof JButton) {
+                component.setVisible(false);
+            }
+        }
     }
 }*/

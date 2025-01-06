@@ -11,9 +11,6 @@ import java.awt.*;
 import java.util.stream.Collectors;
 
 public class RegisterPanel extends JPanel {
-    private StoreService storeService=new StoreService();
-    private UserService userService=new UserService();
-
     public RegisterPanel(CardLayout cardLayout, JPanel cardPanel) {
         setBackground(Color.BLUE);
         setLayout(null);
@@ -35,7 +32,7 @@ public class RegisterPanel extends JPanel {
         confirmPasswordField.setPreferredSize(new Dimension(150, 30));
 
         JLabel storeLabel = new JLabel("Select Store");
-        JComboBox<String> storeDropdown = new JComboBox<>(storeService.getAllStores().stream().map(Store::getName).toArray(String[]::new));
+        JComboBox<String> storeDropdown = new JComboBox<>(StoreService.getAllStores().stream().map(Store::getName).toArray(String[]::new));
         storeDropdown.setPreferredSize(new Dimension(150, 30));
 
         JLabel newStoreLabel = new JLabel("New Store Name");
@@ -103,15 +100,15 @@ public class RegisterPanel extends JPanel {
                     String storeName = newStoreField.getText();
                     Store store = new Store(storeName,"This is your store address!","This is your store phone number!","This is your store description!", "");
 
-                    storeService.add(store);
+                    StoreService.add(store);
                     user.setStoreId(store.getId());
                 } else {
                     String selectedStoreName = (String) storeDropdown.getSelectedItem();
-                    Store store = storeService.getStoreByName(selectedStoreName);
+                    Store store = StoreService.getStoreByName(selectedStoreName);
                     user.setStoreId(store.getId());
                 }
 
-                boolean isUserCreated = userService.addUser(user);
+                boolean isUserCreated = UserService.addUser(user);
                 if (isUserCreated) {
                     JOptionPane.showMessageDialog(null, "Successfully registered for store: " + selectedStore);
                     cardLayout.show(cardPanel, "loginPage");

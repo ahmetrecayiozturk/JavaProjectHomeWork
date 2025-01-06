@@ -1,10 +1,13 @@
 package org.project.frames.home.home.panels;
 
+import org.project.App;
 import org.project.models.Product;
 import org.project.services.ProductService;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.File;
@@ -17,16 +20,17 @@ public class Inventory extends JPanel {
     private CardLayout cardLayout;
     private JPanel cardPanel;
     private List<Product> products;
-    private ProductService productService=new ProductService();
+    private ProductDetail productDetail;
 
-    public Inventory(CardLayout cardLayout,JPanel cardPanel) {
+    public Inventory(CardLayout cardLayout,JPanel cardPanel,ProductDetail productDetail) {
+        this.productDetail=productDetail;
         this.cardLayout = cardLayout;
         this.cardPanel = cardPanel;
         initialize();
     }
 
     private void initialize(){
-        this.products=productService.getAllProducts();
+        this.products=ProductService.getAllStoreProducts(App.getCurrentStore().getId());
         setLayout(null);
         addComponentListener(new ComponentAdapter() {
             @Override
@@ -52,9 +56,8 @@ public class Inventory extends JPanel {
 
     private JPanel createProductPanel(Product product) {
         JPanel productPanel = new JPanel();
-        //50 1000
         productPanel.setPreferredSize(new Dimension(PRODUCT_MAX_WIDTH, PRODUCT_HEIGHT));
-        productPanel.setBackground(new Color(100 + (5 % 10) * 15, 100, 255));
+        productPanel.setBackground(Color.WHITE);
         productPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         productPanel.setLayout(null);
 
@@ -78,9 +81,50 @@ public class Inventory extends JPanel {
         productPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
+                productDetail.setProduct(product);
                 cardLayout.show(cardPanel, "productDetail");
             }
         });
+
+        JLabel productPriceLabel = new JLabel("$" + product.getPrice().toString());
+        productPriceLabel.setBounds(70, 65, 100, 30);
+
+        JLabel productCountLabel = new JLabel("Stok: " + product.getProductCount());
+        productCountLabel.setBounds(800, 20, 100, 30);
+
+        JButton increaseStockButton = new JButton("Change Stock");
+        increaseStockButton.setBounds(880, 0, 120, 60);
+
+        increaseStockButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String newStockString = JOptionPane.showInputDialog(
+                        null,
+                        "Enter new stock number:",
+                        "Increase Stock",
+                        JOptionPane.QUESTION_MESSAGE
+                );
+
+                if (newStockString != null && !newStockString.isEmpty()) {
+                    try {
+                        int newStock = Integer.parseInt(newStockString);
+                            product.setProductCount(newStock);
+                            ProductService.updateProduct(product);
+                            productCountLabel.setText("Stok: " + product.getProductCount());
+                            JOptionPane.showMessageDialog(null, "Stock successfully updated!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(null, "Invalid number!", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
+
+        productPanel.add(imageLabel);
+        productPanel.add(productLabel);
+        productPanel.add(productLabel2);
+        productPanel.add(productPriceLabel);
+        productPanel.add(productCountLabel);
+        productPanel.add(increaseStockButton);
 
         return productPanel;
     }
