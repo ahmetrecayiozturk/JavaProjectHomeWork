@@ -13,7 +13,6 @@ import javax.swing.*;
 import java.io.IOException;
 import java.nio.file.Path;
 
-
 public class App {
     private static final Path appDir = OsData.getUserDataPath();
     private static User currentUser;
@@ -59,8 +58,7 @@ public class App {
     }
 
     public static void switchToHomeFrame() {
-        StoreService storeService=new StoreService();
-        currentStore=storeService.getStoreById(currentUser.getStoreId());
+        currentStore=StoreService.getStoreById(currentUser.getStoreId());
         entryFrame.dispose();
         SwingUtilities.invokeLater(new Runnable() {
             @Override

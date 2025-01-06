@@ -28,7 +28,6 @@ public class ProductService {
         }
         return null;
     }
-
     public static List<Product> getAllProducts() {
         return productRepo.findAll();
     }

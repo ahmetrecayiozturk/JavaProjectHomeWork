@@ -6,13 +6,66 @@ import java.util.UUID;
 
 public class Cargo implements Identifiable {
     private Integer id;
-    private boolean isdelivered;
-    private Order entity;
+    private boolean isDelivered;
+    private boolean isReturned;
+    private Integer orderId;
 
-    public Cargo(boolean isdelivered, Order entity) {
+    public Cargo(boolean isDelivered, boolean isReturned, Integer orderId) {
+        this.id = Math.abs(UUID.randomUUID().hashCode());
+        this.isDelivered = isDelivered;
+        this.isReturned = isReturned;
+        this.orderId = orderId;
+    }
+
+    @Override
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public boolean isDelivered() {
+        return isDelivered;
+    }
+
+    public void setDelivered(boolean delivered) {
+        isDelivered = delivered;
+    }
+
+    public boolean isReturned() {
+        return isReturned;
+    }
+
+    public void setReturned(boolean returned) {
+        isReturned = returned;
+    }
+
+    public Integer getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
+    }
+}
+/*
+package org.project.models;
+
+import org.project.data.Identifiable;
+
+import java.util.UUID;
+
+public class Cargo implements Identifiable {
+    private Integer id;
+    private boolean isdelivered;
+    private Integer orderId;
+
+    public Cargo(boolean isdelivered, Integer orderId) {
         this.id = Math.abs(UUID.randomUUID().hashCode());
         this.isdelivered = isdelivered;
-        this.entity = entity;
+        this.orderId = orderId;
     }
 
     @Override
@@ -32,20 +85,11 @@ public class Cargo implements Identifiable {
         isdelivered = delivered;
     }
 
-    public Order getEntity() {
-        return entity;
+    public Integer getOrderId() {
+        return orderId;
     }
-
-    public void setEntity(Order entity) {
-        this.entity = entity;
-    }
-
-    @Override
-    public String toString() {
-        return "Cargo{" +
-                "id=" + id +
-                ", isdelivered=" + isdelivered +
-                ", entity=" + entity +
-                '}';
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
     }
 }
+*/

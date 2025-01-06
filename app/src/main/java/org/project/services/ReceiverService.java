@@ -32,7 +32,7 @@ public class ReceiverService {
         receiverRepo.delete(receiverId);
     }
 
-    public static Receiver getReceiverById(Integer id) {
+    public static Receiver findReceiverById(Integer id) {
         //önce tüm receiverleri döndürürüz sonra da id si eşlenen receiver döndürülür
         List<Receiver> receivers = receiverRepo.findAll();
         for (Receiver receiver : receivers) {

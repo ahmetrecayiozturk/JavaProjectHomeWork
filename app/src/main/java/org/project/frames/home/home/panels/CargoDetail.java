@@ -4,6 +4,9 @@ import org.project.models.Cargo;
 import org.project.models.Order;
 import org.project.models.Receiver;
 import org.project.models.Product;
+import org.project.services.OrderService;
+import org.project.services.ProductService;
+import org.project.services.ReceiverService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,9 +24,9 @@ public class CargoDetail extends JDialog {
         setSize(400, 300);
         setLocationRelativeTo(null);
 
-        Order order = cargo.getEntity();
-        Receiver receiver = (Receiver) order.getEntity1();
-        Product product = (Product) order.getEntity2();
+        Order order = OrderService.getOrderById(cargo.getOrderId());
+        Receiver receiver = ReceiverService.findReceiverById(order.getReceiverId());
+        Product product = ProductService.getProductById(order.getProductId());
 
         JTextArea contentArea = new JTextArea();
         contentArea.setEditable(false);

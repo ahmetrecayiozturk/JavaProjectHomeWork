@@ -1,19 +1,29 @@
 package org.project.models;
 
 import org.project.data.Identifiable;
+import org.project.services.ProductService;
 
 import java.util.UUID;
 
-public class Order<T1, T2> implements Identifiable {
+public class Order implements Identifiable {
     private Integer id;
-    private T1 entity1;
-    private T2 entity2;
+    private Integer productId;
+    private Integer receiverId;
     private int quantity;
+    private String status;
 
-    public Order(T1 entity1, T2 entity2, int quantity) {
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Order(Integer productId, Integer receiverId, int quantity) {
         this.id = Math.abs(UUID.randomUUID().hashCode());
-        this.entity1 = entity1;
-        this.entity2 = entity2;
+        this.productId = productId;
+        this.receiverId = receiverId;
         this.quantity = quantity;
     }
 
@@ -22,20 +32,20 @@ public class Order<T1, T2> implements Identifiable {
         return id;
     }
 
-    public T1 getEntity1() {
-        return entity1;
+    public void setId(Integer id) {
+        this.id = id;
     }
-
-    public void setEntity1(T1 entity1) {
-        this.entity1 = entity1;
+    public Integer getProductId() {
+        return productId;
     }
-
-    public T2 getEntity2() {
-        return entity2;
+    public void setProductId(Integer productId) {
+        this.productId = productId;
     }
-
-    public void setEntity2(T2 entity2) {
-        this.entity2 = entity2;
+    public Integer getReceiverId() {
+        return receiverId;
+    }
+    public void setReceiverId(Integer receiverId) {
+        this.receiverId = receiverId;
     }
 
     public int getQuantity() {
@@ -46,57 +56,3 @@ public class Order<T1, T2> implements Identifiable {
         this.quantity = quantity;
     }
 }
-/*
-package org.project.models;
-
-import org.project.data.Identifiable;
-
-import java.util.UUID;
-
-public class Order<T1, T2> implements Identifiable {
-    private Integer id;
-    private T1 entity1;
-    private T2 entity2;
-
-    public Order(T1 entity1, T2 entity2) {
-        this.id = Math.abs(UUID.randomUUID().hashCode());
-        this.entity1 = entity1;
-        this.entity2 = entity2;
-    }
-
-    @Override
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public T1 getEntity1() {
-        return entity1;
-    }
-
-    public void setEntity1(T1 entity) {
-        this.entity1 = entity;
-    }
-
-    public T2 getEntity2() {
-        return entity2;
-    }
-
-    public void setEntity2(T2 entity2) {
-        this.entity2 = entity2;
-    }
-
-    @Override
-    public String toString() {
-        return "Order{" +
-                "id=" + id +
-                ", entity1=" + entity1 +
-                ", entity2=" + entity2 +
-                '}';
-    }
-}
-*/
-

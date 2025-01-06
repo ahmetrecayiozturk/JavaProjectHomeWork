@@ -34,6 +34,26 @@ public class Store extends JPanel {
                 repaint();
             }
         });
+        imagePanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (isEditable) {
+                    try {
+                        File image = ImageService.chooseImage();
+                        if (!(image != null && image.exists())) {
+                            JOptionPane.showMessageDialog(null, "Image is null!");
+                            return;
+                        }
+                        imagePath = ImageService.saveImage(image);
+                        App.getCurrentStore().setImageUrl(imagePath.toString());
+                        setImage();
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            }
+        });
+
     }
     public void initializeInnerPanel(){
         innerPanel.setLayout(null);
@@ -44,41 +64,8 @@ public class Store extends JPanel {
 
         imagePanel.setPreferredSize(new Dimension(400, 300));
         imagePanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-        if(App.getCurrentStore().getImageUrl().equals("")){
-            storeImageLabel = new JLabel("Upload an image");
-            storeImageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-            storeImageLabel.setVerticalAlignment(SwingConstants.CENTER);
-            imagePanel.add(storeImageLabel);
-        } else{
-            ImageIcon storeImageIcon = new ImageIcon(App.getCurrentStore().getImageUrl());
-            Image image = storeImageIcon.getImage().getScaledInstance(400, 300, Image.SCALE_SMOOTH);
-            storeImageLabel = new JLabel(new ImageIcon(image));
-            imagePanel.add(storeImageLabel);
-        }
+
         imagePanel.setBounds(100, 10, 400, 300);
-        imagePanel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if(isEditable) {
-                    try {
-                        File image = ImageService.chooseImage();
-                        assert image != null;
-                        if (!image.exists()) {
-                            JOptionPane.showMessageDialog(null, "Image is null!");
-                            return;
-                        }
-                        imagePath = ImageService.saveImage(image);
-                        App.getCurrentStore().setImageUrl(imagePath.toString());
-                        setImage(imagePath.toString());
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    }
-
-                }
-
-            }
-        });
-
 
         JLabel nameLabel = new JLabel("Name:");
         nameLabel.setFont(new Font("Arial", Font.BOLD, 20));
@@ -89,9 +76,12 @@ public class Store extends JPanel {
         storeNameLabel.setBounds(100, 340, 380, 30);
         storeNameLabel.setEditable(false);
 
+        setImage();
+        storeImageLabel.setPreferredSize(new Dimension(400, 300));
+
         innerPanel.add(nameLabel);
         innerPanel.add(storeNameLabel);
-
+        imagePanel.add(storeImageLabel);
 
         JLabel addressLabel = new JLabel("Adress: ");
         JTextField addressField = new JTextField(App.getCurrentStore().getAddress());
@@ -150,13 +140,11 @@ public class Store extends JPanel {
             }
         });
 
-
         innerPanel.add(editButton);
         innerPanel.add(imagePanel);
         innerPanel.add(descriptionPanel);
         innerPanel.setBackground(Color.WHITE);
         add(innerPanel);
-
     }
     public void refresh(){
         removeAll();
@@ -170,19 +158,26 @@ public class Store extends JPanel {
 
         innerPanel.setBounds(x, y, innerPanelSize.width, innerPanelSize.height);
     }
-    public void setImage(String imageUrl) {
-        storeImageLabel.removeAll();
-        File imageFile = new File(imageUrl);
-        if (imageFile.exists()) {
-            Image image = new ImageIcon(imageFile.getAbsolutePath()).getImage();
-            image = image.getScaledInstance(storeImageLabel.getWidth(), storeImageLabel.getHeight(), Image.SCALE_SMOOTH);
-            ImageIcon icon = new ImageIcon(image);
-            storeImageLabel.setIcon(icon);
-            storeImageLabel.setText("");
-            storeImageLabel.setBorder(null);
-        } else {
-            storeImageLabel.setText("Image not available");
+    public void setImage(){
+        imagePanel.removeAll();
+        if(App.getCurrentStore().getImageUrl().equals("")){
+            storeImageLabel = new JLabel("Upload an image");
+            storeImageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            storeImageLabel.setVerticalAlignment(SwingConstants.CENTER);
+        } else{
+            try {
+                ImageIcon storeImageIcon = new ImageIcon(App.getCurrentStore().getImageUrl());
+                Image image = storeImageIcon.getImage().getScaledInstance(storeImageLabel.getWidth(), storeImageLabel.getHeight(), Image.SCALE_SMOOTH);
+                storeImageLabel = new JLabel(new ImageIcon(image));
+                storeImageLabel.setText("");
+                storeImageLabel.setBorder(null);
+            } catch (Exception e) {
+                storeImageLabel = new JLabel("Image not available");
+            }
         }
+        imagePanel.add(storeImageLabel);
+        revalidate();
+        repaint();
     }
 }
 

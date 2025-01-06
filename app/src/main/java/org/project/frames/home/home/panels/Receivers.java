@@ -9,13 +9,13 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.List;
 
-public class ReceiversPanel extends JPanel {
+public class Receivers extends JPanel {
     private int numRows;
     private static final int RECEIVER_MAX_WIDTH = 1000;
     private static final int RECEIVER_HEIGHT = 50;
     private List<Receiver> receivers;
 
-    public ReceiversPanel() {
+    public Receivers() {
         this.receivers = ReceiverService.getAllReceivers();
         initialize();
     }
