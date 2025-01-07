@@ -9,7 +9,7 @@ public class LoginPage extends JPanel {
     private int screenheight;
 
     public LoginPage(JFrame frame, CardLayout cardLayout, JPanel cardPanel) {
-        setBackground(Color.YELLOW);
+        setBackground(new Color(227, 214, 214));
         setLayout(null);
         setPreferredSize(new Dimension(400, 500));
 

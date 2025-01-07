@@ -33,7 +33,6 @@ public class ReceiverService {
     }
 
     public static Receiver findReceiverById(Integer id) {
-        //önce tüm receiverleri döndürürüz sonra da id si eşlenen receiver döndürülür
         List<Receiver> receivers = receiverRepo.findAll();
         for (Receiver receiver : receivers) {
             if (receiver.getId().equals(id)) {
@@ -44,7 +43,6 @@ public class ReceiverService {
     }
 
     public static Receiver getReceiverByEmail(String email) {
-        //önce tüm receiverleri döndürürüz sonra da id si eşlenen receiver döndürülür
         List<Receiver> receivers = receiverRepo.findAll();
         for (Receiver receiver : receivers) {
             if (receiver.getEmail().equals(email)) {

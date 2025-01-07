@@ -1,4 +1,4 @@
-package org.project.frames.home.home.panels;
+package org.project.frames.home.panels;
 
 import javax.swing.*;
 import java.awt.event.*;
@@ -15,12 +15,8 @@ import java.nio.file.Path;
 import static java.lang.Integer.valueOf;
 
 public class ProductDetail extends JPanel {
-    private JLabel nameLabel;
-    private JLabel descriptionLabel;
-    private JLabel priceLabel;
-    private JLabel imageLabel;
-    private JLabel stockLabel;
     private JTextField nameField;
+    private JLabel imageLabel;
     private JTextArea descriptionField;
     private JTextField priceField;
     private JTextField stockField;
@@ -45,6 +41,7 @@ public class ProductDetail extends JPanel {
                 panelWidth = getWidth();
                 panelHeight = getHeight();
                 updatePanelPositionToCenter(innerPanel);
+                innerPanel.setPreferredSize(new Dimension(innerPanelWidth, panelHeight));
                 revalidate();
                 repaint();
             }
@@ -53,12 +50,10 @@ public class ProductDetail extends JPanel {
     public void initializeInnerPanel(){
         innerPanel.removeAll();
         innerPanel.setLayout(null);
-        innerPanel.setPreferredSize(new Dimension(innerPanelWidth, 700));
-        innerPanel.setBounds(0, 0, innerPanelWidth, 700);
         innerPanel.setBackground(Color.WHITE);
 
         imageLabel = new JLabel();
-        imageLabel.setBounds(50, 30, 400, 300);
+        imageLabel.setBounds((innerPanelWidth-400)/2, 30, 400, 300);
         imageLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         imageLabel.setVerticalAlignment(SwingConstants.CENTER);
@@ -88,46 +83,47 @@ public class ProductDetail extends JPanel {
         });
         setImage(product.getImageUrl());
 
-        nameLabel = new JLabel("Name: " );
-        nameLabel.setBounds(25, 360, 75, 30);
+        JLabel nameLabel = new JLabel("Name: " );
+        nameLabel.setBounds(50, 360, 75, 30);
         innerPanel.add(nameLabel);
 
         nameField = new JTextField(product.getName());
-        nameField.setBounds(100, 360, 400, 30);
+        nameField.setBounds(150, 360, 400, 30);
         nameField.setEditable(false);
         innerPanel.add(nameField);
 
-        descriptionLabel = new JLabel("Description:");
-        descriptionLabel.setBounds(25, 400, 75, 60);
+        JLabel descriptionLabel = new JLabel("Description:");
+        descriptionLabel.setBounds(50, 400, 75, 60);
         innerPanel.add(descriptionLabel);
 
         descriptionField = new JTextArea(product.getDescription());
-        descriptionField.setBounds(100, 400, 400, 60);
+        descriptionField.setBounds(150, 400, 400, 60);
         descriptionField.setLineWrap(true);
         descriptionField.setWrapStyleWord(true);
         descriptionField.setEditable(false);
+        descriptionField.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         innerPanel.add(descriptionField);
 
-        priceLabel = new JLabel("Price: ");
-        priceLabel.setBounds(25, 480, 75, 30);
+        JLabel priceLabel = new JLabel("Price: ");
+        priceLabel.setBounds(50, 480, 75, 30);
         innerPanel.add(priceLabel);
 
         priceField = new JTextField(String.valueOf(product.getPrice()));
-        priceField.setBounds(100, 480, 400, 30);
+        priceField.setBounds(150, 480, 400, 30);
         priceField.setEditable(false);
         innerPanel.add(priceField);
 
-        stockLabel = new JLabel("Stock: " );
-        stockLabel.setBounds(25, 520, 75, 30);
+        JLabel stockLabel = new JLabel("Stock: " );
+        stockLabel.setBounds(50, 520, 75, 30);
         innerPanel.add(stockLabel);
 
         stockField = new JTextField(String.valueOf(product.getProductCount()));
-        stockField.setBounds(100, 520, 400, 30);
+        stockField.setBounds(150, 520, 400, 30);
         stockField.setEditable(false);
         innerPanel.add(stockField);
 
         JButton editButton = new JButton("Edit");
-        editButton.setBounds(150, 580, 100, 30);
+        editButton.setBounds(200, 600, 100, 30);
         editButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -157,7 +153,7 @@ public class ProductDetail extends JPanel {
         innerPanel.add(editButton);
 
         JButton deleteButton = new JButton("Delete");
-        deleteButton.setBounds(280, 580, 100, 30);
+        deleteButton.setBounds(320, 600, 100, 30);
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

@@ -4,9 +4,6 @@ import org.project.data.Identifiable;
 
 import java.util.UUID;
 
-//burası direkt kaydedilecek admin tarafından, receiver ya kişi ya da mağaza olacaktır o yüzden ikisinin de modeli
-//oluşturuluyor, bu store içindeki çeşitli bilgilerile kaydedilecek ve order için entity olarak yazılacak
-//order da cargo için entity olarak yazılacak
 public class Store implements Identifiable {
     private Integer id;
     private String name,address,phone;

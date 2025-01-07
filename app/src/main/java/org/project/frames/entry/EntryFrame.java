@@ -12,7 +12,7 @@ public class EntryFrame extends JFrame {
     public EntryFrame() {
         setTitle("App");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
+        setSize(1200, 800);
         setMinimumSize(new Dimension(500, 400));
         addComponentListener(
                 new ComponentAdapter() {
@@ -20,7 +20,7 @@ public class EntryFrame extends JFrame {
                     public void componentResized(ComponentEvent e){
                         int w = getWidth();
                         int h = getHeight();
-                        setTitle(w+"x"+h);
+                        setTitle(w + "x" + h);  // Window size display
                         revalidate();
                         repaint();
                     }

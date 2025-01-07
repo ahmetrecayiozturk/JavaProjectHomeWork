@@ -1,4 +1,4 @@
-package org.project.frames.home.home.panels;
+package org.project.frames.home.panels;
 
 import org.project.App;
 import org.project.services.ImageService;
@@ -30,6 +30,7 @@ public class Store extends JPanel {
                 panelWidth = getWidth();
                 panelHeight = getHeight();
                 updatePanelPositionToCenter(innerPanel);
+                innerPanel.setPreferredSize(new Dimension(600, panelHeight));
                 revalidate();
                 repaint();
             }
@@ -53,14 +54,12 @@ public class Store extends JPanel {
                 }
             }
         });
-
     }
+
     public void initializeInnerPanel(){
         innerPanel.setLayout(null);
-        innerPanel.setBounds(0, 0, 600, 600);
-        innerPanel.setPreferredSize(new Dimension(600, 800));
+        innerPanel.setPreferredSize(new Dimension(600, panelHeight));
         innerPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-
 
         imagePanel.setPreferredSize(new Dimension(400, 300));
         imagePanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
@@ -69,11 +68,11 @@ public class Store extends JPanel {
 
         JLabel nameLabel = new JLabel("Name:");
         nameLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        nameLabel.setBounds(30, 340, 70, 30);
+        nameLabel.setBounds(50, 340, 75, 30);
 
         JTextField storeNameLabel = new JTextField(App.getCurrentStore().getName());
         storeNameLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        storeNameLabel.setBounds(100, 340, 380, 30);
+        storeNameLabel.setBounds(150, 340, 400, 30);
         storeNameLabel.setEditable(false);
 
         setImage();
@@ -96,10 +95,10 @@ public class Store extends JPanel {
         addressField.setFont(new Font("Arial", Font.PLAIN, 14));
         phoneField.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        addressLabel.setBounds(30, 400, 70, 30);
-        phoneLabel.setBounds(30, 440, 70, 30);
-        addressField.setBounds(100, 400, 380, 30);
-        phoneField.setBounds(100, 440, 380, 30);
+        addressLabel.setBounds(50, 400, 75, 30);
+        phoneLabel.setBounds(50, 440, 75, 30);
+        addressField.setBounds(150, 400, 400, 30);
+        phoneField.setBounds(150, 440, 400, 30);
 
         innerPanel.add(addressLabel);
         innerPanel.add(phoneLabel);
@@ -108,7 +107,7 @@ public class Store extends JPanel {
 
         JPanel descriptionPanel = new JPanel();
         descriptionPanel.setBorder(BorderFactory.createTitledBorder("About"));
-        descriptionPanel.setBounds(30, 520, 540, 120);
+        descriptionPanel.setBounds(50, 520, 500, 120);
 
         JTextField storeDescriptionArea = new JTextField(App.getCurrentStore().getDescription());
         storeDescriptionArea.setEditable(false);
@@ -116,7 +115,7 @@ public class Store extends JPanel {
 
         JButton editButton = new JButton();
         editButton.setText("Edit");
-        editButton.setBounds(230, 680, 100, 30);
+        editButton.setBounds(250, 680, 100, 30);
         editButton.addActionListener(e -> {
             if(isEditable) {
                 App.getCurrentStore().setDescription(storeDescriptionArea.getText());
@@ -175,6 +174,7 @@ public class Store extends JPanel {
                 storeImageLabel = new JLabel("Image not available");
             }
         }
+
         imagePanel.add(storeImageLabel);
         revalidate();
         repaint();

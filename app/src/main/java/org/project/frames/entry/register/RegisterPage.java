@@ -9,7 +9,7 @@ public class RegisterPage extends JPanel {
     private int screenheight;
 
     public RegisterPage(JFrame frame, CardLayout cardLayout, JPanel cardPanel) {
-        setBackground(Color.YELLOW);
+        setBackground(new Color(227, 214, 214));
         setLayout(null);
         setPreferredSize(new Dimension(400, 500));
 

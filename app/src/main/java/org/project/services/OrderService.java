@@ -2,92 +2,14 @@ package org.project.services;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.project.data.JsonRepository;
-import org.project.models.Order;
-import org.project.models.Receiver;
-import org.project.models.Product;
-import org.project.models.Cargo;
-
-import java.lang.reflect.Type;
-import java.util.List;
-
-public class OrderService {
-    private static JsonRepository<Order> orderRepo = new JsonRepository<>(Order[].class);
-    private static JsonRepository<Product> productRepo = new JsonRepository<>(Product[].class);
-    private static JsonRepository<Cargo> cargoRepo = new JsonRepository<>(Cargo[].class);
-    private static Gson gson = new Gson();
-
-    public OrderService() {
-    }
-
-    public static void add(Order order) {
-        orderRepo.save(order);
-    }
-
-    public static void update(Order order) {
-        orderRepo.update(order);
-    }
-
-    public static void delete(Integer orderId) {
-        // Find the order
-        Order order = orderRepo.findOne(orderId);
-        if (order != null) {
-            // Find the product and increase its quantity
-            Product product = productRepo.findOne(order.getProductId());
-            if (product != null) {
-                product.setProductCount(product.getProductCount() + order.getQuantity());
-                productRepo.update(product);
-            }
-
-            // Delete the order
-            orderRepo.delete(orderId);
-        }
-    }
-
-    public static void sendToCargo(Integer orderId) {
-        // Find the order
-        Order order = orderRepo.findOne(orderId);
-        if (order != null) {
-            // Create a new cargo entry
-            Cargo cargo = new Cargo(false,false, orderId);
-            cargoRepo.save(cargo);
-
-            // Update the order status
-            order.setStatus("Kargoya Verildi");
-            orderRepo.update(order);
-        }
-    }
-
-    public static Order getOrderById(Integer id) {
-        List<Order> orders = getAllOrders();
-        for (Order order : orders) {
-            if (order.getId().equals(id)) {
-                return order;
-            }
-        }
-        return null;
-    }
-
-    public static List<Order> getAllOrders() {
-        Type orderListType = new TypeToken<List<Order>>() {}.getType();
-        return gson.fromJson(orderRepo.findAllJson(), orderListType);
-    }
-
-    public static String getAllOrdersJson() {
-        return orderRepo.findAllJson();
-    }
-}
-/*
-package org.project.services;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import org.project.App;
 import org.project.data.JsonRepository;
 import org.project.models.Order;
 import org.project.models.Product;
 import org.project.models.Receiver;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OrderService {
@@ -98,18 +20,19 @@ public class OrderService {
     }
 
     public static void add(Order order) {
-        // Save the order
-        orderRepository.save(order);
-
+        Order order1= orderRepository.findOne(order.getId());
+        if(order1!=null){
+            return;
+        }
         Product product = productRepository.findOne(order.getProductId());
         if (product != null) {
             product.setProductCount(product.getProductCount() - order.getQuantity());
             productRepository.update(product);
         }
+        orderRepository.save(order);
     }
 
     public static void update(Order order) {
-        // Find the old order
         Order oldOrder = orderRepository.findOne(order.getId());
         if (oldOrder != null) {
             // Find the product and adjust its quantity
@@ -128,7 +51,6 @@ public class OrderService {
             }
         }
 
-        // Update the order
         orderRepository.update(order);
     }
 
@@ -168,8 +90,20 @@ public class OrderService {
     }
 
     public static List<Order> getAllOrders() {
-        Type orderListType = new TypeToken<List<Order>>() {}.getType();
-        return new Gson().fromJson(orderRepository.findAllJson(), orderListType);
+       return orderRepository.findAll();
+    }
+
+    public static List<Order> getAllOrdersForCurrentStore() {
+        Integer storeId = App.getCurrentStore().getId();
+        List<Order> orders = orderRepository.findAll();
+
+        List<Order> storeOrders = new ArrayList<>();
+        for (Order order : orders) {
+            if (order.getStoreId()!= null && order.getStoreId().equals(storeId)) {
+                storeOrders.add(order);
+            }
+        }
+        return storeOrders;
     }
 
     public static JsonRepository<Order> getOrderRepository() {
@@ -180,4 +114,3 @@ public class OrderService {
         OrderService.orderRepository = orderRepository;
     }
 }
-*/

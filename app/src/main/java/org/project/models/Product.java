@@ -1,5 +1,6 @@
 package org.project.models;
 
+import org.project.App;
 import org.project.data.Identifiable;
 
 import java.util.UUID;
@@ -14,6 +15,7 @@ public class Product implements Identifiable {
     public int productCount;
 
     public Product(String name, String description, int storeId, String imageUrl, Double price, int productCount) {
+        this.storeId= App.getCurrentStore().getId();
         this.id = Math.abs(UUID.randomUUID().hashCode());
         this.name = name;
         this.description = description;

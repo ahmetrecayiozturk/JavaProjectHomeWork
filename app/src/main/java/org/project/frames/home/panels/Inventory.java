@@ -1,4 +1,4 @@
-package org.project.frames.home.home.panels;
+package org.project.frames.home.panels;
 
 import org.project.App;
 import org.project.models.Product;
@@ -72,7 +72,7 @@ public class Inventory extends JPanel {
         image = image.getScaledInstance(60, 60, Image.SCALE_SMOOTH);
         ImageIcon icon = new ImageIcon(image);
         imageLabel.setIcon(icon);
-        imageLabel.setBounds(0, 0, 60, 60);
+        imageLabel.setBounds(1, 1, 58, 58);
 
         productPanel.add(imageLabel);
         productPanel.add(productLabel2);

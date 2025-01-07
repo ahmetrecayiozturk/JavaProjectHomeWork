@@ -19,7 +19,6 @@ public class Receiver implements Identifiable {
         this.address = address;
         this.email = email;
         this.password = password;
-        System.out.println("receiver oluşturuldu");
     }
 
     @Override

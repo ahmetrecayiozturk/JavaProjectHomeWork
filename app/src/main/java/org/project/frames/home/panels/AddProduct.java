@@ -1,4 +1,4 @@
-package org.project.frames.home.home.panels;
+package org.project.frames.home.panels;
 
 import org.project.App;
 import org.project.models.Product;
@@ -39,6 +39,7 @@ public class AddProduct extends JPanel {
                 panelWidth = getWidth();
                 panelHeight = getHeight();
                 updatePanelPositionToCenter(innerPanel);
+                innerPanel.setPreferredSize(new Dimension(innerPanelWith, panelHeight));
                 revalidate();
                 repaint();
             }
@@ -48,10 +49,9 @@ public class AddProduct extends JPanel {
     public void initializeInnerPanel() {
         innerPanel.setLayout(null);
         innerPanel.setBackground(Color.WHITE);
-        innerPanel.setBounds(0, 0, innerPanelWith, 800);
-        innerPanel.setPreferredSize(new Dimension(innerPanelWith, 800));
+        innerPanel.setPreferredSize(new Dimension(innerPanelWith, panelHeight));
         imageLabel = new JLabel();
-        imageLabel.setBounds(50, 40, 400, 300);
+        imageLabel.setBounds(100, 40, 400, 300);
         imageLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         imageLabel.setText("Upload an image");
         imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -81,7 +81,7 @@ public class AddProduct extends JPanel {
         innerPanel.add(nameLabel);
 
         JTextField nameField = new JTextField();
-        nameField.setBounds(200, 360, 250, 30);
+        nameField.setBounds(200, 360, 350, 30);
         innerPanel.add(nameField);
 
         JLabel descriptionLabel = new JLabel("Description:");
@@ -89,9 +89,10 @@ public class AddProduct extends JPanel {
         innerPanel.add(descriptionLabel);
 
         JTextArea descriptionField = new JTextArea();
-        descriptionField.setBounds(200, 410, 250, 60);
+        descriptionField.setBounds(200, 410, 350, 60);
         descriptionField.setLineWrap(true);
         descriptionField.setWrapStyleWord(true);
+        descriptionField.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         innerPanel.add(descriptionField);
 
         JLabel priceLabel = new JLabel("Price:");
@@ -99,7 +100,7 @@ public class AddProduct extends JPanel {
         innerPanel.add(priceLabel);
 
         JTextField priceField = new JTextField();
-        priceField.setBounds(200, 490, 250, 30);
+        priceField.setBounds(200, 490, 350, 30);
         innerPanel.add(priceField);
 
         JLabel quantityLabel = new JLabel("Quantity:");
@@ -107,11 +108,11 @@ public class AddProduct extends JPanel {
         innerPanel.add(quantityLabel);
 
         JTextField quantityField = new JTextField();
-        quantityField.setBounds(200, 540, 250, 30);
+        quantityField.setBounds(200, 540, 350, 30);
         innerPanel.add(quantityField);
 
         JButton saveButton = new JButton("Save");
-        saveButton.setBounds(200, 600, 100, 30);
+        saveButton.setBounds(250, 600, 100, 30);
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

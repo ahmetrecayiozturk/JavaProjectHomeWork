@@ -1,4 +1,4 @@
-package org.project.frames.home.home.panels;
+package org.project.frames.home.panels;
 
 import org.project.models.Product;
 import org.project.services.ProductService;
