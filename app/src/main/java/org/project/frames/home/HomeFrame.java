@@ -9,52 +9,71 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class HomeFrame extends JFrame {
+    // CardLayout for switching between different panels
     private CardLayout cardLayout;
+    // Main content panel to hold different panels
     private JPanel contentPanel;
-    private Inventory inventory ;
-    private ProductDetail productDetail ;
-    private Products products ;
+    // Panels for different functionalities
+    private Inventory inventory;
+    private ProductDetail productDetail;
+    private Products products;
     private Store store;
-    private AddProduct addProduct ;
+    private AddProduct addProduct;
     private Cargos cargos;
     private Receivers receivers;
-    private Orders orders ;
+    private Orders orders;
+    // Menu panel for navigation
     private JPanel menuPanel;
+    // Dimensions for the frame
     private int panelWidth;
     private int panelHeight;
+    // Currently selected button in the menu
     private JButton selectedButton;
 
+    // Constructor to initialize the HomeFrame
     public HomeFrame() {
+        // Set the size and minimum size of the frame
         setSize(1300, 800);
         setMinimumSize(new Dimension(1300, 800));
+        // Set the default close operation
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // Center the frame on the screen
         setLocationRelativeTo(null);
+        // Use null layout for absolute positioning
         setLayout(null);
+        // Set the title of the frame
         setTitle("Store Management System");
+        // Create the menu panel
         createMenuPanel();
         menuPanel.setBackground(Color.BLUE);
+        // Create the content panel
         createContentPanel();
+        // Add the menu and content panels to the frame
         add(menuPanel);
         add(contentPanel);
+        // Add a component listener to handle resizing
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 panelWidth = getWidth();
                 panelHeight = getHeight();
                 menuPanel.setBounds(0, 0, 200, panelHeight);
-                contentPanel.setBounds(200, 0, panelWidth-200, panelHeight);
+                contentPanel.setBounds(200, 0, panelWidth - 200, panelHeight);
                 revalidate();
                 repaint();
             }
         });
+        // Make the frame visible
         setVisible(true);
     }
-    private void createContentPanel(){
+
+    // Method to create the content panel with different functionalities
+    private void createContentPanel() {
         cardLayout = new CardLayout();
         contentPanel = new JPanel(cardLayout);
-        contentPanel.setBounds(200, 0, panelWidth-200, panelHeight);
+        contentPanel.setBounds(200, 0, panelWidth - 200, panelHeight);
         productDetail = new ProductDetail(cardLayout, contentPanel);
-        inventory = new Inventory(cardLayout, contentPanel,productDetail);
+        inventory = new Inventory(cardLayout, contentPanel, productDetail);
         products = new Products(cardLayout, contentPanel, productDetail);
         store = new Store();
         addProduct = new AddProduct(cardLayout, contentPanel);
@@ -72,11 +91,13 @@ public class HomeFrame extends JFrame {
         contentPanel.add(orders, "Orders");
     }
 
+    // Method to create the menu panel with navigation buttons
     private void createMenuPanel() {
         menuPanel = new JPanel();
         menuPanel.setLayout(null);
         menuPanel.setBounds(0, 0, 200, 600);
 
+        // Create buttons for different functionalities
         JButton menuItem1 = new JButton("Inventory");
         JButton menuItem3 = new JButton("Products");
         JButton menuItem4 = new JButton("Store");
@@ -84,6 +105,7 @@ public class HomeFrame extends JFrame {
         JButton menuItem6 = new JButton("Receivers");
         JButton menuItem7 = new JButton("Orders");
 
+        // Set bounds for the buttons
         menuItem1.setBounds(25, 100, 150, 40);
         menuItem3.setBounds(25, 150, 150, 40);
         menuItem4.setBounds(25, 200, 150, 40);
@@ -91,6 +113,7 @@ public class HomeFrame extends JFrame {
         menuItem6.setBounds(25, 300, 150, 40);
         menuItem7.setBounds(25, 350, 150, 40);
 
+        // Add action listeners to the buttons
         menuItem1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -135,6 +158,7 @@ public class HomeFrame extends JFrame {
                 cardLayout.show(contentPanel, "Receivers");
             }
         });
+
         menuItem7.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -144,16 +168,21 @@ public class HomeFrame extends JFrame {
             }
         });
 
+        // Add buttons to the menu panel
         menuPanel.add(menuItem1);
         menuPanel.add(menuItem3);
         menuPanel.add(menuItem4);
         menuPanel.add(menuItem5);
         menuPanel.add(menuItem6);
         menuPanel.add(menuItem7);
+        // Set the default button colors
         setButtonsColor();
+        // Select the first button by default
         selectButton(menuItem1);
     }
-    private void setButtonsColor(){
+
+    // Method to set the default colors for the buttons
+    private void setButtonsColor() {
         for (Component component : menuPanel.getComponents()) {
             if (component instanceof JButton) {
                 JButton button = (JButton) component;
@@ -163,17 +192,15 @@ public class HomeFrame extends JFrame {
             }
         }
     }
-    private void selectButton(JButton button){
-        if(this.selectedButton!=null) {
+
+    // Method to highlight the selected button
+    private void selectButton(JButton button) {
+        if (this.selectedButton != null) {
             this.selectedButton.setBackground(Color.BLUE);
             this.selectedButton.setForeground(Color.WHITE);
         }
         button.setBackground(Color.WHITE);
         button.setForeground(Color.BLACK);
-        this.selectedButton=button;
+        this.selectedButton = button;
     }
 }
-
-
-
-

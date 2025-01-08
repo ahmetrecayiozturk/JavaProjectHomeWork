@@ -13,21 +13,26 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public class AddProduct extends JPanel {
+    // Label to display the selected image
     private JLabel imageLabel;
+    // Fields to store product details
     public String name;
     public String description;
     public Double price;
     public Integer quantity;
     public File image;
     public Path imagePath;
+    // CardLayout and JPanel for navigation
     private CardLayout cardLayout;
     private JPanel cardPanel;
 
+    // Dimensions for the inner panel
     private int innerPanelWith = 600;
     private int panelWidth;
     private int panelHeight;
     private JPanel innerPanel = new JPanel();
 
+    // Constructor to initialize the AddProduct panel
     public AddProduct(CardLayout cardLayout, JPanel cardPanel) {
         this.cardLayout = cardLayout;
         this.cardPanel = cardPanel;
@@ -46,10 +51,13 @@ public class AddProduct extends JPanel {
         });
     }
 
+    // Method to initialize the inner panel with form components
     public void initializeInnerPanel() {
         innerPanel.setLayout(null);
         innerPanel.setBackground(Color.WHITE);
         innerPanel.setPreferredSize(new Dimension(innerPanelWith, panelHeight));
+
+        // Image label for uploading product image
         imageLabel = new JLabel();
         imageLabel.setBounds(100, 40, 400, 300);
         imageLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -59,6 +67,7 @@ public class AddProduct extends JPanel {
         imageLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         innerPanel.add(imageLabel);
 
+        // Mouse listener to handle image upload
         imageLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -76,6 +85,7 @@ public class AddProduct extends JPanel {
             }
         });
 
+        // Labels and fields for product details
         JLabel nameLabel = new JLabel("Product name:");
         nameLabel.setBounds(50, 360, 100, 30);
         innerPanel.add(nameLabel);
@@ -111,6 +121,7 @@ public class AddProduct extends JPanel {
         quantityField.setBounds(200, 540, 350, 30);
         innerPanel.add(quantityField);
 
+        // Save button to save the product details
         JButton saveButton = new JButton("Save");
         saveButton.setBounds(250, 600, 100, 30);
         saveButton.addActionListener(new ActionListener() {
@@ -158,6 +169,7 @@ public class AddProduct extends JPanel {
         innerPanel.add(saveButton);
     }
 
+    // Method to set the selected image in the image label
     public void setImage(File file) {
         Image image = new ImageIcon(file.getAbsolutePath()).getImage();
         image = image.getScaledInstance(imageLabel.getWidth(), imageLabel.getHeight(), Image.SCALE_SMOOTH);
@@ -167,6 +179,7 @@ public class AddProduct extends JPanel {
         imageLabel.setBorder(null);
     }
 
+    // Method to update the position of the inner panel to center it
     private void updatePanelPositionToCenter(JPanel innerPanel) {
         Dimension innerPanelSize = innerPanel.getPreferredSize();
         int x = (panelWidth - innerPanelSize.width) / 2;

@@ -10,38 +10,48 @@ import java.awt.*;
 import java.util.List;
 
 public class Cargos extends JPanel {
+    // Constants for cargo panel dimensions
     private static final int CARGO_MAX_WIDTH = 1000;
     private static final int CARGO_HEIGHT = 50;
+    // List to store cargos and orders
     private List<Cargo> cargos;
     private List<Order> orders;
+    // Panels for displaying cargo list and scroll pane
     private JPanel cargoListPanel;
     private JScrollPane scrollPane;
 
+    // Constructor to initialize the Cargos panel
     public Cargos() {
         this.cargos = CargoService.getAllCargos();
         this.orders = OrderService.getAllOrders();
         initialize();
     }
 
+    // Method to initialize the panel components
     private void initialize() {
         setLayout(new BorderLayout());
 
+        // Initialize the cargo list panel with a vertical box layout
         cargoListPanel = new JPanel();
         cargoListPanel.setLayout(new BoxLayout(cargoListPanel, BoxLayout.Y_AXIS));
 
+        // Initialize the scroll pane for the cargo list panel
         scrollPane = new JScrollPane(cargoListPanel);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setPreferredSize(new Dimension(CARGO_MAX_WIDTH, 600));
         add(scrollPane, BorderLayout.CENTER);
 
+        // Add cargos to the list panel
         addCargos();
 
+        // Initialize the button panel for adding new cargos
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BorderLayout());
 
+        // Add button to add new cargos
         JButton addButton = new JButton("Add");
         styleAddButton(addButton);
-        addButton.setPreferredSize(new Dimension(300, 100)); // Boyutu 2.5 katına çıkar
+        addButton.setPreferredSize(new Dimension(300, 100)); // Increase size by 2.5 times
         addButton.addActionListener(e -> showAddDialog());
 
         buttonPanel.add(addButton, BorderLayout.CENTER);
@@ -49,6 +59,7 @@ public class Cargos extends JPanel {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
+    // Method to add cargos to the list panel
     private void addCargos() {
         cargoListPanel.removeAll();
         for (Cargo cargo : cargos) {
@@ -58,6 +69,7 @@ public class Cargos extends JPanel {
         cargoListPanel.repaint();
     }
 
+    // Method to create a panel for each cargo
     private JPanel createCargoPanel(Cargo cargo) {
         JPanel cargoPanel = new JPanel(new BorderLayout());
         cargoPanel.setPreferredSize(new Dimension(CARGO_MAX_WIDTH, CARGO_HEIGHT));
@@ -81,6 +93,9 @@ public class Cargos extends JPanel {
         styleButton(returnButton);
         styleButton(deliveredButton);
 
+        // Initially disable the deleteButton
+        deleteButton.setEnabled(false);
+
         detailsButton.addActionListener(e -> showDetailsDialog(cargo));
         updateButton.addActionListener(e -> showUpdateDialog(cargo));
         deleteButton.addActionListener(e -> {
@@ -100,6 +115,12 @@ public class Cargos extends JPanel {
             refresh();
         });
 
+        // Enable deleteButton if cargo is delivered or returned
+        if (cargo.isDelivered() || cargo.isReturned()) {
+            deleteButton.setEnabled(true);
+        }
+
+        // Disable other buttons if cargo is delivered or returned
         if (cargo.isDelivered() || cargo.isReturned()) {
             detailsButton.setEnabled(false);
             updateButton.setEnabled(false);
@@ -118,11 +139,13 @@ public class Cargos extends JPanel {
         return cargoPanel;
     }
 
+    // Method to show the details dialog for a cargo
     private void showDetailsDialog(Cargo cargo) {
         CargoDetail cargoDetail = new CargoDetail((Frame) SwingUtilities.getWindowAncestor(this), cargo);
         cargoDetail.setVisible(true);
     }
 
+    // Method to show the add cargo dialog
     private void showAddDialog() {
         JDialog dialog = new JDialog((Frame) null, "Add Cargo", true);
         dialog.setSize(400, 300);
@@ -160,6 +183,7 @@ public class Cargos extends JPanel {
         dialog.setVisible(true);
     }
 
+    // Method to show the update cargo dialog
     private void showUpdateDialog(Cargo cargo) {
         JDialog dialog = new JDialog((Frame) null, "Update Cargo", true);
         dialog.setSize(400, 300);
@@ -204,11 +228,13 @@ public class Cargos extends JPanel {
         dialog.setVisible(true);
     }
 
+    // Method to refresh the cargo list
     public void refresh() {
         this.cargos = CargoService.getAllCargos();
         addCargos();
     }
 
+    // Method to style buttons
     private void styleButton(JButton button) {
         button.setBackground(new Color(0, 120, 215));
         button.setForeground(Color.WHITE);
@@ -217,6 +243,7 @@ public class Cargos extends JPanel {
         button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
     }
 
+    // Method to style buttons with a specific background color
     private void styleButton(JButton button, Color backgroundColor) {
         button.setBackground(backgroundColor);
         button.setForeground(Color.WHITE);
@@ -225,6 +252,7 @@ public class Cargos extends JPanel {
         button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
     }
 
+    // Method to style the add button
     private void styleAddButton(JButton button) {
         button.setBackground(new Color(0, 120, 215));
         button.setForeground(Color.WHITE);

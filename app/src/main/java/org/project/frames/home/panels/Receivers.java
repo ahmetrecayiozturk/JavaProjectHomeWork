@@ -8,36 +8,46 @@ import java.awt.*;
 import java.util.List;
 
 public class Receivers extends JPanel {
+    // Constants for receiver panel dimensions
     private static final int RECEIVER_MAX_WIDTH = 1000;
     private static final int RECEIVER_HEIGHT = 50;
+    // List to store receivers
     private List<Receiver> receivers;
+    // Panels for displaying receiver list and scroll pane
     private JPanel receiverListPanel;
     private JScrollPane scrollPane;
 
+    // Constructor to initialize the Receivers panel
     public Receivers() {
         this.receivers = ReceiverService.getAllReceivers();
         initialize();
     }
 
+    // Method to initialize the panel components
     private void initialize() {
         setLayout(new BorderLayout());
 
+        // Initialize the receiver list panel with a vertical box layout
         receiverListPanel = new JPanel();
         receiverListPanel.setLayout(new BoxLayout(receiverListPanel, BoxLayout.Y_AXIS));
 
+        // Initialize the scroll pane for the receiver list panel
         scrollPane = new JScrollPane(receiverListPanel);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setPreferredSize(new Dimension(RECEIVER_MAX_WIDTH, 600));
         add(scrollPane, BorderLayout.CENTER);
 
+        // Add receivers to the list panel
         addReceivers();
 
+        // Initialize the button panel for adding new receivers
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BorderLayout());
 
+        // Add button to add new receivers
         JButton addButton = new JButton("Add");
         styleAddButton(addButton);
-        addButton.setPreferredSize(new Dimension(300, 100)); // Boyutu 2.5 katına çıkar
+        addButton.setPreferredSize(new Dimension(300, 100)); // Increase size by 2.5 times
         addButton.addActionListener(e -> showAddDialog());
 
         buttonPanel.add(addButton, BorderLayout.CENTER);
@@ -45,6 +55,7 @@ public class Receivers extends JPanel {
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
+    // Method to add receivers to the list panel
     private void addReceivers() {
         receiverListPanel.removeAll();
         for (Receiver receiver : receivers) {
@@ -54,6 +65,7 @@ public class Receivers extends JPanel {
         receiverListPanel.repaint();
     }
 
+    // Method to create a panel for each receiver
     private JPanel createReceiverPanel(Receiver receiver) {
         JPanel receiverPanel = new JPanel(new BorderLayout());
         receiverPanel.setPreferredSize(new Dimension(RECEIVER_MAX_WIDTH, RECEIVER_HEIGHT));
@@ -90,6 +102,7 @@ public class Receivers extends JPanel {
         return receiverPanel;
     }
 
+    // Method to show the details dialog for a receiver
     private void showDetailsDialog(Receiver receiver) {
         JDialog dialog = new JDialog((Frame) null, "Receiver Details", true);
         dialog.setSize(500, 400);
@@ -102,6 +115,7 @@ public class Receivers extends JPanel {
         dialog.setVisible(true);
     }
 
+    // Method to show the add receiver dialog
     private void showAddDialog() {
         JDialog dialog = new JDialog((Frame) null, "Add Receiver", true);
         dialog.setSize(400, 300);
@@ -148,6 +162,7 @@ public class Receivers extends JPanel {
         dialog.setVisible(true);
     }
 
+    // Method to show the update receiver dialog
     private void showUpdateDialog(Receiver receiver) {
         JDialog dialog = new JDialog((Frame) null, "Update Receiver", true);
         dialog.setSize(400, 300);
@@ -198,6 +213,7 @@ public class Receivers extends JPanel {
         dialog.setVisible(true);
     }
 
+    // Method to refresh the receiver list
     public void refresh() {
         this.receivers = ReceiverService.getAllReceivers();
         receiverListPanel.removeAll();
@@ -206,6 +222,7 @@ public class Receivers extends JPanel {
         repaint();
     }
 
+    // Method to style buttons
     private void styleButton(JButton button) {
         button.setBackground(new Color(0, 120, 215));
         button.setForeground(Color.WHITE);
@@ -214,6 +231,7 @@ public class Receivers extends JPanel {
         button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
     }
 
+    // Method to style buttons with a specific background color
     private void styleButton(JButton button, Color backgroundColor) {
         button.setBackground(backgroundColor);
         button.setForeground(Color.WHITE);
@@ -222,6 +240,7 @@ public class Receivers extends JPanel {
         button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
     }
 
+    // Method to style the add button
     private void styleAddButton(JButton button) {
         button.setBackground(new Color(0, 120, 215));
         button.setForeground(Color.WHITE);

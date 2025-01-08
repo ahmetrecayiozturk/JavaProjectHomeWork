@@ -14,21 +14,33 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public class App {
+    // Path to the application directory
     private static final Path appDir = OsData.getUserDataPath();
+    // Current logged-in user
     private static User currentUser;
+    // Current store associated with the user
     private static Store currentStore;
+    // Frames for the application
     public static HomeFrame homeFrame;
     public static EntryFrame entryFrame;
 
+    // Main method to start the application
     public static void main(String[] args) throws IOException {
+        // Initialize application storage
         initializeAppStorage();
+        // Initialize services
         initializeServices();
+        // Start the entry frame
         startEntryFrame();
     }
-    public static void initializeAppStorage(){
+
+    // Method to initialize the application storage directory
+    public static void initializeAppStorage() {
         OsData.createDirectoryIfNotExist();
     }
-    public static void initializeServices(){
+
+    // Method to initialize all services
+    public static void initializeServices() {
         new UserService();
         new ProductService();
         new ImageService();
@@ -37,47 +49,54 @@ public class App {
         new OrderService();
         new StoreService();
     }
+
+    // Method to start the entry frame
     public static void startEntryFrame() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                entryFrame=new EntryFrame();
+                entryFrame = new EntryFrame();
             }
         });
     }
+
+    // Method to get the application directory path
     public static Path getAppDir() {
         return appDir;
     }
 
+    // Method to get the current store
     public static Store getCurrentStore() {
         return currentStore;
     }
 
+    // Method to set the current store
     public static void setCurrentStore(Store currentStore) {
         App.currentStore = currentStore;
     }
 
+    // Method to switch to the home frame
     public static void switchToHomeFrame() {
-        currentStore=StoreService.getStoreById(currentUser.getStoreId());
+        // Set the current store based on the current user's store ID
+        currentStore = StoreService.getStoreById(currentUser.getStoreId());
+        // Dispose of the entry frame
         entryFrame.dispose();
+        // Start the home frame
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                homeFrame= new HomeFrame();
+                homeFrame = new HomeFrame();
             }
         });
     }
 
+    // Method to get the current user
     public static User getCurrentUser() {
         return currentUser;
     }
 
+    // Method to set the current user
     public static void setCurrentUser(User currentUser) {
         App.currentUser = currentUser;
     }
 }
-
-
-
-
-

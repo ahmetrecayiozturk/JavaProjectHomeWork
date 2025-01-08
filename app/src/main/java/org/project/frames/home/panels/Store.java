@@ -15,13 +15,20 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public class Store extends JPanel {
+    // Dimensions for the panel
     private int panelWidth;
     private int panelHeight;
-    private JPanel innerPanel=new JPanel();
-    private boolean isEditable=false;
+    // Inner panel to hold store details
+    private JPanel innerPanel = new JPanel();
+    // Flag to check if fields are editable
+    private boolean isEditable = false;
+    // Path to store the image
     private Path imagePath;
+    // Panel and label for the store image
     private JPanel imagePanel = new JPanel();
     private JLabel storeImageLabel;
+
+    // Constructor to initialize the Store panel
     public Store() {
         initializeInnerPanel();
         addComponentListener(new ComponentAdapter() {
@@ -56,14 +63,14 @@ public class Store extends JPanel {
         });
     }
 
-    public void initializeInnerPanel(){
+    // Method to initialize the inner panel with form components
+    public void initializeInnerPanel() {
         innerPanel.setLayout(null);
         innerPanel.setPreferredSize(new Dimension(600, panelHeight));
         innerPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
         imagePanel.setPreferredSize(new Dimension(400, 300));
         imagePanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-
         imagePanel.setBounds(100, 10, 400, 300);
 
         JLabel nameLabel = new JLabel("Name:");
@@ -82,7 +89,7 @@ public class Store extends JPanel {
         innerPanel.add(storeNameLabel);
         imagePanel.add(storeImageLabel);
 
-        JLabel addressLabel = new JLabel("Adress: ");
+        JLabel addressLabel = new JLabel("Address: ");
         JTextField addressField = new JTextField(App.getCurrentStore().getAddress());
         addressField.setEditable(false);
 
@@ -117,7 +124,7 @@ public class Store extends JPanel {
         editButton.setText("Edit");
         editButton.setBounds(250, 680, 100, 30);
         editButton.addActionListener(e -> {
-            if(isEditable) {
+            if (isEditable) {
                 App.getCurrentStore().setDescription(storeDescriptionArea.getText());
                 App.getCurrentStore().setName(storeNameLabel.getText());
                 App.getCurrentStore().setPhone(phoneField.getText());
@@ -129,7 +136,7 @@ public class Store extends JPanel {
                 addressField.setEditable(false);
                 isEditable = false;
                 StoreService.update(App.getCurrentStore());
-            }else {
+            } else {
                 editButton.setText("Save");
                 storeNameLabel.setEditable(true);
                 phoneField.setEditable(true);
@@ -145,11 +152,15 @@ public class Store extends JPanel {
         innerPanel.setBackground(Color.WHITE);
         add(innerPanel);
     }
-    public void refresh(){
+
+    // Method to refresh the panel
+    public void refresh() {
         removeAll();
         initializeInnerPanel();
     }
-    private void updatePanelPositionToCenter( JPanel innerPanel) {
+
+    // Method to update the position of the inner panel to center it
+    private void updatePanelPositionToCenter(JPanel innerPanel) {
         Dimension innerPanelSize = innerPanel.getPreferredSize();
 
         int x = (panelWidth - innerPanelSize.width) / 2;
@@ -157,13 +168,15 @@ public class Store extends JPanel {
 
         innerPanel.setBounds(x, y, innerPanelSize.width, innerPanelSize.height);
     }
-    public void setImage(){
+
+    // Method to set the store image
+    public void setImage() {
         imagePanel.removeAll();
-        if(App.getCurrentStore().getImageUrl().equals("")){
+        if (App.getCurrentStore().getImageUrl().equals("")) {
             storeImageLabel = new JLabel("Upload an image");
             storeImageLabel.setHorizontalAlignment(SwingConstants.CENTER);
             storeImageLabel.setVerticalAlignment(SwingConstants.CENTER);
-        } else{
+        } else {
             try {
                 ImageIcon storeImageIcon = new ImageIcon(App.getCurrentStore().getImageUrl());
                 Image image = storeImageIcon.getImage().getScaledInstance(storeImageLabel.getWidth(), storeImageLabel.getHeight(), Image.SCALE_SMOOTH);
@@ -180,6 +193,3 @@ public class Store extends JPanel {
         repaint();
     }
 }
-
-
-

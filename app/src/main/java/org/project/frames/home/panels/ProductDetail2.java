@@ -8,28 +8,34 @@ import java.awt.*;
 import java.io.File;
 
 public class ProductDetail2 extends JPanel {
+    // Labels to display product details
     private JLabel nameLabel;
     private JLabel descriptionLabel;
     private JLabel priceLabel;
     private JLabel imageLabel;
     private JLabel orderProductCountLabel;
+    // Product object to hold the current product details
     private Product product;
 
+    // Constructor to initialize the ProductDetail2 panel
     public ProductDetail2() {
         initialize();
     }
 
+    // Method to initialize the panel components
     public void initialize() {
         removeAll();
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
 
+        // Panel to hold the product details
         JPanel detailsPanel = new JPanel(new GridBagLayout());
         detailsPanel.setBackground(Color.WHITE);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.anchor = GridBagConstraints.WEST;
 
+        // Image label for displaying product image
         imageLabel = new JLabel();
         imageLabel.setPreferredSize(new Dimension(400, 300));
         gbc.gridx = 0;
@@ -37,6 +43,7 @@ public class ProductDetail2 extends JPanel {
         gbc.gridwidth = 2;
         detailsPanel.add(imageLabel, gbc);
 
+        // Labels for product details
         nameLabel = createLabel("");
         gbc.gridy++;
         gbc.gridwidth = 1;
@@ -54,12 +61,14 @@ public class ProductDetail2 extends JPanel {
         gbc.gridy++;
         detailsPanel.add(orderProductCountLabel, gbc);
 
+        // Add the details panel to the main panel
         add(detailsPanel, BorderLayout.CENTER);
 
         revalidate();
         repaint();
     }
 
+    // Method to create a label with specific styling
     private JLabel createLabel(String text) {
         JLabel label = new JLabel(text);
         label.setFont(new Font("Arial", Font.BOLD, 16));
@@ -67,6 +76,7 @@ public class ProductDetail2 extends JPanel {
         return label;
     }
 
+    // Method to set the product details
     public void setProduct(Integer productId, int orderQuantity) {
         this.product = ProductService.getProductById(productId);
         nameLabel.setText("Name: " + product.getName());
@@ -78,6 +88,7 @@ public class ProductDetail2 extends JPanel {
         repaint();
     }
 
+    // Method to set the product image
     private void setImage(String imageUrl) {
         if (imageLabel.getWidth() > 0 && imageLabel.getHeight() > 0) {
             File imageFile = new File(imageUrl);

@@ -11,23 +11,32 @@ import java.awt.event.ComponentEvent;
 import java.util.List;
 
 public class Products extends JPanel {
+    // Number of columns to display products
     private int numColumns;
+    // Remaining width after calculating columns
     private int remainedWith;
+    // Constant for product panel size
     private static final int PRODUCT_SIZE = 250;
+    // CardLayout and JPanel for navigation
     private CardLayout cardLayout;
     private JPanel cardPanel;
+    // List to store products
     private List<Product> products;
+    // Panel to display product details
     private ProductDetail productDetail;
 
-    public Products(CardLayout cardLayout,JPanel cardPanel,ProductDetail productDetail) {
+    // Constructor to initialize the Products panel
+    public Products(CardLayout cardLayout, JPanel cardPanel, ProductDetail productDetail) {
         this.numColumns = 2;
         this.cardLayout = cardLayout;
         this.cardPanel = cardPanel;
-        this.productDetail=productDetail;
+        this.productDetail = productDetail;
         initialize();
     }
-    public void initialize(){
-        this.products=ProductService.getAllStoreProducts(App.getCurrentStore().getId());
+
+    // Method to initialize the panel components
+    public void initialize() {
+        this.products = ProductService.getAllStoreProducts(App.getCurrentStore().getId());
         setLayout(null);
 
         addComponentListener(new ComponentAdapter() {
@@ -42,12 +51,14 @@ public class Products extends JPanel {
         addProducts();
     }
 
+    // Method to update the number of columns based on panel width
     private void updateNumColumns() {
         int panelWidth = getWidth();
         numColumns = Math.max(1, panelWidth / (PRODUCT_SIZE + 10));
-        remainedWith = panelWidth-(numColumns * (PRODUCT_SIZE + 10)-10);
+        remainedWith = panelWidth - (numColumns * (PRODUCT_SIZE + 10) - 10);
     }
 
+    // Method to add products to the panel
     private void addProducts() {
         for (Product product : products) {
             add(createProductPanel(product));
@@ -55,20 +66,21 @@ public class Products extends JPanel {
         add(addNewProduct());
     }
 
+    // Method to create a panel for each product
     private JPanel createProductPanel(Product product) {
         JPanel productPanel = new JPanel();
         productPanel.setPreferredSize(new Dimension(PRODUCT_SIZE, PRODUCT_SIZE));
         productPanel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
         productPanel.setLayout(new BorderLayout(10, 10));
         productPanel.setBackground(Color.WHITE);
-        
+
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(Color.WHITE);
         JLabel productLabel = new JLabel(product.getName());
         productLabel.setFont(new Font("Arial", Font.BOLD, 14));
         productLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         topPanel.add(productLabel, BorderLayout.CENTER);
-        
+
         JPanel imagePanel = new JPanel(new BorderLayout());
         imagePanel.setBackground(Color.WHITE);
         ImageIcon productImageIcon = new ImageIcon(product.getImageUrl());
@@ -77,7 +89,7 @@ public class Products extends JPanel {
         JLabel productImageLabel = new JLabel(new ImageIcon(resizedImage));
         productImageLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         imagePanel.add(productImageLabel, BorderLayout.CENTER);
-        
+
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.setBackground(Color.WHITE);
         JLabel priceLabel = new JLabel(String.format("$ %.2f", product.getPrice()));
@@ -85,7 +97,7 @@ public class Products extends JPanel {
         priceLabel.setForeground(new Color(0, 100, 0));
         priceLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         bottomPanel.add(priceLabel, BorderLayout.CENTER);
-        
+
         productPanel.add(topPanel, BorderLayout.NORTH);
         productPanel.add(imagePanel, BorderLayout.CENTER);
         productPanel.add(bottomPanel, BorderLayout.SOUTH);
@@ -113,6 +125,7 @@ public class Products extends JPanel {
         return productPanel;
     }
 
+    // Method to create a panel for adding a new product
     private JPanel addNewProduct() {
         JPanel productPanel = new JPanel();
         productPanel.setPreferredSize(new Dimension(PRODUCT_SIZE, PRODUCT_SIZE));
@@ -122,11 +135,11 @@ public class Products extends JPanel {
 
         JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.setBackground(Color.WHITE);
-        
+
         JLabel plusLabel = new JLabel("+");
         plusLabel.setFont(new Font("Arial", Font.BOLD, 60));
         plusLabel.setForeground(new Color(0, 120, 215));
-        
+
         JLabel textLabel = new JLabel("Add New Product");
         textLabel.setFont(new Font("Arial", Font.BOLD, 14));
         textLabel.setForeground(new Color(100, 100, 100));
@@ -136,13 +149,13 @@ public class Products extends JPanel {
         gbc.gridy = 0;
         gbc.insets = new Insets(0, 0, 10, 0);
         centerPanel.add(plusLabel, gbc);
-        
+
         gbc.gridy = 1;
         centerPanel.add(textLabel, gbc);
-        
+
         productPanel.add(centerPanel, BorderLayout.CENTER);
 
-        // Hover efekti
+        // Hover effect
         productPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -165,6 +178,7 @@ public class Products extends JPanel {
         return productPanel;
     }
 
+    // Override the doLayout method to arrange components
     @Override
     public void doLayout() {
         super.doLayout();
@@ -178,13 +192,14 @@ public class Products extends JPanel {
                 x = 0;
                 y++;
             }
-            component.setBounds(x * columnWidth+remainedWith/2, y * (PRODUCT_SIZE + 10)+PRODUCT_SIZE/6, PRODUCT_SIZE, PRODUCT_SIZE);
+            component.setBounds(x * columnWidth + remainedWith / 2, y * (PRODUCT_SIZE + 10) + PRODUCT_SIZE / 6, PRODUCT_SIZE, PRODUCT_SIZE);
             x++;
         }
     }
-    public void refresh(){
+
+    // Method to refresh the panel
+    public void refresh() {
         removeAll();
         initialize();
     }
-
 }
