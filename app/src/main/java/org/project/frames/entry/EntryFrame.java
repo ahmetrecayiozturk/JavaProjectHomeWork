@@ -12,7 +12,7 @@ public class EntryFrame extends JFrame {
     public EntryFrame() {
         setTitle("App");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1200, 800);
+        setSize(1000, 800);
         setMinimumSize(new Dimension(500, 400));
         addComponentListener(
                 new ComponentAdapter() {

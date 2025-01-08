@@ -14,7 +14,7 @@ public class LoginPanel extends JPanel {
     private UserService userService = new UserService();
 
     public LoginPanel(JFrame frame, CardLayout cardLayout, JPanel cardPanel) {
-        setBackground(new Color(222, 49, 99));
+        setBackground(new Color(10, 50, 211));
         setOpaque(false); // Şeffaf panel
         setLayout(new GridBagLayout()); // GridBagLayout kullan
 
