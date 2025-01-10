@@ -15,31 +15,25 @@ import java.nio.file.Path;
 import static java.lang.Integer.valueOf;
 
 public class ProductDetail extends JPanel {
-    // UI components for product details
     private JTextField nameField;
     private JLabel imageLabel;
     private JTextArea descriptionField;
     private JTextField priceField;
     private JTextField stockField;
-    // Flag to check if fields are editable
-    private boolean isEditable = false;
-    // Product object to hold the current product details
-    private Product product = new Product("", "", -1, "", 0.0, 0);
-    // Dimensions for the inner panel
+    private boolean isEditable=false;
+    private Product product=new Product("","",-1,"",0.0,0);
     private final int innerPanelWidth = 600;
     private int panelWidth;
     private int panelHeight;
-    private JPanel innerPanel = new JPanel();
+    private JPanel innerPanel;
     private Path imagePath;
     private CardLayout cardLayout;
     private JPanel cardPanel;
 
-    // Constructor to initialize the ProductDetail panel
     public ProductDetail(CardLayout cardLayout, JPanel cardPanel) {
         this.cardLayout = cardLayout;
         this.cardPanel = cardPanel;
-        refresh();
-        add(innerPanel);
+        initializeInnerPanel();
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -52,26 +46,22 @@ public class ProductDetail extends JPanel {
             }
         });
     }
-
-    // Method to initialize the inner panel with form components
-    public void initializeInnerPanel() {
-        innerPanel.removeAll();
+    public void initializeInnerPanel(){
+        innerPanel=new JPanel();
         innerPanel.setLayout(null);
+        innerPanel.setPreferredSize(new Dimension(innerPanelWidth, panelHeight));
         innerPanel.setBackground(Color.WHITE);
-
-        // Image label for displaying product image
         imageLabel = new JLabel();
-        imageLabel.setBounds((innerPanelWidth - 400) / 2, 30, 400, 300);
+        imageLabel.setBounds((innerPanelWidth-400)/2, 30, 400, 300);
         imageLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         imageLabel.setVerticalAlignment(SwingConstants.CENTER);
         innerPanel.add(imageLabel);
 
-        // Mouse listener to handle image upload
         imageLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (isEditable) {
+                if(isEditable) {
                     try {
                         File image = ImageService.chooseImage();
                         assert image != null;
@@ -89,10 +79,10 @@ public class ProductDetail extends JPanel {
                 }
             }
         });
+
         setImage(product.getImageUrl());
 
-        // Labels and fields for product details
-        JLabel nameLabel = new JLabel("Name: ");
+        JLabel nameLabel = new JLabel("Name: " );
         nameLabel.setBounds(50, 360, 75, 30);
         innerPanel.add(nameLabel);
 
@@ -102,56 +92,58 @@ public class ProductDetail extends JPanel {
         innerPanel.add(nameField);
 
         JLabel descriptionLabel = new JLabel("Description:");
-        descriptionLabel.setBounds(50, 400, 75, 60);
+        descriptionLabel.setBounds(50, 420, 75, 30);
         innerPanel.add(descriptionLabel);
 
         descriptionField = new JTextArea(product.getDescription());
-        descriptionField.setBounds(150, 400, 400, 60);
+        descriptionField.setBounds(150, 420, 400, 60);
         descriptionField.setLineWrap(true);
         descriptionField.setWrapStyleWord(true);
         descriptionField.setEditable(false);
-        descriptionField.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        descriptionField.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        descriptionField.setBackground(new Color(238, 238, 238));
         innerPanel.add(descriptionField);
 
         JLabel priceLabel = new JLabel("Price: ");
-        priceLabel.setBounds(50, 480, 75, 30);
+        priceLabel.setBounds(50, 500, 75, 30);
         innerPanel.add(priceLabel);
 
         priceField = new JTextField(String.valueOf(product.getPrice()));
-        priceField.setBounds(150, 480, 400, 30);
+        priceField.setBounds(150, 500, 400, 30);
         priceField.setEditable(false);
         innerPanel.add(priceField);
 
-        JLabel stockLabel = new JLabel("Stock: ");
-        stockLabel.setBounds(50, 520, 75, 30);
+        JLabel stockLabel = new JLabel("Stock: " );
+        stockLabel.setBounds(50, 540, 75, 30);
         innerPanel.add(stockLabel);
 
         stockField = new JTextField(String.valueOf(product.getProductCount()));
-        stockField.setBounds(150, 520, 400, 30);
+        stockField.setBounds(150, 540, 400, 30);
         stockField.setEditable(false);
         innerPanel.add(stockField);
 
-        // Edit button to toggle edit mode
         JButton editButton = new JButton("Edit");
         editButton.setBounds(200, 600, 100, 30);
         editButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (!isEditable) {
+                if(!isEditable) {
                     nameField.setEditable(true);
                     descriptionField.setEditable(true);
                     priceField.setEditable(true);
                     stockField.setEditable(true);
+                    descriptionField.setBackground(Color.WHITE);
                     editButton.setText("Save");
                     imageLabel.setText("Editable");
-                    isEditable = true;
-                } else {
+                    isEditable=true;
+                }else{
                     nameField.setEditable(false);
                     descriptionField.setEditable(false);
                     priceField.setEditable(false);
                     stockField.setEditable(false);
                     editButton.setText("Edit");
-                    isEditable = false;
+                    isEditable=false;
+                    descriptionField.setBackground(new Color(238, 238, 238));
                     product.setName(nameField.getText());
                     product.setDescription(descriptionField.getText());
                     product.setPrice(Double.valueOf(priceField.getText()));
@@ -162,7 +154,6 @@ public class ProductDetail extends JPanel {
         });
         innerPanel.add(editButton);
 
-        // Delete button to delete the product
         JButton deleteButton = new JButton("Delete");
         deleteButton.setBounds(320, 600, 100, 30);
         deleteButton.addActionListener(new ActionListener() {
@@ -178,9 +169,9 @@ public class ProductDetail extends JPanel {
             }
         });
         innerPanel.add(deleteButton);
+        add(innerPanel);
     }
 
-    // Method to set the product image
     public void setImage(String imageUrl) {
         File imageFile = new File(imageUrl);
         if (imageFile.exists()) {
@@ -194,23 +185,17 @@ public class ProductDetail extends JPanel {
             imageLabel.setText("Image not available");
         }
     }
-
-    // Method to set the current product
     public void setProduct(Product product) {
         this.product = product;
         refresh();
     }
-
-    // Method to refresh the panel
     public void refresh() {
-        innerPanel.removeAll();
+        removeAll();
         initializeInnerPanel();
         revalidate();
         repaint();
     }
-
-    // Method to update the position of the inner panel to center it
-    private void updatePanelPositionToCenter(JPanel innerPanel) {
+    private void updatePanelPositionToCenter( JPanel innerPanel) {
         Dimension innerPanelSize = innerPanel.getPreferredSize();
 
         int x = (panelWidth - innerPanelSize.width) / 2;
@@ -219,3 +204,5 @@ public class ProductDetail extends JPanel {
         innerPanel.setBounds(x, y, innerPanelSize.width, innerPanelSize.height);
     }
 }
+
+

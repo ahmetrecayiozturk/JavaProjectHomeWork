@@ -2,106 +2,95 @@ package org.project.frames.home.panels;
 
 import org.project.models.Cargo;
 import org.project.models.Order;
+import org.project.models.Receiver;
+import org.project.models.Product;
 import org.project.services.CargoService;
 import org.project.services.OrderService;
+import org.project.services.ReceiverService;
+import org.project.services.ProductService;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
 public class Cargos extends JPanel {
-    // Constants for cargo panel dimensions
     private static final int CARGO_MAX_WIDTH = 1000;
     private static final int CARGO_HEIGHT = 50;
-    // List to store cargos and orders
     private List<Cargo> cargos;
     private List<Order> orders;
-    // Panels for displaying cargo list and scroll pane
-    private JPanel cargoListPanel;
-    private JScrollPane scrollPane;
+    private JPanel cargosPanel;
+    private JPanel mainPanel;
 
-    // Constructor to initialize the Cargos panel
     public Cargos() {
-        this.cargos = CargoService.getAllCargos();
-        this.orders = OrderService.getAllOrders();
+        this.cargos = CargoService.getAllCargosForCurrentStore();
+        this.orders = OrderService.getAllOrdersForCurrentStore();
         initialize();
     }
 
-    // Method to initialize the panel components
     private void initialize() {
         setLayout(new BorderLayout());
 
-        // Initialize the cargo list panel with a vertical box layout
-        cargoListPanel = new JPanel();
-        cargoListPanel.setLayout(new BoxLayout(cargoListPanel, BoxLayout.Y_AXIS));
+        mainPanel = new JPanel(new BorderLayout());
 
-        // Initialize the scroll pane for the cargo list panel
-        scrollPane = new JScrollPane(cargoListPanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setPreferredSize(new Dimension(CARGO_MAX_WIDTH, 600));
-        add(scrollPane, BorderLayout.CENTER);
-
-        // Add cargos to the list panel
+        cargosPanel = new JPanel();
+        cargosPanel.setLayout(null);
         addCargos();
 
-        // Initialize the button panel for adding new cargos
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new BorderLayout());
+        JScrollPane scrollPane = new JScrollPane(cargosPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // Add button to add new cargos
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        buttonPanel.setPreferredSize(new Dimension(1000, 100));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+
         JButton addButton = new JButton("Add");
+        addButton.setPreferredSize(new Dimension(1000, 100));
         styleAddButton(addButton);
-        addButton.setPreferredSize(new Dimension(300, 100)); // Increase size by 2.5 times
         addButton.addActionListener(e -> showAddDialog());
 
-        buttonPanel.add(addButton, BorderLayout.CENTER);
+        buttonPanel.add(addButton);
 
-        add(buttonPanel, BorderLayout.SOUTH);
+        JPanel buttonWrapperPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonWrapperPanel.add(buttonPanel);
+        mainPanel.add(buttonWrapperPanel, BorderLayout.SOUTH);
+
+        add(mainPanel);
     }
 
-    // Method to add cargos to the list panel
     private void addCargos() {
-        cargoListPanel.removeAll();
         for (Cargo cargo : cargos) {
-            cargoListPanel.add(createCargoPanel(cargo));
+            cargosPanel.add(createCargoPanel(cargo));
         }
-        cargoListPanel.revalidate();
-        cargoListPanel.repaint();
     }
 
-    // Method to create a panel for each cargo
     private JPanel createCargoPanel(Cargo cargo) {
         JPanel cargoPanel = new JPanel(new BorderLayout());
         cargoPanel.setPreferredSize(new Dimension(CARGO_MAX_WIDTH, CARGO_HEIGHT));
-        cargoPanel.setMaximumSize(new Dimension(CARGO_MAX_WIDTH, CARGO_HEIGHT));
-        cargoPanel.setBackground(cargo.isDelivered() ? Color.GREEN : Color.RED);
+        cargoPanel.setBackground(cargo.isReturned() ? Color.YELLOW : (cargo.isDelivered() ? Color.GREEN : Color.RED));
 
         JLabel cargoLabel = new JLabel("Cargo ID: " + cargo.getId() + " | Delivered: " + cargo.isDelivered() + " | Returned: " + cargo.isReturned());
         cargoLabel.setHorizontalAlignment(SwingConstants.LEFT);
         cargoPanel.add(cargoLabel, BorderLayout.WEST);
 
-        JPanel buttonPanel = new JPanel(new GridLayout(1, 5, 10, 10));
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 3, 10, 10));
         JButton detailsButton = new JButton("Details");
-        JButton updateButton = new JButton("Update");
         JButton deleteButton = new JButton("Delete");
         JButton returnButton = new JButton("Return");
         JButton deliveredButton = new JButton("Delivered");
 
         styleButton(detailsButton);
-        styleButton(updateButton);
-        styleButton(deleteButton, new Color(255, 69, 0));
+        styleButton(deleteButton, Color.RED);
         styleButton(returnButton);
         styleButton(deliveredButton);
 
-        // Initially disable the deleteButton
-        deleteButton.setEnabled(false);
-
         detailsButton.addActionListener(e -> showDetailsDialog(cargo));
-        updateButton.addActionListener(e -> showUpdateDialog(cargo));
         deleteButton.addActionListener(e -> {
             CargoService.delete(cargo.getId());
             refresh();
         });
+
         returnButton.addActionListener(e -> {
             CargoService.returnCargo(cargo.getId());
             cargo.setReturned(true);
@@ -115,21 +104,16 @@ public class Cargos extends JPanel {
             refresh();
         });
 
-        // Enable deleteButton if cargo is delivered or returned
-        if (cargo.isDelivered() || cargo.isReturned()) {
-            deleteButton.setEnabled(true);
+        if (cargo.isDelivered()) {
+            returnButton.setEnabled(true);
+            deliveredButton.setEnabled(false);
         }
-
-        // Disable other buttons if cargo is delivered or returned
-        if (cargo.isDelivered() || cargo.isReturned()) {
-            detailsButton.setEnabled(false);
-            updateButton.setEnabled(false);
+        if (cargo.isReturned()) {
             returnButton.setEnabled(false);
             deliveredButton.setEnabled(false);
         }
 
         buttonPanel.add(detailsButton);
-        buttonPanel.add(updateButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(returnButton);
         buttonPanel.add(deliveredButton);
@@ -139,125 +123,123 @@ public class Cargos extends JPanel {
         return cargoPanel;
     }
 
-    // Method to show the details dialog for a cargo
+    @Override
+    public void doLayout() {
+        super.doLayout();
+        if (cargosPanel != null) {
+            int y = 0;
+            int x = (cargosPanel.getWidth() - CARGO_MAX_WIDTH) / 2;
+
+            for (Component component : cargosPanel.getComponents()) {
+                component.setBounds(x, y * (CARGO_HEIGHT + 10) + CARGO_HEIGHT / 4, CARGO_MAX_WIDTH, CARGO_HEIGHT);
+                y++;
+            }
+            cargosPanel.setPreferredSize(new Dimension(
+                    CARGO_MAX_WIDTH,
+                    (y * (CARGO_HEIGHT + 10)) + CARGO_HEIGHT
+            ));
+        }
+    }
+
     private void showDetailsDialog(Cargo cargo) {
         CargoDetail cargoDetail = new CargoDetail((Frame) SwingUtilities.getWindowAncestor(this), cargo);
         cargoDetail.setVisible(true);
     }
 
-    // Method to show the add cargo dialog
     private void showAddDialog() {
         JDialog dialog = new JDialog((Frame) null, "Add Cargo", true);
-        dialog.setSize(400, 300);
+        dialog.setSize(600, 300);
         dialog.setLocationRelativeTo(null);
 
-        JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
-        JComboBox<Order> orderComboBox = new JComboBox<>(orders.toArray(new Order[0]));
+        JPanel mainPanel = new JPanel(null);
+
+        JComboBox<Order> orderComboBox = new JComboBox<>(new DefaultComboBoxModel<>(orders.toArray(new Order[0])));
+        orderComboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Order) {
+                    Order order = (Order) value;
+                    Receiver receiver = ReceiverService.findReceiverById(order.getReceiverId());
+                    Product product = ProductService.getProductById(order.getProductId());
+                    setText("Order ID: " + order.getId() + " | Receiver: " + receiver.getName() + " | Product: " + product.getName());
+                }
+                return this;
+            }
+        });
+
         JCheckBox isDeliveredCheckBox = new JCheckBox();
         JCheckBox isReturnedCheckBox = new JCheckBox();
 
-        formPanel.add(new JLabel("Order:"));
-        formPanel.add(orderComboBox);
-        formPanel.add(new JLabel("Is Delivered:"));
-        formPanel.add(isDeliveredCheckBox);
-        formPanel.add(new JLabel("Is Returned:"));
-        formPanel.add(isReturnedCheckBox);
-        JButton addButton = new JButton("Add");
-        styleAddButton(addButton);
+        JLabel orderLabel = new JLabel("Order:");
+        orderLabel.setBounds(30, 30, 80, 25);
+        orderComboBox.setBounds(120, 30, 400, 30);
+
+        JLabel deliveredLabel = new JLabel("Is Delivered:");
+        deliveredLabel.setBounds(30, 80, 80, 25);
+        isDeliveredCheckBox.setBounds(120, 80, 30, 30);
+
+        JLabel returnedLabel = new JLabel("Is Returned:");
+        returnedLabel.setBounds(30, 130, 80, 25);
+        isReturnedCheckBox.setBounds(120, 130, 30, 30);
+
+        mainPanel.add(orderLabel);
+        mainPanel.add(orderComboBox);
+        mainPanel.add(deliveredLabel);
+        mainPanel.add(isDeliveredCheckBox);
+        mainPanel.add(returnedLabel);
+        mainPanel.add(isReturnedCheckBox);
+
+        JButton addButton = new JButton("Add Cargo");
+        addButton.setBounds(240, 190, 120, 35);
+        addButton.setBackground(new Color(0, 120, 215));
+        addButton.setForeground(Color.WHITE);
+        addButton.setFocusPainted(false);
+
         addButton.addActionListener(e -> {
             Order order = (Order) orderComboBox.getSelectedItem();
             boolean isDelivered = isDeliveredCheckBox.isSelected();
             boolean isReturned = isReturnedCheckBox.isSelected();
             if (order != null) {
-                Cargo cargo = new Cargo(isDelivered, isReturned, order.getId());
+                Cargo cargo = new Cargo(isDelivered, order.getId());
+                cargo.setReturned(isReturned);
                 CargoService.add(cargo);
                 refresh();
                 dialog.dispose();
             } else {
-                JOptionPane.showMessageDialog(dialog, "All fields must be filled", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(dialog,
+                        "Please select an order",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         });
 
-        dialog.add(formPanel, BorderLayout.CENTER);
-        dialog.add(addButton, BorderLayout.SOUTH);
+        mainPanel.add(addButton);
+        dialog.add(mainPanel);
         dialog.setVisible(true);
     }
 
-    // Method to show the update cargo dialog
-    private void showUpdateDialog(Cargo cargo) {
-        JDialog dialog = new JDialog((Frame) null, "Update Cargo", true);
-        dialog.setSize(400, 300);
-        dialog.setLocationRelativeTo(null);
-
-        JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
-        JComboBox<Order> orderComboBox = new JComboBox<>(orders.toArray(new Order[0]));
-        JCheckBox isDeliveredCheckBox = new JCheckBox();
-        JCheckBox isReturnedCheckBox = new JCheckBox();
-
-        orderComboBox.setSelectedItem(cargo.getOrderId());
-        isDeliveredCheckBox.setSelected(cargo.isDelivered());
-        isReturnedCheckBox.setSelected(cargo.isReturned());
-
-        formPanel.add(new JLabel("Order:"));
-        formPanel.add(orderComboBox);
-        formPanel.add(new JLabel("Is Delivered:"));
-        formPanel.add(isDeliveredCheckBox);
-        formPanel.add(new JLabel("Is Returned:"));
-        formPanel.add(isReturnedCheckBox);
-
-        JButton updateButton = new JButton("Update");
-        styleButton(updateButton);
-        updateButton.addActionListener(e -> {
-            Order order = (Order) orderComboBox.getSelectedItem();
-            boolean isDelivered = isDeliveredCheckBox.isSelected();
-            boolean isReturned = isReturnedCheckBox.isSelected();
-            if (order != null) {
-                cargo.setOrderId(order.getId());
-                cargo.setDelivered(isDelivered);
-                cargo.setReturned(isReturned);
-                CargoService.update(cargo);
-                refresh();
-                dialog.dispose();
-            } else {
-                JOptionPane.showMessageDialog(dialog, "All fields must be filled", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-
-        dialog.add(formPanel, BorderLayout.CENTER);
-        dialog.add(updateButton, BorderLayout.SOUTH);
-        dialog.setVisible(true);
-    }
-
-    // Method to refresh the cargo list
     public void refresh() {
-        this.cargos = CargoService.getAllCargos();
+        this.cargos = CargoService.getAllCargosForCurrentStore();
+        this.orders = OrderService.getAllOrdersForCurrentStore();
+        cargosPanel.removeAll();
         addCargos();
+        revalidate();
+        repaint();
     }
 
-    // Method to style buttons
     private void styleButton(JButton button) {
         button.setBackground(new Color(0, 120, 215));
         button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
     }
 
-    // Method to style buttons with a specific background color
     private void styleButton(JButton button, Color backgroundColor) {
         button.setBackground(backgroundColor);
         button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
     }
 
-    // Method to style the add button
     private void styleAddButton(JButton button) {
         button.setBackground(new Color(0, 120, 215));
         button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.BOLD, 18));
-        button.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
     }
 }

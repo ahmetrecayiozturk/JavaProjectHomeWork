@@ -6,27 +6,22 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ReceiverDetail extends JPanel {
-    // Labels to display receiver details
     private JLabel receiverIdLabel;
     private JLabel nameLabel;
     private JLabel surnameLabel;
     private JLabel addressLabel;
     private JLabel emailLabel;
-    // Receiver object to hold the current receiver details
     private Receiver receiver;
 
-    // Constructor to initialize the ReceiverDetail panel
     public ReceiverDetail() {
-        receiver = new Receiver("", "", "", "", "");
+        receiver = new Receiver( "", "", "", "");
         initialize();
     }
 
-    // Method to initialize the panel components
     public void initialize() {
         setLayout(null);
         setBounds(0, 0, 500, 300);
 
-        // Initialize and add labels for receiver details
         receiverIdLabel = new JLabel("Receiver ID: " + receiver.getId());
         receiverIdLabel.setBounds(50, 40, 400, 30);
         add(receiverIdLabel);
@@ -51,7 +46,6 @@ public class ReceiverDetail extends JPanel {
         repaint();
     }
 
-    // Method to set the receiver details
     public void setReceiver(Receiver receiver) {
         this.receiver = receiver;
         receiverIdLabel.setText("Receiver ID: " + receiver.getId());

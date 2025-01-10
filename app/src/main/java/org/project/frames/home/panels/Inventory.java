@@ -14,43 +14,38 @@ import java.io.File;
 import java.util.List;
 
 public class Inventory extends JPanel {
-    private int numRows;
     private static final int PRODUCT_MAX_WIDTH = 1000;
     private static final int PRODUCT_HEIGHT = 60;
     private CardLayout cardLayout;
     private JPanel cardPanel;
     private List<Product> products;
     private ProductDetail productDetail;
+    private JPanel productsPanel;
 
-    public Inventory(CardLayout cardLayout,JPanel cardPanel,ProductDetail productDetail) {
-        this.productDetail=productDetail;
+    public Inventory(CardLayout cardLayout, JPanel cardPanel, ProductDetail productDetail) {
+        this.productDetail = productDetail;
         this.cardLayout = cardLayout;
         this.cardPanel = cardPanel;
         initialize();
     }
 
-    private void initialize(){
-        this.products=ProductService.getAllStoreProducts(App.getCurrentStore().getId());
-        setLayout(null);
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                updateNumRows();
-                revalidate();
-                repaint();
-            }
-        });
+    private void initialize() {
+        this.products = ProductService.getAllStoreProducts(App.getCurrentStore().getId());
+        setLayout(new BorderLayout());
+        
+        productsPanel = new JPanel();
+        productsPanel.setLayout(null);
         addProducts();
-    }
 
-    private void updateNumRows() {
-        int panelHeight = getHeight();
-        numRows = Math.max(1, panelHeight / (PRODUCT_HEIGHT + 10));
+        JScrollPane scrollPane = new JScrollPane(productsPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        add(scrollPane, BorderLayout.CENTER);
     }
 
     private void addProducts() {
-        for (Product product:products) {
-            add(createProductPanel(product));
+        for (Product product : products) {
+            productsPanel.add(createProductPanel(product));
         }
     }
 
@@ -61,10 +56,10 @@ public class Inventory extends JPanel {
         productPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         productPanel.setLayout(null);
 
-        JLabel productLabel = new JLabel(product.getName().toUpperCase());
-        productLabel.setBounds(70, 3, 400, 30);
-        JLabel productLabel2 = new JLabel(product.getDescription());
-        productLabel2.setBounds(70, 20, 400, 30);
+        JLabel productLabel = new JLabel("Product Name: "+product.getName().toUpperCase());
+        productLabel.setBounds(75, 3, 400, 30);
+        JLabel productLabel2 = new JLabel("Description: "+product.getDescription());
+        productLabel2.setBounds(75, 23, 400, 30);
 
         JLabel imageLabel = new JLabel();
         File imageFile = new File(product.getImageUrl());
@@ -89,8 +84,8 @@ public class Inventory extends JPanel {
         JLabel productPriceLabel = new JLabel("$" + product.getPrice().toString());
         productPriceLabel.setBounds(70, 65, 100, 30);
 
-        JLabel productCountLabel = new JLabel("Stok: " + product.getProductCount());
-        productCountLabel.setBounds(800, 20, 100, 30);
+        JLabel productCountLabel = new JLabel("Stock: " + product.getProductCount());
+        productCountLabel.setBounds(800, 18, 100, 30);
 
         JButton increaseStockButton = new JButton("Change Stock");
         increaseStockButton.setBounds(880, 0, 120, 60);
@@ -132,16 +127,26 @@ public class Inventory extends JPanel {
     @Override
     public void doLayout() {
         super.doLayout();
-        int y = 0;
-        int x = (getWidth() - PRODUCT_MAX_WIDTH) / 2;
+        if (productsPanel != null) {
+            int y = 0;
+            int x = (productsPanel.getWidth() - PRODUCT_MAX_WIDTH) / 2;
 
-        for (Component component : getComponents()) {
-            component.setBounds(x, y * (PRODUCT_HEIGHT + 10)+PRODUCT_HEIGHT/4 , PRODUCT_MAX_WIDTH, PRODUCT_HEIGHT);
-            y++;
+            for (Component component : productsPanel.getComponents()) {
+                component.setBounds(x, y * (PRODUCT_HEIGHT + 10) + PRODUCT_HEIGHT / 4, PRODUCT_MAX_WIDTH, PRODUCT_HEIGHT);
+                y++;
+            }
+            productsPanel.setPreferredSize(new Dimension(
+                PRODUCT_MAX_WIDTH,
+                (y * (PRODUCT_HEIGHT + 10)) + PRODUCT_HEIGHT
+            ));
         }
     }
-    public void refresh(){
-        removeAll();
-        initialize();
+
+    public void refresh() {
+        productsPanel.removeAll();
+        this.products = ProductService.getAllStoreProducts(App.getCurrentStore().getId());
+        addProducts();
+        revalidate();
+        repaint();
     }
 }

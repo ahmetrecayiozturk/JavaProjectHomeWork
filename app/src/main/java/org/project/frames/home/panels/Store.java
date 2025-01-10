@@ -15,20 +15,13 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public class Store extends JPanel {
-    // Dimensions for the panel
     private int panelWidth;
     private int panelHeight;
-    // Inner panel to hold store details
-    private JPanel innerPanel = new JPanel();
-    // Flag to check if fields are editable
-    private boolean isEditable = false;
-    // Path to store the image
+    private JPanel innerPanel=new JPanel();
+    private boolean isEditable=false;
     private Path imagePath;
-    // Panel and label for the store image
     private JPanel imagePanel = new JPanel();
     private JLabel storeImageLabel;
-
-    // Constructor to initialize the Store panel
     public Store() {
         initializeInnerPanel();
         addComponentListener(new ComponentAdapter() {
@@ -63,14 +56,14 @@ public class Store extends JPanel {
         });
     }
 
-    // Method to initialize the inner panel with form components
-    public void initializeInnerPanel() {
+    public void initializeInnerPanel(){
         innerPanel.setLayout(null);
         innerPanel.setPreferredSize(new Dimension(600, panelHeight));
         innerPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
         imagePanel.setPreferredSize(new Dimension(400, 300));
         imagePanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+
         imagePanel.setBounds(100, 10, 400, 300);
 
         JLabel nameLabel = new JLabel("Name:");
@@ -89,7 +82,7 @@ public class Store extends JPanel {
         innerPanel.add(storeNameLabel);
         imagePanel.add(storeImageLabel);
 
-        JLabel addressLabel = new JLabel("Address: ");
+        JLabel addressLabel = new JLabel("Adress: ");
         JTextField addressField = new JTextField(App.getCurrentStore().getAddress());
         addressField.setEditable(false);
 
@@ -97,70 +90,75 @@ public class Store extends JPanel {
         JTextField phoneField = new JTextField(App.getCurrentStore().getPhone());
         phoneField.setEditable(false);
 
+        JLabel aboutLabel = new JLabel("About: ");
+        JTextArea descriptionField = new JTextArea(App.getCurrentStore().getDescription());
+        descriptionField.setEditable(false);
+
         addressLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         phoneLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        aboutLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         addressField.setFont(new Font("Arial", Font.PLAIN, 14));
         phoneField.setFont(new Font("Arial", Font.PLAIN, 14));
+        descriptionField.setFont(new Font("Arial", Font.PLAIN, 14));
 
         addressLabel.setBounds(50, 400, 75, 30);
         phoneLabel.setBounds(50, 440, 75, 30);
+        aboutLabel.setBounds(50, 500, 75, 30);
         addressField.setBounds(150, 400, 400, 30);
         phoneField.setBounds(150, 440, 400, 30);
+        descriptionField.setBounds(150, 500, 400, 120);
+
+        descriptionField.setLineWrap(true);
+        descriptionField.setWrapStyleWord(true);
+        descriptionField.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        descriptionField.setBackground(new Color(238, 238, 238));
 
         innerPanel.add(addressLabel);
         innerPanel.add(phoneLabel);
+        innerPanel.add(aboutLabel);
         innerPanel.add(addressField);
         innerPanel.add(phoneField);
+        innerPanel.add(descriptionField);
 
-        JPanel descriptionPanel = new JPanel();
-        descriptionPanel.setBorder(BorderFactory.createTitledBorder("About"));
-        descriptionPanel.setBounds(50, 520, 500, 120);
-
-        JTextField storeDescriptionArea = new JTextField(App.getCurrentStore().getDescription());
-        storeDescriptionArea.setEditable(false);
-        descriptionPanel.add(storeDescriptionArea);
 
         JButton editButton = new JButton();
         editButton.setText("Edit");
         editButton.setBounds(250, 680, 100, 30);
         editButton.addActionListener(e -> {
-            if (isEditable) {
-                App.getCurrentStore().setDescription(storeDescriptionArea.getText());
+            if(isEditable) {
+                App.getCurrentStore().setDescription(descriptionField.getText());
                 App.getCurrentStore().setName(storeNameLabel.getText());
                 App.getCurrentStore().setPhone(phoneField.getText());
                 App.getCurrentStore().setAddress(addressField.getText());
                 editButton.setText("Edit");
-                storeDescriptionArea.setEditable(false);
+                descriptionField.setBackground(new Color(238, 238, 238));
+                descriptionField.setEditable(false);
                 storeNameLabel.setEditable(false);
                 phoneField.setEditable(false);
                 addressField.setEditable(false);
                 isEditable = false;
                 StoreService.update(App.getCurrentStore());
-            } else {
+            }else {
                 editButton.setText("Save");
+                descriptionField.setBackground(Color.WHITE);
                 storeNameLabel.setEditable(true);
                 phoneField.setEditable(true);
                 addressField.setEditable(true);
-                storeDescriptionArea.setEditable(true);
+                descriptionField.setEditable(true);
                 isEditable = true;
             }
         });
 
         innerPanel.add(editButton);
         innerPanel.add(imagePanel);
-        innerPanel.add(descriptionPanel);
         innerPanel.setBackground(Color.WHITE);
         add(innerPanel);
     }
-
-    // Method to refresh the panel
-    public void refresh() {
+    public void refresh(){
         removeAll();
         initializeInnerPanel();
     }
-
-    // Method to update the position of the inner panel to center it
-    private void updatePanelPositionToCenter(JPanel innerPanel) {
+    private void updatePanelPositionToCenter( JPanel innerPanel) {
         Dimension innerPanelSize = innerPanel.getPreferredSize();
 
         int x = (panelWidth - innerPanelSize.width) / 2;
@@ -168,15 +166,13 @@ public class Store extends JPanel {
 
         innerPanel.setBounds(x, y, innerPanelSize.width, innerPanelSize.height);
     }
-
-    // Method to set the store image
-    public void setImage() {
+    public void setImage(){
         imagePanel.removeAll();
-        if (App.getCurrentStore().getImageUrl().equals("")) {
+        if(App.getCurrentStore().getImageUrl().equals("")){
             storeImageLabel = new JLabel("Upload an image");
             storeImageLabel.setHorizontalAlignment(SwingConstants.CENTER);
             storeImageLabel.setVerticalAlignment(SwingConstants.CENTER);
-        } else {
+        } else{
             try {
                 ImageIcon storeImageIcon = new ImageIcon(App.getCurrentStore().getImageUrl());
                 Image image = storeImageIcon.getImage().getScaledInstance(storeImageLabel.getWidth(), storeImageLabel.getHeight(), Image.SCALE_SMOOTH);
@@ -193,3 +189,6 @@ public class Store extends JPanel {
         repaint();
     }
 }
+
+
+

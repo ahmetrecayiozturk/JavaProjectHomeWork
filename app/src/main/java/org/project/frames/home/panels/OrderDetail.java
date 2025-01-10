@@ -1,124 +1,117 @@
 package org.project.frames.home.panels;
 
 import org.project.models.Order;
+import org.project.models.Product;
 import org.project.models.Receiver;
+import org.project.services.ProductService;
 import org.project.services.ReceiverService;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 
-public class OrderDetail extends JPanel {
-    // Labels to display order and receiver details
-    private JLabel orderIdLabel;
-    private JLabel receiverNameLabel;
-    private JLabel receiverEmailLabel;
-    private JLabel receiverAddressLabel;
-    // Order object to hold the current order details
+public class OrderDetail extends JDialog {
     private Order order;
+    private Product product;
+    private Receiver receiver;
 
-    // Constructor to initialize the OrderDetail panel
-    public OrderDetail() {
-        initialize();
-    }
+    private JLabel orderIdLabel;
+    private JLabel productIdLabel;
+    private JLabel productNameLabel;
+    private JLabel productDescriptionLabel;
+    private JLabel productPriceLabel;
+    private JLabel productCountLabel;
+    private JLabel receiverIdLabel;
+    private JLabel receiverFirstNameLabel;
+    private JLabel receiverLastNameLabel;
+    private JLabel receiverAddressLabel;
+    private JLabel receiverEmailLabel;
+    private JLabel quantityLabel;
+    private JLabel statusLabel;
+    private JLabel imageLabel;
 
-    // Method to initialize the panel components
-    public void initialize() {
-        removeAll();
-        setLayout(new BorderLayout());
-        setBackground(Color.WHITE);
-
-        // Panel to hold the order details
-        JPanel detailsPanel = new JPanel(new GridBagLayout());
-        detailsPanel.setBackground(Color.WHITE);
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        // Initialize and add labels for order details
-        orderIdLabel = createLabel("");
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        detailsPanel.add(orderIdLabel, gbc);
-
-        receiverNameLabel = createLabel("");
-        gbc.gridy++;
-        detailsPanel.add(receiverNameLabel, gbc);
-
-        receiverEmailLabel = createLabel("");
-        gbc.gridy++;
-        detailsPanel.add(receiverEmailLabel, gbc);
-
-        receiverAddressLabel = createLabel("");
-        gbc.gridy++;
-        detailsPanel.add(receiverAddressLabel, gbc);
-
-        // Add the details panel to the main panel
-        add(detailsPanel, BorderLayout.CENTER);
-
-        revalidate();
-        repaint();
-    }
-
-    // Method to create a label with specific styling
-    private JLabel createLabel(String text) {
-        JLabel label = new JLabel(text);
-        label.setFont(new Font("Arial", Font.BOLD, 16));
-        label.setForeground(new Color(50, 50, 50));
-        return label;
-    }
-
-    // Method to set the order details
-    public void setOrder(Order order) {
+    public OrderDetail(Frame owner, Order order) {
+        super(owner, "Order Details", true); // modal dialog
         this.order = order;
-        Receiver receiver = ReceiverService.findReceiverById(order.getReceiverId());
-        orderIdLabel.setText("Order ID: " + order.getId());
-        receiverNameLabel.setText("Receiver: " + receiver.getName() + " " + receiver.getSurname());
-        receiverEmailLabel.setText("Email: " + receiver.getEmail());
-        receiverAddressLabel.setText("<html><body style='width: 300px'>Address: " + receiver.getAddress() + "</body></html>");
-        revalidate();
-        repaint();
+        this.product = ProductService.getProductById(order.getProductId());
+        this.receiver = ReceiverService.findReceiverById(order.getReceiverId());
 
-        // Open a new dialog to show order details
-        showOrderDetail();
+        initializeComponents();
+        setLayout();
+        setImage(product.getImageUrl());
+        setSize(800, 500);
+        setLocationRelativeTo(owner);
     }
 
-    // Method to show the order details in a new dialog
-    private void showOrderDetail() {
-        JDialog dialog = new JDialog((Frame) null, "Order Details", true);
-        dialog.setSize(900, 600);
-        dialog.setLocationRelativeTo(null);
+    private void initializeComponents() {
+        orderIdLabel = new JLabel("Order ID: " + order.getId());
+        productIdLabel = new JLabel("Product ID: " + product.getId());
+        productNameLabel = new JLabel("Product: " + product.getName());
+        productDescriptionLabel = new JLabel("Description: " + product.getDescription());
+        productPriceLabel = new JLabel("Price: $" + product.getPrice());
+        productCountLabel = new JLabel("Stock: " + product.getProductCount());
+        quantityLabel = new JLabel("Quantity: " + order.getQuantity());
+        statusLabel = new JLabel("Status: " + (order.getStatus() != null ? order.getStatus() : "Not specified"));
+        imageLabel = new JLabel("Image not available", JLabel.CENTER);
+        receiverIdLabel = new JLabel("Receiver ID: " + receiver.getId());
+        receiverFirstNameLabel = new JLabel("First Name: " + receiver.getName());
+        receiverLastNameLabel = new JLabel("Last Name: " + receiver.getSurname());
+        receiverAddressLabel = new JLabel("Address: " + receiver.getAddress());
+        receiverEmailLabel = new JLabel("Email: " + receiver.getEmail());
+    }
 
-        JPanel contentPanel = new JPanel(new GridLayout(1, 2));
+    private void setLayout() {
+        setLayout(null);
+        imageLabel.setBounds(20, 20, 300, 200);
 
-        // Product details panel
-        ProductDetail2 productDetail2 = new ProductDetail2();
-        productDetail2.setProduct(order.getProductId(), order.getQuantity());
-        contentPanel.add(productDetail2);
+        productIdLabel.setBounds(20, 240, 300, 25);
+        productPriceLabel.setBounds(20, 280, 300, 25);
+        productCountLabel.setBounds(20, 320, 300, 25);
+        productNameLabel.setBounds(20, 360, 300, 25);
+        productDescriptionLabel.setBounds(30, 390, 300, 25);
 
-        // Receiver details panel
-        JPanel receiverPanel = new JPanel(new GridBagLayout());
-        receiverPanel.setBackground(Color.WHITE);
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.anchor = GridBagConstraints.WEST;
+        add(imageLabel);
+        add(productIdLabel);
+        add(productPriceLabel);
+        add(productCountLabel);
+        add(productNameLabel);
+        add(productDescriptionLabel);
 
-        Receiver receiver = ReceiverService.findReceiverById(order.getReceiverId());
+        orderIdLabel.setBounds(400, 20, 350, 25);
+        quantityLabel.setBounds(400, 60, 350, 25);
+        statusLabel.setBounds(400, 100, 350, 25);
+        add(orderIdLabel);
+        add(quantityLabel);
+        add(statusLabel);
 
-        JLabel receiverNameLabel = createLabel("Receiver: " + receiver.getName() + " " + receiver.getSurname());
-        gbc.gridy = 0;
-        receiverPanel.add(receiverNameLabel, gbc);
+        receiverIdLabel.setBounds(400, 160, 350, 25);
+        receiverFirstNameLabel.setBounds(400, 200, 350, 25);
+        receiverLastNameLabel.setBounds(400, 240, 350, 25);
+        receiverAddressLabel.setBounds(400, 280, 350, 25);
+        receiverEmailLabel.setBounds(400, 320, 350, 25);
 
-        JLabel receiverEmailLabel = createLabel("Email: " + receiver.getEmail());
-        gbc.gridy++;
-        receiverPanel.add(receiverEmailLabel, gbc);
+        add(receiverIdLabel);
+        add(receiverFirstNameLabel);
+        add(receiverLastNameLabel);
+        add(receiverAddressLabel);
+        add(receiverEmailLabel);
+    }
 
-        JLabel receiverAddressLabel = createLabel("<html><body style='width: 300px'>Address: " + receiver.getAddress() + "</body></html>");
-        gbc.gridy++;
-        receiverPanel.add(receiverAddressLabel, gbc);
-
-        contentPanel.add(receiverPanel);
-
-        dialog.add(contentPanel);
-        dialog.setVisible(true);
+    private void setImage(String imageUrl) {
+        if (imageLabel.getWidth() > 0 && imageLabel.getHeight() > 0) {
+            File imageFile = new File(imageUrl);
+            if (imageFile.exists()) {
+                Image image = new ImageIcon(imageFile.getAbsolutePath()).getImage();
+                image = image.getScaledInstance(imageLabel.getWidth(), imageLabel.getHeight(), Image.SCALE_SMOOTH);
+                ImageIcon icon = new ImageIcon(image);
+                imageLabel.setIcon(icon);
+                imageLabel.setText("");
+                imageLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            } else {
+                imageLabel.setText("Image not available");
+            }
+        } else {
+            imageLabel.setText("Image not available");
+        }
     }
 }

@@ -1,7 +1,5 @@
 package org.project.frames.home.panels;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import org.project.models.Order;
 import org.project.models.Receiver;
 import org.project.models.Product;
@@ -13,81 +11,67 @@ import org.project.services.CargoService;
 
 import javax.swing.*;
 import java.awt.*;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class Orders extends JPanel {
-    // Constants for order panel dimensions
     private static final int ORDER_MAX_WIDTH = 1000;
     private static final int ORDER_HEIGHT = 50;
-    // List to store orders
     private List<Order> orders;
-    // Panels for displaying order details and scroll pane
     private OrderDetail orderDetail;
-    private Cargos cargosPanel;
-    private JPanel orderListPanel;
-    private JScrollPane scrollPane;
+    private JPanel ordersPanel;
+    private JPanel mainPanel;
 
-    // Constructor to initialize the Orders panel
-    public Orders(Cargos cargosPanel) {
-        this.cargosPanel = cargosPanel;
-        this.orders = getAllOrders();
+    public Orders() {
+        this.orders = OrderService.getAllOrdersForCurrentStore();
         initialize();
     }
 
-    // Method to initialize the panel components
     private void initialize() {
         setLayout(new BorderLayout());
 
-        // Initialize the order list panel with a vertical box layout
-        orderListPanel = new JPanel();
-        orderListPanel.setLayout(new BoxLayout(orderListPanel, BoxLayout.Y_AXIS));
+        mainPanel = new JPanel(new BorderLayout());
 
-        // Initialize the scroll pane for the order list panel
-        scrollPane = new JScrollPane(orderListPanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setPreferredSize(new Dimension(ORDER_MAX_WIDTH, 600));
-        add(scrollPane, BorderLayout.CENTER);
-
-        // Add orders to the list panel
+        ordersPanel = new JPanel();
+        ordersPanel.setLayout(null);
         addOrders();
 
-        // Initialize the button panel for adding new orders
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new BorderLayout());
-        buttonPanel.setPreferredSize(new Dimension(300, 100)); // Reduce size by 30%
+        JScrollPane scrollPane = new JScrollPane(ordersPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // Add button to add new orders
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        buttonPanel.setPreferredSize(new Dimension(1000, 100));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+
         JButton addButton = new JButton("Add");
-        styleAddButton(addButton);
-        addButton.setPreferredSize(new Dimension(300, 100)); // Reduce size by 30%
+        addButton.setPreferredSize(new Dimension(1000, 100));
+        addButton.setBackground(new Color(0, 120, 215));
+        addButton.setForeground(Color.WHITE);
+        addButton.setFocusPainted(false);
         addButton.addActionListener(e -> showAddDialog());
 
-        buttonPanel.add(addButton, BorderLayout.CENTER);
+        buttonPanel.add(addButton);
 
-        add(buttonPanel, BorderLayout.SOUTH);
+        JPanel buttonWrapperPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonWrapperPanel.add(buttonPanel);
+        mainPanel.add(buttonWrapperPanel, BorderLayout.SOUTH);
+
+        add(mainPanel);
     }
 
-    // Method to add orders to the list panel
     private void addOrders() {
-        orderListPanel.removeAll();
         for (Order order : orders) {
-            orderListPanel.add(createOrderPanel(order));
+            ordersPanel.add(createOrderPanel(order));
         }
-        orderListPanel.revalidate();
-        orderListPanel.repaint();
     }
 
-    // Method to create a panel for each order
     private JPanel createOrderPanel(Order order) {
         JPanel orderPanel = new JPanel(new BorderLayout());
         orderPanel.setPreferredSize(new Dimension(ORDER_MAX_WIDTH, ORDER_HEIGHT));
-        orderPanel.setMaximumSize(new Dimension(ORDER_MAX_WIDTH, ORDER_HEIGHT));
-
-        boolean isSentToCargo = CargoService.getAllCargos().stream()
-                .anyMatch(cargo -> cargo.getOrderId().equals(order.getId()));
-
+        boolean isSentToCargo = CargoService.getAllCargos().stream().anyMatch(cargo -> cargo.getOrderId().equals(order.getId()));
+        orderPanel.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
         orderPanel.setBackground(isSentToCargo ? Color.GREEN : Color.RED);
 
         JLabel orderLabel = new JLabel("Order ID: " + order.getId());
@@ -99,7 +83,7 @@ public class Orders extends JPanel {
         JButton detailsButton = new JButton("Details");
         JButton updateButton = new JButton("Update");
         JButton deleteButton = new JButton("Delete");
-        JButton cargoButton = new JButton("Send To Cargo");
+        JButton cargoButton = new JButton("Send to Cargo");
 
         styleButton(detailsButton);
         styleButton(updateButton);
@@ -113,14 +97,17 @@ public class Orders extends JPanel {
             refresh();
         });
         cargoButton.addActionListener(e -> {
-            CargoService.add(new Cargo(false, false, order.getId()));
-            JOptionPane.showMessageDialog(this, "Order has been sent to cargo.");
-            cargosPanel.refresh(); // Refresh the cargos panel
+            Cargo cargo = new Cargo(false, order.getId());
+            Boolean isAdded = CargoService.add(cargo);
+            if (isAdded) {
+                JOptionPane.showMessageDialog(this, "Order has been sent to cargo.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Order already been sent to cargo.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
             refresh();
         });
 
         if (isSentToCargo) {
-            detailsButton.setEnabled(false);
             updateButton.setEnabled(false);
             deleteButton.setEnabled(false);
             cargoButton.setEnabled(false);
@@ -136,21 +123,32 @@ public class Orders extends JPanel {
         return orderPanel;
     }
 
-    // Method to show the details dialog for an order
-    private void showDetailsDialog(Order order) {
-        orderDetail = new OrderDetail();
-        orderDetail.setOrder(order);
+    @Override
+    public void doLayout() {
+        super.doLayout();
+        if (ordersPanel != null) {
+            int y = 0;
+            int x = (ordersPanel.getWidth() - ORDER_MAX_WIDTH) / 2;
+
+            for (Component component : ordersPanel.getComponents()) {
+                component.setBounds(x, y * (ORDER_HEIGHT + 10) + ORDER_HEIGHT / 4, ORDER_MAX_WIDTH, ORDER_HEIGHT);
+                y++;
+            }
+            ordersPanel.setPreferredSize(new Dimension(
+                    ORDER_MAX_WIDTH,
+                    (y * (ORDER_HEIGHT + 10)) + ORDER_HEIGHT
+            ));
+        }
     }
 
-    // Method to show the add order dialog
     private void showAddDialog() {
         JDialog dialog = new JDialog((Frame) null, "Add Order", true);
-        dialog.setSize(800, 600);
+        dialog.setSize(600, 300);
         dialog.setLocationRelativeTo(null);
 
-        JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
-        List<Receiver> receivers = new ReceiverService().getAllReceivers();
-        List<Product> products = new ProductService().getAllProducts().stream()
+        JPanel mainPanel = new JPanel(null);
+        List<Receiver> receivers = ReceiverService.getAllReceivers();
+        List<Product> products = ProductService.getAllProducts().stream()
                 .filter(product -> product.getProductCount() > 0)
                 .collect(Collectors.toList());
 
@@ -172,133 +170,106 @@ public class Orders extends JPanel {
 
         JTextField quantityField = new JTextField();
 
-        formPanel.add(new JLabel("Receiver:"));
-        formPanel.add(receiverScrollPane);
-        formPanel.add(new JLabel("Product:"));
-        formPanel.add(productScrollPane);
-        formPanel.add(new JLabel("Quantity:"));
-        formPanel.add(quantityField);
+        JLabel receiverLabel = new JLabel("Receiver:");
+        receiverLabel.setBounds(30, 30, 80, 25);
+        receiverScrollPane.setBounds(120, 30, 400, 30);
 
-        JButton addButton = new JButton("Add");
-        styleAddButton(addButton);
+        JLabel productLabel = new JLabel("Product:");
+        productLabel.setBounds(30, 80, 80, 25);
+        productScrollPane.setBounds(120, 80, 400, 30);
+
+        JLabel quantityLabel = new JLabel("Quantity:");
+        quantityLabel.setBounds(30, 130, 80, 25);
+        quantityField.setBounds(120, 130, 400, 30);
+
+        mainPanel.add(receiverLabel);
+        mainPanel.add(receiverScrollPane);
+        mainPanel.add(productLabel);
+        mainPanel.add(productScrollPane);
+        mainPanel.add(quantityLabel);
+        mainPanel.add(quantityField);
+
+        JButton addButton = new JButton("Add Order");
+        addButton.setBounds(240, 190, 120, 35);
+        addButton.setBackground(new Color(0, 120, 215));
+        addButton.setForeground(Color.WHITE);
+        addButton.setFocusPainted(false);
+
         addButton.addActionListener(e -> {
-            String selectedReceiver = receiverList.getSelectedValue();
-            String selectedProduct = productList.getSelectedValue();
-            String quantityText = quantityField.getText();
-            if (selectedReceiver != null && selectedProduct != null && !quantityText.isEmpty()) {
-                try {
+            try {
+                String selectedReceiver = receiverList.getSelectedValue();
+                String selectedProduct = productList.getSelectedValue();
+                String quantityText = quantityField.getText();
+                if (selectedReceiver != null && selectedProduct != null && !quantityText.isEmpty()) {
                     int quantity = Integer.parseInt(quantityText);
                     if (quantity > 0) {
                         int receiverId = Integer.parseInt(selectedReceiver.split(" - ")[0].replace("Receiver Id ", ""));
                         int productId = Integer.parseInt(selectedProduct.split(" - ")[0].replace("Product Id: ", ""));
                         Order order = new Order(productId, receiverId, quantity);
                         OrderService.add(order);
-
-                        // Update product count
-                        Product product = products.stream().filter(p -> p.getId() == productId).findFirst().orElse(null);
-                        if (product != null) {
-                            product.setProductCount(product.getProductCount() - quantity);
-                            ProductService.update(product);
-                        }
-
                         refresh();
                         dialog.dispose();
                     } else {
                         JOptionPane.showMessageDialog(dialog, "Quantity must be greater than 0", "Error", JOptionPane.ERROR_MESSAGE);
                     }
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(dialog, "Quantity must be a valid number", "Error", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(dialog, "All fields must be filled", "Error", JOptionPane.ERROR_MESSAGE);
                 }
-            } else {
-                JOptionPane.showMessageDialog(dialog, "All fields must be filled", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(dialog, "Please enter a valid number for quantity", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
-        dialog.add(formPanel, BorderLayout.CENTER);
-        dialog.add(addButton, BorderLayout.SOUTH);
+        mainPanel.add(addButton);
+        dialog.add(mainPanel);
         dialog.setVisible(true);
     }
 
-    // Method to show the update order dialog
+    private void showDetailsDialog(Order order) {
+        OrderDetail orderDetail = new OrderDetail((Frame) SwingUtilities.getWindowAncestor(this), order);
+        orderDetail.setVisible(true);
+    }
+
     private void showUpdateDialog(Order order) {
         JDialog dialog = new JDialog((Frame) null, "Update Order", true);
-        dialog.setSize(800, 600);
+        dialog.setSize(300, 200);
         dialog.setLocationRelativeTo(null);
 
-        JPanel formPanel = new JPanel(new GridLayout(0, 2, 10, 10));
-        List<Receiver> receivers = new ReceiverService().getAllReceivers();
-        List<Product> products = new ProductService().getAllProducts().stream()
-                .filter(product -> product.getProductCount() > 0 || product.getId() == order.getProductId())
-                .collect(Collectors.toList());
-
-        // Create labels to display the selected receiver and product
-        JLabel receiverLabel = new JLabel();
-        receivers.stream().filter(r -> r.getId() == order.getReceiverId()).findFirst().ifPresent(receiver -> {
-            receiverLabel.setText("Receiver Id " + receiver.getId() + " - Receiver Name " + receiver.getName() + " " + receiver.getSurname());
-        });
-
-        JLabel productLabel = new JLabel();
-        products.stream().filter(p -> p.getId() == order.getProductId()).findFirst().ifPresent(product -> {
-            productLabel.setText("Product Id: " + product.getId() + " - Product Name " + product.getName());
-        });
-
+        JPanel formPanel = new JPanel(null);
         JTextField quantityField = new JTextField(String.valueOf(order.getQuantity()));
-        Receiver receiver2 = ReceiverService.findReceiverById(order.getReceiverId());
-        Product product2 = ProductService.getProductById(order.getProductId());
-        formPanel.add(new JLabel("Receiver Name and Address:                 "+ "Name: "+receiver2.getName() +" Address: "+ receiver2.getAddress()));
-        formPanel.add(receiverLabel);
-        formPanel.add(new JLabel("Product Name:                  "+"Name: " + product2.getName()));
-        formPanel.add(productLabel);
-        formPanel.add(new JLabel("Quantity:"));
+        quantityField.setBounds(150, 50, 100, 30);
+        JLabel quantityLabel = new JLabel("Quantity:");
+        quantityLabel.setBounds(50, 50, 75, 30);
+        formPanel.add(quantityLabel);
         formPanel.add(quantityField);
 
         JButton updateButton = new JButton("Update");
-        styleButton(updateButton);
+        updateButton.setBackground(new Color(0, 120, 215));
+        updateButton.setForeground(Color.WHITE);
+        updateButton.setFocusPainted(false);
+        updateButton.setBounds(100, 100, 100, 30);
         updateButton.addActionListener(e -> {
-            String quantityText = quantityField.getText();
-            if (!quantityText.isEmpty()) {
-                try {
-                    int newQuantity = Integer.parseInt(quantityText);
-                    if (newQuantity > 0) {
-                        int oldQuantity = order.getQuantity();
-                        order.setQuantity(newQuantity);
-
-                        // Update product count
-                        Product product = products.stream().filter(p -> p.getId() == order.getProductId()).findFirst().orElse(null);
-                        if (product != null) {
-                            int difference = (newQuantity - oldQuantity);
-                            product.setProductCount(product.getProductCount() - difference);
-                        }
-
-                        OrderService.update(order);
-                        refresh();
-                        dialog.dispose();
-                    } else {
-                        JOptionPane.showMessageDialog(dialog, "Quantity must be greater than 0", "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(dialog, "Quantity must be a valid number", "Error", JOptionPane.ERROR_MESSAGE);
-                }
+            int newQuantity = Integer.parseInt(quantityField.getText());
+            if (newQuantity > 0) {
+                order.setQuantity(newQuantity);
+                OrderService.update(order);
+                refresh();
+                dialog.dispose();
             } else {
-                JOptionPane.showMessageDialog(dialog, "All fields must be filled", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(dialog, "All fields must be filled and quantity must be greater than 0", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
-
         dialog.add(formPanel, BorderLayout.CENTER);
         dialog.add(updateButton, BorderLayout.SOUTH);
         dialog.setVisible(true);
     }
 
-    // Method to refresh the order list
     public void refresh() {
-        this.orders = getAllOrders();
+        this.orders = OrderService.getAllOrdersForCurrentStore();
+        ordersPanel.removeAll();
         addOrders();
-    }
-
-    // Method to get all orders from the service
-    private List<Order> getAllOrders() {
-        Type orderListType = new TypeToken<List<Order>>() {}.getType();
-        return new Gson().fromJson(OrderService.getAllOrdersJson(), orderListType);
+        revalidate();
+        repaint();
     }
 
     // Method to style buttons
