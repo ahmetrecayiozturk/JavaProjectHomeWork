@@ -10,174 +10,172 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CargoService {
-    // Cargo verilerini saklamak için kullanılan bir JSON deposu.
+    // A JSON repository used to store cargo data.
     private static final JsonRepository<Cargo> cargoRepo = new JsonRepository<>(Cargo[].class);
-    private static final JsonRepository<Product> productRepo = new JsonRepository<>(Product[].class); // Ürün verileri için JSON deposu.
-    private static final JsonRepository<Order> orderRepo = new JsonRepository<>(Order[].class); // Sipariş verileri için JSON deposu.
+    private static final JsonRepository<Product> productRepo = new JsonRepository<>(Product[].class); // JSON repository for product data.
+    private static final JsonRepository<Order> orderRepo = new JsonRepository<>(Order[].class); // JSON repository for order data.
 
-    // Constructor: Bu sınıfın bir örneği oluşturulduğunda herhangi bir işlem yapmaz.
+    // Constructor: Does not perform any action when an instance of this class is created.
     public CargoService() {}
 
     /**
-     * Yeni bir kargo ekler.
-     * - Eğer aynı ID'ye sahip bir kargo ya da sipariş ID'sine bağlı bir kargo zaten varsa ekleme işlemi başarısız olur.
-     *
-     * @param cargo Eklenmek istenen kargo nesnesi.
-     * @return Ekleme başarılıysa true, aksi takdirde false.
+     * Adds a new cargo.
+     * - If a cargo with the same ID or a cargo linked to an order ID already exists, the addition fails.
+     * cargo parameter: the cargo object to be added.
+     * Returns true if addition is successful, otherwise false.
      */
     public static boolean add(Cargo cargo) {
-        Cargo cargo1 = getCargoById(cargo.getId()); // ID'ye göre kargo sorgular.
-        Cargo cargo2 = getCargoByOrderId(cargo.getOrderId()); // Sipariş ID'sine göre kargo sorgular.
+        Cargo cargo1 = getCargoById(cargo.getId()); // Queries the cargo by ID.
+        Cargo cargo2 = getCargoByOrderId(cargo.getOrderId()); // Queries the cargo by order ID.
         if (cargo1 != null || cargo2 != null) {
-            return false; // Eğer kargo zaten mevcutsa false döndürür.
+            return false; // Returns false if cargo already exists.
         }
-        cargoRepo.save(cargo); // Kargo bilgilerini JSON deposuna kaydeder.
-        return true; // Ekleme başarılı.
+        cargoRepo.save(cargo); // Saves the cargo data to the JSON repository.
+        return true; // Addition is successful.
     }
 
     /**
-     * Mevcut bir kargo bilgisini günceller.
-     *
-     * @param cargo Güncellenmek istenen kargo nesnesi.
+     * Updates an existing cargo.
+     * @param cargo The cargo object to be updated.
      */
     public static void update(Cargo cargo) {
-        cargoRepo.update(cargo); // Kargo bilgilerini günceller.
+        cargoRepo.update(cargo); // Updates the cargo data.
     }
 
     /**
-     * Verilen ID'ye sahip kargoyu siler.
+     * Deletes a cargo by the given ID.
      *
-     * @param cargoId Silinmek istenen kargonun ID'si.
+     * @param cargoId The ID of the cargo to be deleted.
      */
     public static void delete(Integer cargoId) {
-        cargoRepo.delete(cargoId); // Belirtilen ID'ye sahip kargoyu JSON deposundan siler.
+        cargoRepo.delete(cargoId); // Deletes the cargo with the given ID from the JSON repository.
     }
 
     /**
-     * Belirtilen ID'ye sahip kargo bilgisini döndürür.
+     * Returns the cargo data for the given ID.
      *
-     * @param id Aranacak kargonun ID'si.
-     * @return Kargo nesnesi ya da bulunamazsa null.
+     * @param id The ID of the cargo to be searched.
+     * @return Cargo object or null if not found.
      */
     public static Cargo getCargoById(Integer id) {
-        List<Cargo> cargos = cargoRepo.findAll(); // Tüm kargoları JSON deposundan çeker.
+        List<Cargo> cargos = cargoRepo.findAll(); // Retrieves all cargos from the JSON repository.
         for (Cargo cargo : cargos) {
             if (cargo.getId().equals(id)) {
-                return cargo; // ID'si eşleşen kargoyu döndürür.
+                return cargo; // Returns the cargo with the matching ID.
             }
         }
-        return null; // Bulunamazsa null döndürür.
+        return null; // Returns null if not found.
     }
 
     /**
-     * Belirtilen sipariş ID'sine bağlı kargo bilgisini döndürür.
+     * Returns the cargo data for the given order ID.
      *
-     * @param orderId Aranacak siparişin ID'si.
-     * @return Kargo nesnesi ya da bulunamazsa null.
+     * @param orderId The ID of the order to be searched.
+     * @return Cargo object or null if not found.
      */
     public static Cargo getCargoByOrderId(Integer orderId) {
-        List<Cargo> cargos = cargoRepo.findAll(); // Tüm kargoları JSON deposundan çeker.
+        List<Cargo> cargos = cargoRepo.findAll(); // Retrieves all cargos from the JSON repository.
         for (Cargo cargo : cargos) {
             if (cargo.getOrderId().equals(orderId)) {
-                return cargo; // Sipariş ID'si eşleşen kargoyu döndürür.
+                return cargo; // Returns the cargo with the matching order ID.
             }
         }
-        return null; // Bulunamazsa null döndürür.
+        return null; // Returns null if not found.
     }
 
     /**
-     * Belirtilen kargoyu "iade edildi" olarak işaretler ve ürün stoğunu günceller.
+     * Marks the given cargo as "returned" and updates the product stock.
      *
-     * @param cargoId İade edilecek kargonun ID'si.
+     * @param cargoId The ID of the cargo to be returned.
      */
     public static void returnCargo(Integer cargoId) {
-        Cargo cargo = getCargoById(cargoId); // Kargo bilgilerini ID'ye göre alır.
-        if (cargo != null && !cargo.isReturned()) { // Eğer kargo iade edilmemişse işlem yapar.
-            cargo.setReturned(true); // Kargoyu iade edildi olarak işaretler.
-            update(cargo); // Güncel kargo bilgilerini kaydeder.
+        Cargo cargo = getCargoById(cargoId); // Retrieves cargo by ID.
+        if (cargo != null && !cargo.isReturned()) { // If the cargo has not been returned, process the return.
+            cargo.setReturned(true); // Marks the cargo as returned.
+            update(cargo); // Saves the updated cargo data.
 
-            Order order = orderRepo.findOne(cargo.getOrderId()); // İlgili siparişi bulur.
+            Order order = orderRepo.findOne(cargo.getOrderId()); // Finds the related order.
             if (order != null) {
-                Product product = productRepo.findOne(order.getProductId()); // Siparişle ilişkili ürünü bulur.
+                Product product = productRepo.findOne(order.getProductId()); // Finds the related product.
                 if (product != null) {
-                    product.setProductCount(product.getProductCount() + order.getQuantity()); // Ürün stoğunu iade edilen miktar kadar artırır.
-                    productRepo.update(product); // Güncellenen ürün bilgisini kaydeder.
+                    product.setProductCount(product.getProductCount() + order.getQuantity()); // Increases the product stock by the returned quantity.
+                    productRepo.update(product); // Saves the updated product data.
                 }
             }
         }
     }
 
     /**
-     * Tüm kargoları döndürür.
+     * Returns all cargos.
      *
-     * @return Tüm kargoların listesi.
+     * @return A list of all cargos.
      */
     public static List<Cargo> getAllCargos() {
-        return cargoRepo.findAll(); // Tüm kargoları JSON deposundan çeker ve döndürür.
+        return cargoRepo.findAll(); // Retrieves all cargos from the JSON repository and returns them.
     }
 
     /**
-     * Mevcut mağaza için kargoları döndürür.
+     * Returns cargos for the current store.
      *
-     * @return Mevcut mağaza ile ilişkilendirilmiş kargoların listesi.
+     * @return A list of cargos associated with the current store.
      */
     public static List<Cargo> getAllCargosForCurrentStore() {
-        Integer storeId = App.getCurrentStore().getId(); // Mevcut mağazanın ID'sini alır.
-        List<Cargo> cargos = cargoRepo.findAll(); // Tüm kargoları JSON deposundan çeker.
-        List<Cargo> storeCargos = new ArrayList<>(); // Mağazaya ait kargoları saklamak için bir liste oluşturur.
+        Integer storeId = App.getCurrentStore().getId(); // Retrieves the ID of the current store.
+        List<Cargo> cargos = cargoRepo.findAll(); // Retrieves all cargos from the JSON repository.
+        List<Cargo> storeCargos = new ArrayList<>(); // Creates a list to store cargos associated with the store.
         for (Cargo cargo : cargos) {
             if (cargo.getStoreId() != null && cargo.getStoreId().equals(storeId)) {
-                storeCargos.add(cargo); // Eğer kargo mağaza ID'siyle eşleşiyorsa listeye ekler.
+                storeCargos.add(cargo); // Adds cargos with a matching store ID to the list.
             }
         }
-        return storeCargos; // Mevcut mağaza ile ilişkilendirilmiş kargoları döndürür.
+        return storeCargos; // Returns cargos associated with the current store.
     }
 
     /**
-     * Tüm kargoları "teslim edildi" olarak işaretler.
+     * Marks all cargos as "delivered".
      */
     public static void isDelivered() {
         getAllCargos().forEach(order -> {
             if (!order.isDelivered()) {
-                order.setDelivered(true); // Teslim edilmemiş kargoları teslim edildi olarak işaretler.
+                order.setDelivered(true); // Marks undelivered cargos as delivered.
             }
         });
     }
 
     /**
-     * Tüm kargoları "teslim edilmedi" olarak işaretler.
+     * Marks all cargos as "not delivered".
      */
     public static void isNotDelivered() {
         getAllCargos().forEach(order -> {
             if (order.isDelivered()) {
-                order.setDelivered(false); // Teslim edilmiş kargoları teslim edilmedi olarak işaretler.
+                order.setDelivered(false); // Marks delivered cargos as not delivered.
             }
         });
     }
 
     /**
-     * Belirtilen ID'ye sahip kargoyu "teslim edildi" olarak işaretler.
+     * Marks the cargo with the given ID as "delivered".
      *
-     * @param id Teslim edilecek kargonun ID'si.
+     * @param id The ID of the cargo to be marked as delivered.
      */
     public static void markAsDeliveredById(Integer id) {
-        Cargo cargo = getCargoById(id); // Kargo bilgilerini ID'ye göre alır.
-        if (cargo != null && !cargo.isDelivered()) { // Eğer kargo teslim edilmemişse işlem yapar.
-            cargo.setDelivered(true); // Kargoyu teslim edildi olarak işaretler.
-            update(cargo); // Güncel bilgileri kaydeder.
+        Cargo cargo = getCargoById(id); // Retrieves cargo by ID.
+        if (cargo != null && !cargo.isDelivered()) { // If the cargo has not been delivered, process the delivery.
+            cargo.setDelivered(true); // Marks the cargo as delivered.
+            update(cargo); // Saves the updated cargo data.
         }
     }
 
     /**
-     * Belirtilen ID'ye sahip kargoyu "teslim edilmedi" olarak işaretler.
+     * Marks the cargo with the given ID as "not delivered".
      *
-     * @param id Teslim edilmemiş olarak işaretlenecek kargonun ID'si.
+     * @param id The ID of the cargo to be marked as not delivered.
      */
     public static void markAsNotDeliveredById(Integer id) {
-        Cargo cargo = getCargoById(id); // Kargo bilgilerini ID'ye göre alır.
-        if (cargo != null && cargo.isDelivered()) { // Eğer kargo teslim edilmişse işlem yapar.
-            cargo.setDelivered(false); // Kargoyu teslim edilmedi olarak işaretler.
-            update(cargo); // Güncel bilgileri kaydeder.
+        Cargo cargo = getCargoById(id); // Retrieves cargo by ID.
+        if (cargo != null && cargo.isDelivered()) { // If the cargo has been delivered, process the change.
+            cargo.setDelivered(false); // Marks the cargo as not delivered.
+            update(cargo); // Saves the updated cargo data.
         }
     }
 }

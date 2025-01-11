@@ -7,28 +7,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProductService {
-    //JsonRepository ile Product modelini parametre olarak kullanarak bir JsonRepository nesnesi oluşturuyoruz
-    private static final JsonRepository<Product> productRepo=new JsonRepository<>( Product[].class);
+    // Creating a JsonRepository object using the Product model as a parameter.
+    private static final JsonRepository<Product> productRepo = new JsonRepository<>(Product[].class);
 
     public ProductService() {}
-    //Önce productun var olup olmadığı kontrol edilir, kontrol edilme getProductById() methodu ile yapılır,
-    //ardondan bu product eğer yok ise eklenir.
+
+    // First, it is checked whether the product exists. The check is performed using the getProductById() method.
+    // If the product does not exist, it is added.
     public static boolean add(Product product) {
-        Product existingproduct = getProductById(product.getId());
-        if (existingproduct != null) {
+        Product existingProduct = getProductById(product.getId());
+        if (existingProduct != null) {
             return false;
         }
         productRepo.save(product);
         return true;
     }
-    //productların silinmesi
-    public static void delete(Integer productId) {productRepo.delete(productId);}
-    //productların update edilmesi
-    public static void update(Product product) {productRepo.update(product);}
-    //JsonRepository ile Product modelini parametre olarak kullanarak bir JsonRepository nesnesi oluşturulmuştu,
-    //bu oluşturulan nesne ile tüm productslar alınır ve bir listeye atanır, for içerisinde bu liste dönülür,
-    //ardından bu liste içindeki productlardan herhangi bir product'un id'si ile parametre olarak girilen id eşlenir ise
-    //bu product döndürülür
+
+    // Deleting products.
+    public static void delete(Integer productId) { productRepo.delete(productId); }
+
+    // Updating products.
+    public static void update(Product product) { productRepo.update(product); }
+
+    // A JsonRepository object was created using the Product model as a parameter.
+    // Using this created object, all products are retrieved and assigned to a list. This list is iterated in a for loop,
+    // and if the ID of any product in the list matches the ID entered as a parameter, that product is returned.
     public static Product getProductById(int id) {
         List<Product> products = productRepo.findAll();
         for (Product product : products) {
@@ -38,7 +41,8 @@ public class ProductService {
         }
         return null;
     }
-    //tüm productların döndürülmesi
+
+    // Returning all products.
     public static List<Product> getAllProducts() {
         return productRepo.findAll();
     }
@@ -46,9 +50,11 @@ public class ProductService {
     public static void updateProduct(Product product) {
         productRepo.update(product);
     }
-    //Product modelini parametre olarak kullanılarak oluşturulmuş JsonRepository nesnesi kullanılarak
-    //tüm product'lar döndürülür ve bir listede tutulur, ardından bu product'ların storeid'leri parametre olarak girilen
-    //storeId'ye eşit ise bu product bir storeProduct arraylist'ine eklenir ve bu liste döndürülür
+
+    // Using the JsonRepository object created with the Product model as a parameter,
+    // all products are retrieved and assigned to a list. Then, the storeId of each product
+    // is compared with the storeId entered as a parameter. If they match, the product is added
+    // to a storeProducts ArrayList, and this list is returned.
     public static List<Product> getAllStoreProducts(int storeId) {
         List<Product> products = productRepo.findAll();
         List<Product> storeProducts = new ArrayList<Product>();

@@ -9,129 +9,129 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OrderService {
-    // JsonRepository, JSON verilerini okuma, yazma ve güncelleme işlemleri için kullanılır.
-    // Order türündeki verileri yöneten bir repository.
+    // JsonRepository is used for reading, writing, and updating JSON data.
+    // A repository that manages data of type Order.
     private static final JsonRepository<Order> orderRepository = new JsonRepository<>(Order[].class);
-    // Product türündeki verileri yöneten bir repository.
+    // A repository that manages data of type Product.
     private static final JsonRepository<Product> productRepository = new JsonRepository<>(Product[].class);
 
-    // Boş constructor; hizmet sınıfının varsayılan bir örneğini oluşturmak için kullanılır.
+    // Empty constructor; used to create a default instance of the service class.
     public OrderService() {
     }
 
     /**
-     * Yeni bir siparişi sisteme ekler.
-     * - Eğer aynı ID'ye sahip bir sipariş zaten varsa işlem yapılmaz.
-     * - Ürünün mevcut stok miktarını sipariş miktarına göre azaltır.
-     * - Siparişi JSON deposuna kaydeder.
-     *  order parametresi Eklenecek sipariş nesnesi.
+     * Adds a new order to the system.
+     * - If an order with the same ID already exists, no action is taken.
+     * - Reduces the product's available stock quantity based on the order quantity.
+     * - Saves the order to the JSON repository.
+     * @param order The order object to be added.
      */
     public static void add(Order order) {
-        // Sipariş ID'sine göre mevcut bir sipariş olup olmadığını kontrol eder.
+        // Checks if an order with the given ID already exists.
         Order order1 = orderRepository.findOne(order.getId());
         if (order1 != null) {
-            return; // Eğer sipariş zaten varsa işlemi durdur.
+            return; // If the order already exists, stop the operation.
         }
-        // Siparişte belirtilen ürünü bulur.
+        // Finds the product specified in the order.
         Product product = productRepository.findOne(order.getProductId());
         if (product != null) {
-            // Ürün stoğunu sipariş miktarına göre azaltır.
+            // Reduces the product stock based on the order quantity.
             product.setProductCount(product.getProductCount() - order.getQuantity());
-            productRepository.update(product); // Stoğu günceller.
+            productRepository.update(product); // Updates the stock.
         }
-        orderRepository.save(order); // Yeni siparişi kaydeder.
+        orderRepository.save(order); // Saves the new order.
     }
 
     /**
-     * Var olan bir siparişi günceller.
-     * - Sipariş ID'sine göre eski siparişi bulur.
-     * - Eğer sipariş miktarı değişmişse, ürün stoğunu buna göre günceller.
-     * - Siparişi JSON deposunda günceller.
-     *  order parametresi Güncellenecek sipariş nesnesi.
+     * Updates an existing order.
+     * - Finds the old order by its ID.
+     * - If the order quantity has changed, updates the product stock accordingly.
+     * - Updates the order in the JSON repository.
+     * @param order The order object to be updated.
      */
     public static void update(Order order) {
-        // Güncellenmek istenen siparişi mevcut verilerden bulur.
+        // Finds the order to be updated in the existing data.
         Order oldOrder = orderRepository.findOne(order.getId());
         if (oldOrder != null) {
-            // Siparişin ait olduğu ürünü bulur.
+            // Finds the product associated with the order.
             Product product = productRepository.findOne(order.getProductId());
             if (product != null) {
-                // Eski ve yeni sipariş miktarları arasındaki farkı hesaplar.
+                // Calculates the difference between the old and new order quantities.
                 int oldQuantity = oldOrder.getQuantity();
                 int newQuantity = order.getQuantity();
                 if (newQuantity > oldQuantity) {
-                    int difference = newQuantity - oldQuantity; // Artış miktarını bulur.
+                    int difference = newQuantity - oldQuantity; // Finds the increase amount.
                     product.setProductCount(product.getProductCount() - difference);
                 } else if (newQuantity < oldQuantity) {
-                    int difference = oldQuantity - newQuantity; // Azalma miktarını bulur.
+                    int difference = oldQuantity - newQuantity; // Finds the decrease amount.
                     product.setProductCount(product.getProductCount() + difference);
                 }
-                productRepository.update(product); // Ürün stoğunu günceller.
+                productRepository.update(product); // Updates the product stock.
             }
         }
-        orderRepository.update(order); // Siparişi günceller.
+        orderRepository.update(order); // Updates the order.
     }
 
     /**
-     * Belirtilen ID'ye sahip bir siparişi siler.
-     * - Siparişin ait olduğu ürünün stoğunu geri yükler.
-     * - Siparişi JSON deposundan kaldırır.
-     * orderId parametresi Silinecek siparişin ID'si.
+     * Deletes an order with the specified ID.
+     * - Restores the stock of the product associated with the order.
+     * - Removes the order from the JSON repository.
+     * @param orderId The ID of the order to be deleted.
      */
     public static void delete(Integer orderId) {
-        // Silinmek istenen siparişi bulur.
+        // Finds the order to be deleted.
         Order order = orderRepository.findOne(orderId);
         if (order != null) {
-            // Siparişin ait olduğu ürünü bulur.
+            // Finds the product associated with the order.
             Product product = productRepository.findOne(order.getProductId());
             if (product != null) {
-                // Ürün stoğunu sipariş miktarı kadar geri yükler.
+                // Restores the product stock by the order quantity.
                 product.setProductCount(product.getProductCount() + order.getQuantity());
-                productRepository.update(product); // Güncel stoğu kaydeder.
+                productRepository.update(product); // Saves the updated stock.
             }
-            orderRepository.delete(orderId); // Siparişi JSON deposundan siler.
+            orderRepository.delete(orderId); // Removes the order from the JSON repository.
         }
     }
 
     /**
-     * Belirtilen ID'ye sahip bir siparişi getirir.
-     * id parametresi aranan siparişin ID'si.
-     * ID'ye sahip sipariş döndürülür veya bulunamazsa null döndürülür.
+     * Retrieves an order with the specified ID.
+     * @param id The ID of the order to search for.
+     * @return The order with the specified ID, or null if not found.
      */
     public static Order getOrderById(Integer id) {
-        List<Order> orders = orderRepository.findAll(); // Tüm siparişleri getirir.
+        List<Order> orders = orderRepository.findAll(); // Retrieves all orders.
         for (Order order : orders) {
             if (order.getId().equals(id)) {
-                return order; // Eğer ID eşleşirse, siparişi döndür.
+                return order; // Returns the order if the ID matches.
             }
         }
-        return null; // Hiçbir sipariş eşleşmezse null döndür.
+        return null; // Returns null if no order matches.
     }
 
     /**
-     * Tüm siparişlerin bir listesini döndürür.
+     * Returns a list of all orders.
      */
     public static List<Order> getAllOrders() {
-        return orderRepository.findAll(); // JSON deposundaki tüm siparişleri döndürür.
+        return orderRepository.findAll(); // Returns all orders in the JSON repository.
     }
 
     /**
-     * Geçerli mağazaya ait tüm siparişleri döndürür.
-     * - Mevcut mağazanın ID'sine göre filtreleme yapar.
-     * eçerli mağazaya ait siparişlerin bir listesini return eder.
+     * Returns all orders for the current store.
+     * - Filters by the current store's ID.
+     * @return A list of orders belonging to the current store.
      */
     public static List<Order> getAllOrdersForCurrentStore() {
-        // Mevcut mağazanın ID'sini alır.
+        // Retrieves the current store's ID.
         Integer storeId = App.getCurrentStore().getId();
-        List<Order> orders = orderRepository.findAll(); // Tüm siparişleri getirir.
+        List<Order> orders = orderRepository.findAll(); // Retrieves all orders.
 
         List<Order> storeOrders = new ArrayList<>();
-        // Siparişlerin mağaza ID'sine göre filtrelenmesi.
+        // Filters the orders by store ID.
         for (Order order : orders) {
             if (order.getStoreId().equals(storeId)) {
                 storeOrders.add(order);
             }
         }
-        return storeOrders; // Geçerli mağazaya ait siparişleri döndürür.
+        return storeOrders; // Returns orders belonging to the current store.
     }
 }

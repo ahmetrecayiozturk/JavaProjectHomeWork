@@ -7,17 +7,16 @@ import java.util.List;
 
 public class StoreService {
 
-    private static final JsonRepository<Store> storeRepo=new JsonRepository<>( Store[].class);
+    private static final JsonRepository<Store> storeRepo = new JsonRepository<>(Store[].class);
 
     public StoreService() {
     }
 
     public static boolean add(Store store) {
         Store existingStore = getStoreByName(store.getName());
-        if(existingStore != null){
+        if (existingStore != null) {
             return false;
-        }
-        else{
+        } else {
             storeRepo.save(store);
             return true;
         }
@@ -27,12 +26,13 @@ public class StoreService {
         storeRepo.update(store);
     }
 
-    public static void delete(Integer storeId){
+    public static void delete(Integer storeId) {
         storeRepo.delete(storeId);
     }
-    //Store parametresi kullanılarak JsonRepository nesnesi oluşturulur, bu oluşturulmuş nesne kullanılarak tüm
-    //store'ler bir listede tutulur ve bu liste for ile dönülür, bu liste içerisindeki herhangi bir store'nin id'si ile
-    //methodda girilen id parametresi eşleniyorsa o store döndürülür
+
+    // A JsonRepository object is created using the Store parameter. Using this created object,
+    // all stores are held in a list, and this list is iterated with a for loop. If the ID of
+    // any store in the list matches the ID parameter entered in the method, that store is returned.
     public static Store getStoreById(int id) {
         List<Store> stores = storeRepo.findAll();
         for (Store store : stores) {
@@ -52,7 +52,8 @@ public class StoreService {
         }
         return null;
     }
-    public static List<Store> getAllStores(){
+
+    public static List<Store> getAllStores() {
         return storeRepo.findAll();
     }
 }

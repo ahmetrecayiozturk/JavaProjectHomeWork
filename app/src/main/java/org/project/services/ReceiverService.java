@@ -6,22 +6,21 @@ import org.project.models.Receiver;
 import java.util.List;
 
 public class ReceiverService {
-    //JsonRepository ile Receiver modelini parametre olarak kullanarak bir JsonRepository nesnesi oluşturuyoruz
-    private static final JsonRepository<Receiver> receiverRepo=new JsonRepository<>( Receiver[].class);
+    // Using JsonRepository, we create a JsonRepository object with the Receiver model as a parameter.
+    private static final JsonRepository<Receiver> receiverRepo = new JsonRepository<>(Receiver[].class);
 
     public ReceiverService() {
 
     }
 
-    //servis başladığında oluşturulan jsonRepository nesnesi ile bir receiverRepo oluşturulmuştur,
-    //bu receiverRepo kullanılarak bu receiver var olan bir receiver mi kontrol ediyoruz, ardından da eğer var ise eklemiyoruz,
-    //yok ise ekliyoruz
+    // With the JsonRepository object created when the service starts, we create a receiverRepo.
+    // Using this receiverRepo, we check if the receiver already exists. If it exists, we do not add it;
+    // if it does not exist, we add it.
     public static boolean add(Receiver receiver) {
         Receiver existingReceiver = getReceiverByEmail(receiver.getEmail());
-        if(existingReceiver != null){
+        if (existingReceiver != null) {
             return false;
-        }
-        else{
+        } else {
             receiverRepo.save(receiver);
             return true;
         }
@@ -35,9 +34,9 @@ public class ReceiverService {
         receiverRepo.delete(receiverId);
     }
 
-    //servis başladığında oluşturulan jsonRepository nesnesi ile bir receiverRepo oluşturulmuştur,
-    //oluşturulan bu receiverRepo ile tüm receiverler döndürülür ve id parametresi ile receiverler içerisindeki herhangi bir
-    //reeiverin id si ile bu id parametresi eşleniyorsa o receiver döndürülüyor
+    // With the JsonRepository object created when the service starts, we create a receiverRepo.
+    // Using this receiverRepo, all receivers are returned. If the ID parameter matches the ID of any receiver
+    // in the list of receivers, that receiver is returned.
     public static Receiver findReceiverById(Integer id) {
         List<Receiver> receivers = receiverRepo.findAll();
         for (Receiver receiver : receivers) {
@@ -48,9 +47,9 @@ public class ReceiverService {
         return null;
     }
 
-    //servis başladığında oluşturulan jsonRepository nesnesi ile bir receiverRepo oluşturulmuştur,
-    //oluşturulan bu receiverRepo ile tüm receiverler döndürülür ve email parametresi ile receiverler içerisindeki herhangi bir
-    //reeiverin email'i ile bu email parametresi eşleniyorsa o receiver döndürülüyor
+    // With the JsonRepository object created when the service starts, we create a receiverRepo.
+    // Using this receiverRepo, all receivers are returned. If the email parameter matches the email of any receiver
+    // in the list of receivers, that receiver is returned.
     public static Receiver getReceiverByEmail(String email) {
         List<Receiver> receivers = receiverRepo.findAll();
         for (Receiver receiver : receivers) {
@@ -61,7 +60,7 @@ public class ReceiverService {
         return null;
     }
 
-    //tüm receiverlerin döndürülmesi
+    // Returning all receivers
     public static List<Receiver> getAllReceivers() {
         return receiverRepo.findAll();
     }

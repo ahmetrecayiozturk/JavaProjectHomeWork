@@ -12,143 +12,143 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 public class ImageService {
-    // Uygulama dizininde "images" adlı bir alt klasör oluşturulması için kullanılacak.
+    // Used to create a subfolder named "images" in the application directory.
     private static Path imageStorageDirectory = Paths.get(App.getAppDir().toString(), "images");
 
-    // Constructor: Bu sınıfın bir örneği oluşturulduğunda görüntü dizininin var olup olmadığını kontrol eder.
+    // Constructor: Checks if the image directory exists when an instance of this class is created.
     public ImageService() {
-        createImagesDirectoryIfNotExist(); // Görüntü dizinini oluştur.
+        createImagesDirectoryIfNotExist(); // Create the image directory.
     }
 
     /**
-     * Görüntülerin saklanacağı dizinin var olup olmadığını kontrol eder.
-     * Eğer dizin mevcut değilse, yeni bir dizin oluşturur.
+     * Checks whether the directory where images will be stored exists.
+     * If the directory does not exist, it creates a new directory.
      */
     private static void createImagesDirectoryIfNotExist() {
         try {
             if (!Files.exists(imageStorageDirectory)) {
-                Files.createDirectories(imageStorageDirectory); // Yeni bir dizin oluşturur.
+                Files.createDirectories(imageStorageDirectory); // Creates a new directory.
             }
         } catch (IOException e) {
-            e.printStackTrace(); // Hata durumunda hata bilgilerini ekrana yazdırır.
+            e.printStackTrace(); // Prints error details to the console in case of failure.
         }
     }
 
     /**
-     * Verilen bir görüntü dosyasını saklar.
-     * - Görüntü dosyasının uzantısını alır.
-     * - Benzersiz bir dosya adı oluşturur ve dosyayı hedef dizine taşır.
+     * Saves the given image file.
+     * - Retrieves the file extension.
+     * - Creates a unique file name and moves the file to the target directory.
      *
-     * @param imageFile Saklanacak görüntü dosyası.
-     * @return Saklanan görüntünün dosya yolu.
-     * @throws IOException Dosya işleme sırasında hata olursa fırlatılır.
+     * @param imageFile The image file to be saved.
+     * @return The file path of the saved image.
+     * @throws IOException Thrown if there is an error during file processing.
      */
     public static Path saveImage(File imageFile) throws IOException {
-        String extension = getFileExtension(imageFile); // Dosya uzantısını alır.
-        String imageFileName = Math.abs(UUID.randomUUID().hashCode()) + extension; // Benzersiz bir dosya adı oluşturur.
-        File targetFile = new File(imageStorageDirectory.toString(), imageFileName); // Hedef dosya yolu belirlenir.
-        Path imageFilePath = imageStorageDirectory.resolve(imageFileName); // Hedef dosyanın tam yolu alınır.
+        String extension = getFileExtension(imageFile); // Retrieves the file extension.
+        String imageFileName = Math.abs(UUID.randomUUID().hashCode()) + extension; // Creates a unique file name.
+        File targetFile = new File(imageStorageDirectory.toString(), imageFileName); // Defines the target file path.
+        Path imageFilePath = imageStorageDirectory.resolve(imageFileName); // Retrieves the full path of the target file.
         try {
-            Files.copy(imageFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING); // Dosya kopyalanır.
+            Files.copy(imageFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING); // Copies the file.
         } catch (IOException e) {
-            e.printStackTrace(); // Hata durumunda hata bilgilerini ekrana yazdırır.
+            e.printStackTrace(); // Prints error details to the console in case of failure.
             return null;
         }
-        return imageFilePath; // Saklanan dosyanın yolu döndürülür.
+        return imageFilePath; // Returns the path of the saved file.
     }
 
     /**
-     * Bir dosyanın uzantısını alır.
-     * - Dosya adındaki son noktanın ardından gelen kısmı döndürür.
+     * Retrieves the file extension of a file.
+     * - Returns the part after the last dot in the file name.
      *
-     * @param file Uzantısı alınacak dosya.
-     * @return Dosyanın uzantısı (örneğin, ".jpg").
+     * @param file The file whose extension is to be retrieved.
+     * @return The file extension (e.g., ".jpg").
      */
     public static String getFileExtension(File file) {
-        String fileName = file.getName(); // Dosya adını alır.
-        int dotIndex = fileName.lastIndexOf("."); // Dosya adındaki son noktayı bulur.
+        String fileName = file.getName(); // Retrieves the file name.
+        int dotIndex = fileName.lastIndexOf("."); // Finds the last dot in the file name.
         if (dotIndex > 0) {
-            return fileName.substring(dotIndex); // Uzantıyı döndürür.
+            return fileName.substring(dotIndex); // Returns the extension.
         }
-        return ""; // Uzantı bulunamazsa boş bir string döndürür.
+        return ""; // Returns an empty string if no extension is found.
     }
 
     /**
-     * Belirtilen bir ürüne ait görüntüyü siler.
+     * Deletes the image associated with a given product.
      *
-     * @param product Görüntüsü silinecek ürün.
-     * @return Görüntü başarıyla silinirse true, aksi takdirde false.
+     * @param product The product whose image will be deleted.
+     * @return True if the image was successfully deleted, otherwise false.
      */
     public static boolean deleteImage(Product product) {
-        Path imagePath = imageStorageDirectory.resolve(product.getImageUrl()); // Görüntünün tam yolu belirlenir.
+        Path imagePath = imageStorageDirectory.resolve(product.getImageUrl()); // Defines the full path of the image.
         try {
-            return Files.deleteIfExists(imagePath); // Görüntü dosyasını siler (eğer varsa).
+            return Files.deleteIfExists(imagePath); // Deletes the image file (if it exists).
         } catch (IOException e) {
-            e.printStackTrace(); // Hata durumunda hata bilgilerini ekrana yazdırır.
+            e.printStackTrace(); // Prints error details to the console in case of failure.
             return false;
         }
     }
 
     /**
-     * Belirtilen bir ürünün görüntüsünü günceller.
-     * - Eski görüntüyü siler.
-     * - Yeni görüntüyü kaydeder.
+     * Updates the image of a given product.
+     * - Deletes the old image.
+     * - Saves the new image.
      *
-     * @param product Görüntüsü güncellenecek ürün.
-     * @param image Yeni görüntü dosyası.
-     * @return Güncellenen görüntünün dosya yolu.
-     * @throws IOException Dosya işleme sırasında hata olursa fırlatılır.
+     * @param product The product whose image will be updated.
+     * @param image The new image file.
+     * @return The file path of the updated image.
+     * @throws IOException Thrown if there is an error during file processing.
      */
     public static String updateImage(Product product, File image) throws IOException {
-        if (deleteImage(product)) { // Önce eski görüntüyü siler.
-            saveImage(image); // Yeni görüntüyü kaydeder.
+        if (deleteImage(product)) { // Deletes the old image first.
+            saveImage(image); // Saves the new image.
         }
-        return product.getImageUrl(); // Ürünün güncel görüntü yolunu döndürür.
+        return product.getImageUrl(); // Returns the updated image path of the product.
     }
 
     /**
-     * Belirtilen bir ürünün görüntüsünün mevcut olup olmadığını kontrol eder.
+     * Checks if an image exists for the given product.
      *
-     * @param product Kontrol edilecek ürün.
-     * @return Görüntü mevcutsa true, değilse false.
+     * @param product The product to check for an image.
+     * @return True if the image exists, otherwise false.
      */
     public static boolean imageExists(Product product) {
-        Path imagePath = imageStorageDirectory.resolve(product.getImageUrl()); // Görüntünün tam yolu belirlenir.
-        return Files.exists(imagePath); // Görüntünün mevcut olup olmadığını kontrol eder.
+        Path imagePath = imageStorageDirectory.resolve(product.getImageUrl()); // Defines the full path of the image.
+        return Files.exists(imagePath); // Checks if the image exists.
     }
 
     /**
-     * Kullanıcının bir görüntü seçmesine izin verir.
-     * - Bir dosya seçim penceresi açar.
+     * Allows the user to choose an image.
+     * - Opens a file selection dialog.
      *
-     * @return Kullanıcının seçtiği dosya veya seçim yapılmadıysa null.
-     * @throws IOException Dosya işleme sırasında hata olursa fırlatılır.
+     * @return The file selected by the user, or null if no selection is made.
+     * @throws IOException Thrown if there is an error during file processing.
      */
     public static File chooseImage() throws IOException {
-        JFileChooser fileChooser = new JFileChooser(); // Dosya seçici oluşturur.
-        int returnValue = fileChooser.showOpenDialog(null); // Kullanıcıdan dosya seçmesini ister.
+        JFileChooser fileChooser = new JFileChooser(); // Creates a file chooser.
+        int returnValue = fileChooser.showOpenDialog(null); // Asks the user to select a file.
         if (returnValue == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile(); // Kullanıcının seçtiği dosyayı alır.
+            File selectedFile = fileChooser.getSelectedFile(); // Retrieves the file selected by the user.
             return selectedFile;
         }
-        return null; // Eğer kullanıcı seçim yapmazsa null döndürür.
+        return null; // Returns null if the user does not make a selection.
     }
 
     /**
-     * Görüntülerin saklandığı dizini döndürür.
+     * Returns the directory where images are stored.
      *
-     * @return Görüntü saklama dizininin yolu.
+     * @return The path of the image storage directory.
      */
     public static Path getImageStorageDirectory() {
-        return imageStorageDirectory; // Görüntülerin saklandığı dizinin yolu döndürülür.
+        return imageStorageDirectory; // Returns the path of the image storage directory.
     }
 
     /**
-     * Görüntülerin saklanacağı dizini ayarlar.
+     * Sets the directory where images will be stored.
      *
-     * @param imageStorageDirectory Yeni görüntü saklama dizini.
+     * @param imageStorageDirectory The new image storage directory.
      */
     public static void setImageStorageDirectory(Path imageStorageDirectory) {
-        ImageService.imageStorageDirectory = imageStorageDirectory; // Yeni dizin yolu atanır.
+        ImageService.imageStorageDirectory = imageStorageDirectory; // Sets the new directory path.
     }
 }
