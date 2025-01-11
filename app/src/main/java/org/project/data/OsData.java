@@ -1,8 +1,6 @@
 package org.project.data;
 
 import org.project.App;
-import org.project.services.ImageService;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

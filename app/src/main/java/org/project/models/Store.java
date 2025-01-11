@@ -1,22 +1,23 @@
 package org.project.models;
 
-import org.project.data.Identifiable;
+import org.project.models.interfaces.Nameable;
+import org.project.models.interfaces.Describable;
+import org.project.models.interfaces.Imageable;
 
-import java.util.UUID;
-
-public class Store implements Identifiable {
-    private Integer id;
-    private String name,address,phone;
+public class Store extends StoreItem implements Nameable, Describable, Imageable {
+    private String name;
+    private String address;
+    private String phone;
     private String description;
     private String imageUrl;
-    public Store(String name, String address, String phone,String description,String imageUrl) {
-        this.id = Math.abs(UUID.randomUUID().hashCode());
+
+    public Store(String name, String address, String phone, String description, String imageUrl) {
+        super();
         this.name = name;
         this.address = address;
         this.phone = phone;
         this.description = description;
         this.imageUrl = imageUrl;
-
     }
 
     public String getImageUrl() {
@@ -33,15 +34,6 @@ public class Store implements Identifiable {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    @Override
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getName() {

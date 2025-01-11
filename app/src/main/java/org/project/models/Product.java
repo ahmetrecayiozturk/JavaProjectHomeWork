@@ -1,32 +1,28 @@
 package org.project.models;
 
-import org.project.App;
-import org.project.data.Identifiable;
+import org.project.models.interfaces.Nameable;
+import org.project.models.interfaces.Describable;
+import org.project.models.interfaces.Imageable;
+import org.project.models.interfaces.Priceable;
 
-import java.util.UUID;
-
-public class Product implements Identifiable {
-    public Integer id;
-    public String name;
-    public String description;
-    public int storeId;
-    public String imageUrl;
-    public Double price;
-    public int productCount;
+public class Product extends StoreItem implements Nameable, Describable, Imageable, Priceable {
+    private String name;
+    private String description;
+    private String imageUrl;
+    private Double price;
+    private int productCount;
 
     public Product(String name, String description, int storeId, String imageUrl, Double price, int productCount) {
-        this.storeId= App.getCurrentStore().getId();
-        this.id = Math.abs(UUID.randomUUID().hashCode());
+        super();
         this.name = name;
         this.description = description;
-        this.storeId = storeId;
         this.imageUrl = imageUrl;
         this.price = price;
-        this.productCount=productCount;
+        this.productCount = productCount;
     }
-    public Product(){
-        this.id = Math.abs(UUID.randomUUID().hashCode());
 
+    public Product() {
+        super();
     }
 
     public int getProductCount() {
@@ -35,15 +31,6 @@ public class Product implements Identifiable {
 
     public void setProductCount(int productCount) {
         this.productCount = productCount;
-    }
-
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -60,14 +47,6 @@ public class Product implements Identifiable {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public int getStoreId() {
-        return storeId;
-    }
-
-    public void setStoreId(int storeId) {
-        this.storeId = storeId;
     }
 
     public String getImageUrl() {

@@ -29,9 +29,9 @@ public class Cargos extends JPanel {
 
     private void initialize() {
         setLayout(new BorderLayout());
-
+        
         mainPanel = new JPanel(new BorderLayout());
-
+        
         cargosPanel = new JPanel();
         cargosPanel.setLayout(null);
         addCargos();
@@ -153,20 +153,7 @@ public class Cargos extends JPanel {
 
         JPanel mainPanel = new JPanel(null);
 
-        JComboBox<Order> orderComboBox = new JComboBox<>(new DefaultComboBoxModel<>(orders.toArray(new Order[0])));
-        orderComboBox.setRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof Order) {
-                    Order order = (Order) value;
-                    Receiver receiver = ReceiverService.findReceiverById(order.getReceiverId());
-                    Product product = ProductService.getProductById(order.getProductId());
-                    setText("Order ID: " + order.getId() + " | Receiver: " + receiver.getName() + " | Product: " + product.getName());
-                }
-                return this;
-            }
-        });
+        JComboBox<Order> orderComboBox = new JComboBox<>(orders.toArray(new Order[0]));
 
         JCheckBox isDeliveredCheckBox = new JCheckBox();
         JCheckBox isReturnedCheckBox = new JCheckBox();

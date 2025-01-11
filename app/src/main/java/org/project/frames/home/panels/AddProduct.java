@@ -14,12 +14,12 @@ import java.nio.file.Path;
 
 public class AddProduct extends JPanel {
     private JLabel imageLabel;
-    public String name;
-    public String description;
-    public Double price;
-    public Integer quantity;
-    public File image;
-    public Path imagePath;
+    private String name;
+    private String description;
+    private Double price;
+    private Integer quantity;
+    private File image;
+    private Path imagePath;
     private CardLayout cardLayout;
     private JPanel cardPanel;
     private int innerPanelWith = 600;

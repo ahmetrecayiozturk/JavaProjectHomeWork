@@ -1,6 +1,6 @@
 package org.project.models;
 
-import org.project.data.Identifiable;
+import org.project.models.interfaces.Identifiable;
 
 import java.util.UUID;
 

@@ -1,7 +1,6 @@
 package org.project.frames.entry.login;
 
 import org.project.App;
-import org.project.frames.home.HomeFrame;
 import org.project.models.User;
 import org.project.services.UserService;
 
@@ -9,7 +8,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.RoundRectangle2D;
 
 public class LoginPanel extends JPanel {
     public LoginPanel(JFrame frame,CardLayout cardLayout, JPanel cardPanel) {

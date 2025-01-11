@@ -1,6 +1,5 @@
 package org.project.frames.entry.register;
 
-import org.project.App;
 import org.project.models.Store;
 import org.project.models.User;
 import org.project.services.StoreService;
@@ -10,7 +9,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.stream.Collectors;
 
 public class RegisterPanel extends JPanel {
     public RegisterPanel(CardLayout cardLayout, JPanel cardPanel) {

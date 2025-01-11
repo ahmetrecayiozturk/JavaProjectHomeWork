@@ -30,7 +30,9 @@ public class StoreService {
     public static void delete(Integer storeId){
         storeRepo.delete(storeId);
     }
-
+    //Store parametresi kullanılarak JsonRepository nesnesi oluşturulur, bu oluşturulmuş nesne kullanılarak tüm
+    //store'ler bir listede tutulur ve bu liste for ile dönülür, bu liste içerisindeki herhangi bir store'nin id'si ile
+    //methodda girilen id parametresi eşleniyorsa o store döndürülür
     public static Store getStoreById(int id) {
         List<Store> stores = storeRepo.findAll();
         for (Store store : stores) {

@@ -5,8 +5,6 @@ import org.project.frames.entry.register.RegisterPage;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 
 public class EntryFrame extends JFrame {
     public EntryFrame() {

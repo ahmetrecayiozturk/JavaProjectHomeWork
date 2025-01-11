@@ -12,8 +12,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static java.lang.Integer.valueOf;
-
 public class ProductDetail extends JPanel {
     private JTextField nameField;
     private JLabel imageLabel;

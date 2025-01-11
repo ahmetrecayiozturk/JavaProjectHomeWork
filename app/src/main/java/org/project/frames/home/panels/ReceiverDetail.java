@@ -3,7 +3,6 @@ package org.project.frames.home.panels;
 import org.project.models.Receiver;
 
 import javax.swing.*;
-import java.awt.*;
 
 public class ReceiverDetail extends JPanel {
     private JLabel receiverIdLabel;

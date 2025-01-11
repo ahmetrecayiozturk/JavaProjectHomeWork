@@ -5,8 +5,6 @@ import org.project.services.ReceiverService;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.util.List;
 
 public class Receivers extends JPanel {
@@ -36,11 +34,11 @@ public class Receivers extends JPanel {
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        buttonPanel.setPreferredSize(new Dimension(1000, 100));
+        buttonPanel.setPreferredSize(new Dimension(1000, 50));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
         JButton addButton = new JButton("Add");
-        addButton.setPreferredSize(new Dimension(1000, 100));
+        addButton.setPreferredSize(new Dimension(1000, 50));
         styleAddButton(addButton);
         addButton.addActionListener(e -> showAddDialog());
 

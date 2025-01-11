@@ -1,5 +1,4 @@
 package org.project.frames.home.panels;
-
 import org.project.models.Order;
 import org.project.models.Receiver;
 import org.project.models.Product;
@@ -11,8 +10,12 @@ import org.project.services.CargoService;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.List;
-import java.util.stream.Collectors;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JList;
 
 public class Orders extends JPanel {
     private static final int ORDER_MAX_WIDTH = 1000;
@@ -42,11 +45,11 @@ public class Orders extends JPanel {
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        buttonPanel.setPreferredSize(new Dimension(1000, 100));
+        buttonPanel.setPreferredSize(new Dimension(1000, 75));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
         JButton addButton = new JButton("Add");
-        addButton.setPreferredSize(new Dimension(1000, 100));
+        addButton.setPreferredSize(new Dimension(1000, 75));
         addButton.setBackground(new Color(0, 120, 215));
         addButton.setForeground(Color.WHITE);
         addButton.setFocusPainted(false);
@@ -147,45 +150,32 @@ public class Orders extends JPanel {
         dialog.setLocationRelativeTo(null);
 
         JPanel mainPanel = new JPanel(null);
-        List<Receiver> receivers = ReceiverService.getAllReceivers();
-        List<Product> products = ProductService.getAllProducts().stream()
-                .filter(product -> product.getProductCount() > 0)
-                .collect(Collectors.toList());
 
-        DefaultListModel<String> receiverListModel = new DefaultListModel<>();
-        for (Receiver receiver : receivers) {
-            receiverListModel.addElement("Receiver Id " + receiver.getId() + " - Receiver Name " + receiver.getName() + " " + receiver.getSurname());
-        }
-        JList<String> receiverList = new JList<>(receiverListModel);
-        receiverList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        JScrollPane receiverScrollPane = new JScrollPane(receiverList);
+        JComboBox<Receiver> receiverComboBox = new JComboBox<>(
+                ReceiverService.getAllReceivers().toArray(new Receiver[0])
+        );
 
-        DefaultListModel<String> productListModel = new DefaultListModel<>();
-        for (Product product : products) {
-            productListModel.addElement("Product Id: " + product.getId() + " - Product Name " + product.getName());
-        }
-        JList<String> productList = new JList<>(productListModel);
-        productList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        JScrollPane productScrollPane = new JScrollPane(productList);
-
+        JComboBox<Product> productComboBox = new JComboBox<>(
+                ProductService.getAllProducts().toArray(new Product[0])
+        );
         JTextField quantityField = new JTextField();
 
         JLabel receiverLabel = new JLabel("Receiver:");
         receiverLabel.setBounds(30, 30, 80, 25);
-        receiverScrollPane.setBounds(120, 30, 400, 30);
+        receiverComboBox.setBounds(120, 30, 400, 30);
 
         JLabel productLabel = new JLabel("Product:");
         productLabel.setBounds(30, 80, 80, 25);
-        productScrollPane.setBounds(120, 80, 400, 30);
+        productComboBox.setBounds(120, 80, 400, 30);
 
         JLabel quantityLabel = new JLabel("Quantity:");
         quantityLabel.setBounds(30, 130, 80, 25);
         quantityField.setBounds(120, 130, 400, 30);
 
         mainPanel.add(receiverLabel);
-        mainPanel.add(receiverScrollPane);
+        mainPanel.add(receiverComboBox);
         mainPanel.add(productLabel);
-        mainPanel.add(productScrollPane);
+        mainPanel.add(productComboBox);
         mainPanel.add(quantityLabel);
         mainPanel.add(quantityField);
 
@@ -197,26 +187,24 @@ public class Orders extends JPanel {
 
         addButton.addActionListener(e -> {
             try {
-                String selectedReceiver = receiverList.getSelectedValue();
-                String selectedProduct = productList.getSelectedValue();
-                String quantityText = quantityField.getText();
-                if (selectedReceiver != null && selectedProduct != null && !quantityText.isEmpty()) {
-                    int quantity = Integer.parseInt(quantityText);
-                    if (quantity > 0) {
-                        int receiverId = Integer.parseInt(selectedReceiver.split(" - ")[0].replace("Receiver Id ", ""));
-                        int productId = Integer.parseInt(selectedProduct.split(" - ")[0].replace("Product Id: ", ""));
-                        Order order = new Order(productId, receiverId, quantity);
-                        OrderService.add(order);
-                        refresh();
-                        dialog.dispose();
-                    } else {
-                        JOptionPane.showMessageDialog(dialog, "Quantity must be greater than 0", "Error", JOptionPane.ERROR_MESSAGE);
-                    }
+                Receiver receiver = (Receiver) receiverComboBox.getSelectedItem();
+                Product product = (Product) productComboBox.getSelectedItem();
+                int quantity = Integer.parseInt(quantityField.getText());
+
+                if (receiver != null && product != null && quantity > 0) {
+                    Order order = new Order(product.getId(), receiver.getId(), quantity);
+                    OrderService.add(order);
+                    refresh();
+                    dialog.dispose();
                 } else {
-                    JOptionPane.showMessageDialog(dialog, "All fields must be filled", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(dialog,
+                            "All fields must be filled and quantity must be greater than 0",
+                            "Error", JOptionPane.ERROR_MESSAGE);
                 }
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(dialog, "Please enter a valid number for quantity", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(dialog,
+                        "Please enter a valid number for quantity",
+                        "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -271,8 +259,6 @@ public class Orders extends JPanel {
         revalidate();
         repaint();
     }
-
-    // Method to style buttons
     private void styleButton(JButton button) {
         button.setBackground(new Color(0, 120, 215));
         button.setForeground(Color.WHITE);
@@ -280,8 +266,6 @@ public class Orders extends JPanel {
         button.setFont(new Font("Arial", Font.BOLD, 14));
         button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
     }
-
-    // Method to style buttons with a specific background color
     private void styleButton(JButton button, Color backgroundColor) {
         button.setBackground(backgroundColor);
         button.setForeground(Color.WHITE);
@@ -289,8 +273,6 @@ public class Orders extends JPanel {
         button.setFont(new Font("Arial", Font.BOLD, 14));
         button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
     }
-
-    // Method to style the add button
     private void styleAddButton(JButton button) {
         button.setBackground(new Color(0, 120, 215));
         button.setForeground(Color.WHITE);
